@@ -1,0 +1,139 @@
+<template>
+  <v-app id="app"
+         :class="{'bg-transparent': shouldTransparentBody,}"
+  >
+    <v-app-bar id="navbar"
+               flat
+               density="compact"
+               :class="{'bg-transparent': shouldTransparentBody}"
+    >
+      <template v-slot:prepend>
+        <v-avatar class="ml-2" image="icon-32x.png" size="32" />
+      </template>
+
+      <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default">KCl
+      </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn class="no-drag"
+             :icon="windowMinimizeIcon"
+             :rounded="0"
+             variant="plain"
+             @click="appWindow.minimize()"
+      />
+      <v-btn class="no-drag mr-0"
+             :icon="mdiWindowClose"
+             :rounded="0"
+             variant="plain"
+             @click="appWindow.close()"
+      />
+    </v-app-bar>
+    <router-view class="pt-12"></router-view>
+  </v-app>
+</template>
+
+<script lang="ts" setup>
+import { mdiWindowClose } from "@mdi/js";
+import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { useTheme } from "vuetify";
+import { DarkMode } from "./settings/theme/models.ts";
+import { useThemeSettings } from "./settings/theme/theme.ts";
+
+const appWindow = getCurrentWindow();
+const theme = useTheme();
+const themeSettings = useThemeSettings();
+const shouldTransparentBody = ref(false);
+const shouldCustomWindow = ref(false);
+const windowMinimizeIcon = "M20,13H4V11H20";
+
+function getDarkModeMediaQuery() {
+  return window.matchMedia("(prefers-color-scheme: dark)");
+}
+
+function setIsDark(isDark: boolean) {
+  theme.global.name.value = isDark ? "dark" : "light";
+}
+
+function detectDarkMode() {
+  switch (themeSettings.darkMode) {
+    case DarkMode.AUTO:
+      setIsDark(getDarkModeMediaQuery().matches);
+      break;
+    case DarkMode.DARK:
+      setIsDark(true);
+      break;
+    case DarkMode.LIGHT:
+      setIsDark(false);
+      break;
+  }
+}
+
+getDarkModeMediaQuery().addEventListener("change", detectDarkMode);
+detectDarkMode();
+
+invoke("get_vibrancy_state").then((vibrancyState) => {
+  if (vibrancyState !== "none") {
+    shouldTransparentBody.value = true;
+  }
+});
+
+invoke("should_custom_window").then((shouldCustom) => {
+  if (shouldCustom) {
+    shouldCustomWindow.value = true;
+  }
+});
+
+onMounted(() => {
+  document.getElementById("navbar")?.addEventListener("mousedown", (event) => {
+    const isLeftClick = event.buttons === 1;
+    const isDraggable = event.target instanceof HTMLElement && event.target.closest(".no-drag") === null;
+    if (isDraggable && isLeftClick) {
+      appWindow.startDragging();
+    }
+  });
+});
+</script>
+
+<style scoped>
+</style>
+
+<style lang="scss">
+body {
+  border: 1px solid grey;
+}
+
+#navbar {
+  border: 1px solid grey;
+  border-bottom: none;
+}
+
+body, html, #app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: clip !important;
+}
+
+#app {
+  background: rgb(var(--v-theme-surface));
+}
+
+@font-face {
+  font-family: "monocraft";
+  src: url("./fonts/Monocraft-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "monocraft";
+  src: url("./fonts/Monocraft-Light-Italic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+}
+
+.text-monocraft {
+  font-family: "monocraft", sans-serif;
+  font-weight: 300;
+}
+</style>

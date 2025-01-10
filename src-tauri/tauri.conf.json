@@ -1,0 +1,49 @@
+{
+  "productName": "kool-craft-launcher",
+  "version": "0.0.1",
+  "identifier": "cn.xor7.kcl",
+  "build": {
+    "beforeDevCommand": "pnpm dev:ui",
+    "beforeBuildCommand": "pnpm build:ui",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "title": "Kool Craft Launcher",
+        "width": 396,
+        "height": 600,
+        "minWidth": 396,
+        "minHeight": 600,
+        "decorations": false,
+        "transparent": true,
+        "resizable": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null,
+      "capabilities": [
+        "main-capability"
+      ]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "wix": {
+        "language": "zh-CN"
+      }
+    }
+  }
+}
