@@ -8,8 +8,8 @@ import { router } from "./router";
 import "./store/tauri-store.ts";
 
 createApp(App)
-.use(router)
-.use(i18n)
-.use(vuetify)
-.use(pinia)
-.mount("#app");
+    .use(router)
+    .use(i18n)
+    .use(vuetify)
+    .use(pinia)
+    .mount("#app");
