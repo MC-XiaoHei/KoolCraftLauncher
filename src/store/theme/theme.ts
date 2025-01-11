@@ -8,4 +8,6 @@ export const useThemeStore = defineStore("theme", () => {
     windowVibrancyEffect,
     darkMode,
   };
+}, {
+  persist: true,
 });

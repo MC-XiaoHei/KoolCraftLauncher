@@ -1,39 +1,62 @@
 <template>
   <div class="flex flex-col gap-3">
-    <div>
-      <canvas id="skin-viewer"></canvas>
+    <v-spacer />
+    <div v-show="noAvailableAccount" class="w-full flex justify-center">
+      <v-btn
+          variant="outlined"
+          size="large"
+          @click="router.push('/account/add')"
+      >
+        <template v-slot:prepend>
+          <v-icon size="32" :icon="mdiAccountPlusOutline" />
+        </template>
+        <span class="mt--0.25">{{ t("pages.index.label.add-account") }}</span>
+      </v-btn>
+    </div>
+    <div class="pos-relative overflow-clip flex-grow-1000"
+         v-show="!noAvailableAccount"
+         ref="skinViewerContainer"
+         v-resize="resizeSkinViewer"
+    >
+      <canvas class="pos-absolute top-1/2 left-1/2 transform -translate-1/2"
+              id="skin-viewer"
+      ></canvas>
     </div>
     <v-spacer />
     <div class="w-full text-center text-monocraft">
-      <span v-if="accountStore.currentAccount === null">
+      <span v-if="noAvailableAccount">
         {{ t("pages.index.label.no-available-account") }}
       </span>
       <span v-else>
         [{{
           t(`pages.index.label.account-type.${ accountStore.currentAccountTypeLabel() }`)
-        }}]&thinsp;{{ accountStore.currentAccount.name }}
+        }}]&thinsp;{{ accountStore.currentAccount!.name }}
       </span>
     </div>
     <div class="flex gap-3">
-      <v-btn :prepend-icon="mdiCompassOutline"
-             class="flex-grow !h-full justify-start"
+      <v-btn class="flex-grow !h-full justify-start"
              size="x-large"
              variant="tonal"
       >
+        <template v-slot:prepend>
+          <v-icon class="ml--1" :icon="mdiCompassOutline" size="32" />
+        </template>
         <span class="mt--1">
           {{ t("pages.index.label.explore-resources") }}
         </span>
       </v-btn>
       <v-btn
-          :icon="mdiCog"
-          rounded
+          size="48"
           variant="tonal"
-      />
+      >
+        <v-icon :icon="mdiCog" size="32" />
+      </v-btn>
       <v-btn
-          :icon="mdiApps"
-          rounded
+          size="48"
           variant="tonal"
-      />
+      >
+        <v-icon :icon="mdiApps" size="32" />
+      </v-btn>
     </div>
     <div class="flex rounded-1 overflow-clip h-18">
       <v-btn :rounded="false"
@@ -46,26 +69,70 @@
           <span class="text-medium-emphasis text-transform-none">1.21.4-RE:Vanilla-1.0.0</span>
         </div>
       </v-btn>
-      <v-btn :icon="mdiChevronDoubleUp"
-             :rounded="false"
-             class="!h-18 !w-12"
-             size="x-large"
-             variant="tonal"
-      />
+      <v-btn
+          :rounded="false"
+          class="!h-18 !w-12"
+          size="48"
+          variant="tonal"
+      >
+        <v-icon :icon="mdiChevronDoubleUp" size="32" />
+      </v-btn>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { mdiApps, mdiChevronDoubleUp, mdiCog, mdiCompassOutline } from "@mdi/js";
-import { useAccountStore } from "../store/account/account.ts";
+import { mdiAccountPlusOutline, mdiApps, mdiChevronDoubleUp, mdiCog, mdiCompassOutline } from "@mdi/js";
+import { SkinViewer, WalkingAnimation } from "skinview3d";
+import { AccountProviders, useAccountStore } from "../store/account/account.ts";
 
 const { t } = useI18n();
 const accountStore = useAccountStore();
-</script>
+const router = useRouter();
+const noAvailableAccount = computed(() => accountStore.currentAccount === null);
+const skinViewerContainer = ref<HTMLDivElement | null>(null);
+let skinViewer: SkinViewer;
 
-<style lang="scss" scoped>
-.text-transform-none {
-  text-transform: none;
+function updateSkinViewerSkin() {
+  if (accountStore.currentAccount) {
+    const provider = AccountProviders.get(accountStore.currentAccount);
+    skinViewer.loadSkin(provider.skinUrl(accountStore.currentAccount));
+    const capeUrl = provider.capeUrl(accountStore.currentAccount);
+    if (capeUrl) {
+      skinViewer.loadCape(capeUrl);
+    }
+  }
 }
-</style>
+
+function resizeSkinViewer() {
+  if (skinViewerContainer.value && skinViewer) {
+    skinViewer.width = skinViewerContainer.value.clientWidth;
+    skinViewer.height = skinViewerContainer.value.clientHeight;
+  }
+}
+
+onMounted(() => {
+  skinViewer = new SkinViewer({
+    canvas: document.getElementById("skin-viewer") as HTMLCanvasElement,
+    width: 200,
+    height: 200,
+    animation: new WalkingAnimation(),
+    pixelRatio: window.devicePixelRatio * 2,
+  });
+
+  skinViewer.camera.rotation.x = -0.62;
+  skinViewer.camera.rotation.y = 0.534;
+  skinViewer.camera.rotation.z = 0.348;
+  skinViewer.camera.position.x = 30.5;
+  skinViewer.camera.position.y = 22.0;
+  skinViewer.camera.position.z = 42.0;
+
+  skinViewer.zoom = 0.85;
+  skinViewer.animation!.speed = 0.5;
+
+  updateSkinViewerSkin();
+  resizeSkinViewer();
+});
+
+watch(() => accountStore.currentAccount, () => updateSkinViewerSkin());
+</script>

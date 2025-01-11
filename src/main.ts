@@ -1,11 +1,10 @@
 import "vuetify/styles";
 import "virtual:uno.css";
 import App from "./App.vue";
-import { i18n } from "./plugins/i18n.ts";
-import { pinia } from "./plugins/pinia.ts";
-import { vuetify } from "./plugins/vuetify.ts";
-import { router } from "./router";
-import "./store/tauri-store.ts";
+import { i18n } from "./plugins/i18n";
+import { pinia } from "./plugins/pinia";
+import { router } from "./plugins/router";
+import { vuetify } from "./plugins/vuetify";
 
 createApp(App)
     .use(router)

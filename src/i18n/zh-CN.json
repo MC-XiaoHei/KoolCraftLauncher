@@ -17,10 +17,28 @@
     "account": {
       "add": {
         "title": "添加账号",
+        "label": {
+          "microsoft": "微软账号",
+          "offline": "离线账号",
+          "auth-lib": "外置账号",
+          "uni-pass": "统一通行证账号"
+        },
         "offline": {
-          "title": "添加离线账号"
+          "title": "添加离线账号",
+          "label": {
+            "name-field": "用户名",
+            "support-mojang-when-conditions-allow": "在条件允许的情况下支持正版",
+            "add-account": "添加账号",
+            "username-required": "用户名不能为空",
+            "username-too-short": "用户名不能短于 3 个字符",
+            "username-invalid-characters": "用户名只能包含字母、数字和下划线",
+            "username-already-exists": "同名账户已存在"
+          }
         }
       }
+    },
+    "empty": {
+      "title": ""
     }
   }
 }

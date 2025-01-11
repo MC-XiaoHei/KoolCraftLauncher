@@ -1,54 +1,85 @@
 <template>
-  <v-app id="app"
-         :class="{
-            'bg-transparent': shouldTransparentBody,
-            'border': shouldCustomWindow,
-         }"
-  >
-    <v-app-bar id="navbar"
-               :class="{'bg-transparent': shouldTransparentBody}"
-               density="compact"
-               flat
+  <keep-alive>
+    <v-app id="app"
+           :class="{
+              'bg-transparent': shouldTransparentBody,
+              'border': shouldCustomWindow,
+            }"
     >
-      <template v-slot:prepend>
-        <v-avatar class="ml-2" image="icon-32x.png" size="32" />
-      </template>
+      <v-app-bar id="navbar"
+                 :class="{
+                    'bg-transparent': shouldTransparentBody,
+                    'border': shouldCustomWindow,
+                  }"
+                 density="compact"
+                 flat
+      >
+        <template v-slot:prepend>
+          <v-avatar v-show="isIndexPage" class="ml-2" image="/icon-32x.png" size="32" />
+          <v-btn v-show="!isIndexPage"
+                 class="ml-2"
+                 size="32"
+                 variant="plain"
+                 rounded
+                 :icon="mdiArrowLeft"
+                 @click="router.back"
+          />
+        </template>
 
-      <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default">KCl
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn :icon="windowMinimizeIcon"
-             :rounded="0"
-             class="no-drag"
-             variant="plain"
-             @click="appWindow.minimize()"
-      />
-      <v-btn :icon="mdiWindowClose"
-             :rounded="0"
-             class="no-drag mr-0"
-             variant="plain"
-             @click="appWindow.close()"
-      />
-    </v-app-bar>
-    <div class="pt-18 px-8 pb-6 h-full">
-      <router-view class="w-full h-full"></router-view>
-    </div>
-  </v-app>
+        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default">
+          {{ toolbarTitle }}
+        </v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn :icon="windowMinimizeIcon"
+               :rounded="0"
+               class="no-drag"
+               variant="plain"
+               @click="appWindow.minimize()"
+        />
+        <v-btn :icon="mdiWindowClose"
+               :rounded="0"
+               class="no-drag mr-0"
+               variant="plain"
+               @click="appWindow.close()"
+        />
+      </v-app-bar>
+      <div class="pt-18 px-8 pb-6 h-full">
+        <router-view class="w-full h-full"></router-view>
+      </div>
+    </v-app>
+  </keep-alive>
+
 </template>
 
 <script lang="ts" setup>
-import { mdiWindowClose } from "@mdi/js";
+import { mdiArrowLeft, mdiWindowClose } from "@mdi/js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useTheme } from "vuetify";
 import { DarkMode } from "./store/theme/models.ts";
 import { useThemeStore } from "./store/theme/theme.ts";
 
+const { t } = useI18n();
 const appWindow = getCurrentWindow();
 const theme = useTheme();
 const themeSettings = useThemeStore();
+const router = useRouter();
 const shouldTransparentBody = ref(false);
 const shouldCustomWindow = ref(false);
+const isIndexPage = computed(() => router.currentRoute.value.name === "/");
+const toolbarTitle = computed(() => {
+  if (isIndexPage.value || !router.currentRoute.value.name) {
+    return "KCl";
+  }
+  let routeName = (router.currentRoute.value.name as string).replace(/\//g, ".");
+  if (!routeName.startsWith(".")) {
+    routeName = `.${ routeName }`;
+  }
+  if (!routeName.endsWith(".")) {
+    routeName += ".";
+  }
+  return t(`pages${ routeName }title`);
+});
 const windowMinimizeIcon = "M20,13H4V11H20";
 
 function getDarkModeMediaQuery() {
@@ -99,9 +130,6 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-</style>
-
 <style lang="scss">
 body {
   border-radius: 8px;
@@ -109,10 +137,11 @@ body {
 
 .border {
   border: 1px solid grey;
+  border-radius: 8px;
 }
 
 #navbar {
-  border-bottom: none;
+  border-bottom: none !important;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
@@ -145,5 +174,22 @@ body, html, #app {
 .text-monocraft {
   font-family: "monocraft", sans-serif;
   font-weight: 300;
+}
+
+.text-transform-none {
+  text-transform: none;
+}
+
+.custom-btn {
+  display: block !important;
+  position: relative;
+}
+
+.custom-btn :deep(.v-btn__content) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>

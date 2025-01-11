@@ -12,7 +12,6 @@
     "core:window:allow-close",
     "core:event:allow-listen",
     "core:event:default",
-    "store:default",
     {
       "identifier": "http:default",
       "allow": [

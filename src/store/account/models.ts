@@ -1,16 +1,16 @@
-export const AccountNamespace = {
-  Microsoft: "microsoft",
-  Offline: "offline",
-  UniPass(server: string) {
-    return `uni-pass@${ server }`;
-  },
-  AuthLib(server: string) {
-    return `auth-lib@${ server }`;
-  },
-};
+export enum AccountType {
+  Microsoft = "microsoft",
+  Offline = "offline",
+  UniPass = "uni-pass",
+  AuthLib = "auth-lib",
+}
 
 export interface Account {
+  type: AccountType;
   namespace: string;
-  uuid: string | undefined;
+  uuid: string;
   name: string;
+}
+
+export interface OfflineAccount extends Account {
 }
