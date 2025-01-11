@@ -21,6 +21,32 @@
       <canvas class="pos-absolute top-1/2 left-1/2 transform -translate-1/2"
               id="skin-viewer"
       ></canvas>
+      <div v-if="!noAvailableAccount"
+           class="pos-absolute opacity-75 rounded-1 overflow-clip h-7"
+      >
+        <v-btn-group>
+          <v-btn
+              size="28"
+              variant="tonal"
+              v-show="accountStore.currentAccount?.type !== AccountType.Offline"
+          >
+            <v-icon :icon="mdiHanger" size="18" />
+          </v-btn>
+          <v-btn
+              size="28"
+              variant="tonal"
+              v-show="accountStore.currentAccount?.type !== AccountType.Offline"
+          >
+            <v-icon :icon="mdiPencilOutline" size="18" />
+          </v-btn>
+          <v-btn
+              size="28"
+              variant="tonal"
+          >
+            <v-icon :icon="mdiFormatListBulletedType" size="18" />
+          </v-btn>
+        </v-btn-group>
+      </div>
     </div>
     <v-spacer />
     <div class="w-full text-center text-monocraft">
@@ -82,9 +108,19 @@
 </template>
 
 <script lang="ts" setup>
-import { mdiAccountPlusOutline, mdiApps, mdiChevronDoubleUp, mdiCog, mdiCompassOutline } from "@mdi/js";
+import {
+  mdiAccountPlusOutline,
+  mdiApps,
+  mdiChevronDoubleUp,
+  mdiCog,
+  mdiCompassOutline,
+  mdiFormatListBulletedType,
+  mdiHanger,
+  mdiPencilOutline,
+} from "@mdi/js";
 import { SkinViewer, WalkingAnimation } from "skinview3d";
 import { AccountProviders, useAccountStore } from "../store/account/account.ts";
+import { AccountType } from "../store/account/models.ts";
 
 const { t } = useI18n();
 const accountStore = useAccountStore();
@@ -96,10 +132,12 @@ let skinViewer: SkinViewer;
 function updateSkinViewerSkin() {
   if (accountStore.currentAccount) {
     const provider = AccountProviders.get(accountStore.currentAccount);
-    skinViewer.loadSkin(provider.skinUrl(accountStore.currentAccount));
-    const capeUrl = provider.capeUrl(accountStore.currentAccount);
-    if (capeUrl) {
-      skinViewer.loadCape(capeUrl);
+    if (skinViewer) {
+      skinViewer.loadSkin(provider.skinUrl(accountStore.currentAccount));
+      const capeUrl = provider.capeUrl(accountStore.currentAccount);
+      if (capeUrl) {
+        skinViewer.loadCape(capeUrl);
+      }
     }
   }
 }

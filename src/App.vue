@@ -43,7 +43,7 @@
                @click="appWindow.close()"
         />
       </v-app-bar>
-      <div class="pt-18 px-8 pb-6 h-full">
+      <div class="pt-12 px-8 pb-6 h-full">
         <router-view class="w-full h-full"></router-view>
       </div>
     </v-app>
