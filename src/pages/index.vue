@@ -15,42 +15,42 @@
       </span>
     </div>
     <div class="flex gap-3">
-      <v-btn variant="tonal"
-             size="x-large"
+      <v-btn :prepend-icon="mdiCompassOutline"
              class="flex-grow !h-full justify-start"
-             :prepend-icon="mdiCompassOutline"
+             size="x-large"
+             variant="tonal"
       >
         <span class="mt--1">
           {{ t("pages.index.label.explore-resources") }}
         </span>
       </v-btn>
       <v-btn
-          variant="tonal"
-          rounded
           :icon="mdiCog"
+          rounded
+          variant="tonal"
       />
       <v-btn
-          variant="tonal"
-          rounded
           :icon="mdiApps"
+          rounded
+          variant="tonal"
       />
     </div>
     <div class="flex rounded-1 overflow-clip h-18">
-      <v-btn variant="tonal"
+      <v-btn :rounded="false"
              class="flex-grow !h-18 justify-start"
-             :rounded="false"
              stacked
+             variant="tonal"
       >
         <div class="items-start flex flex-col">
           <span class="text-h5">{{ t("pages.index.label.launch-game") }}</span>
           <span class="text-medium-emphasis text-transform-none">1.21.4-RE:Vanilla-1.0.0</span>
         </div>
       </v-btn>
-      <v-btn size="x-large"
-             class="!h-18 !w-12"
-             variant="tonal"
+      <v-btn :icon="mdiChevronDoubleUp"
              :rounded="false"
-             :icon="mdiChevronDoubleUp"
+             class="!h-18 !w-12"
+             size="x-large"
+             variant="tonal"
       />
     </div>
   </div>

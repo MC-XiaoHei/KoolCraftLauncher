@@ -1,14 +1,14 @@
 export enum WindowVibrancyEffect {
-  AUTO = 'auto',
-  NONE = 'none',
-  BLUR = 'blur',
-  ACRYLIC = 'acrylic',
-  MICA = 'mica',
-  VIBRANCY = 'vibrancy',
+  AUTO = "auto",
+  NONE = "none",
+  BLUR = "blur",
+  ACRYLIC = "acrylic",
+  MICA = "mica",
+  VIBRANCY = "vibrancy",
 }
 
 export enum DarkMode {
-  AUTO = 'auto',
-  LIGHT = 'light',
-  DARK = 'dark',
+  AUTO = "auto",
+  LIGHT = "light",
+  DARK = "dark",
 }

@@ -6,9 +6,9 @@
          }"
   >
     <v-app-bar id="navbar"
-               flat
-               density="compact"
                :class="{'bg-transparent': shouldTransparentBody}"
+               density="compact"
+               flat
     >
       <template v-slot:prepend>
         <v-avatar class="ml-2" image="icon-32x.png" size="32" />
@@ -17,15 +17,15 @@
       <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default">KCl
       </v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn class="no-drag"
-             :icon="windowMinimizeIcon"
+      <v-btn :icon="windowMinimizeIcon"
              :rounded="0"
+             class="no-drag"
              variant="plain"
              @click="appWindow.minimize()"
       />
-      <v-btn class="no-drag mr-0"
-             :icon="mdiWindowClose"
+      <v-btn :icon="mdiWindowClose"
              :rounded="0"
+             class="no-drag mr-0"
              variant="plain"
              @click="appWindow.close()"
       />
@@ -112,16 +112,16 @@ body {
 }
 
 #navbar {
+  border-bottom: none;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  border-bottom: none;
 }
 
 body, html, #app {
+  overflow: clip !important;
   width: 100%;
   height: 100%;
   margin: 0;
-  overflow: clip !important;
 }
 
 #app {
