@@ -1,6 +1,6 @@
 import { DarkMode, WindowVibrancyEffect } from "./models.ts";
 
-export const useThemeSettings = defineStore("theme", () => {
+export const useThemeStore = defineStore("theme", () => {
   const windowVibrancyEffect = ref(WindowVibrancyEffect.AUTO);
   const darkMode = ref(DarkMode.AUTO);
 

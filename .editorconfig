@@ -1,12 +1,12 @@
 [*]
 charset = utf-8
 end_of_line = crlf
-indent_size = 4
+indent_size = 2
 indent_style = space
 insert_final_newline = false
 max_line_length = 120
 tab_width = 4
-ij_continuation_indent_size = 8
+ij_continuation_indent_size = 4
 ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
 ij_formatter_tags_enabled = true
@@ -14,9 +14,7 @@ ij_smart_tabs = false
 ij_visual_guides = 
 ij_wrap_on_typing = false
 
-[*.css]
-indent_size = 2
-ij_continuation_indent_size = 4
+[{*.css,*.vue}]
 ij_css_align_closing_brace_with_properties = false
 ij_css_blank_lines_around_nested_selector = 1
 ij_css_blank_lines_between_blocks = 1
@@ -36,8 +34,7 @@ ij_css_space_before_opening_brace = true
 ij_css_use_double_quotes = true
 ij_css_value_alignment = do_not_align
 
-[*.sass]
-indent_size = 2
+[{*.sass,*.vue}]
 ij_sass_align_closing_brace_with_properties = false
 ij_sass_blank_lines_around_nested_selector = 1
 ij_sass_blank_lines_between_blocks = 1
@@ -58,9 +55,7 @@ ij_sass_space_before_opening_brace = true
 ij_sass_use_double_quotes = true
 ij_sass_value_alignment = 0
 
-[*.scss]
-indent_size = 2
-ij_continuation_indent_size = 4
+[{*.scss,*.vue}]
 ij_scss_align_closing_brace_with_properties = false
 ij_scss_blank_lines_around_nested_selector = 1
 ij_scss_blank_lines_between_blocks = 1
@@ -83,9 +78,7 @@ ij_scss_use_double_quotes = true
 ij_scss_value_alignment = 0
 
 [*.vue]
-indent_size = 2
 tab_width = 2
-ij_continuation_indent_size = 4
 ij_vue_indent_children_of_top_level = template
 ij_vue_interpolation_new_line_after_start_delimiter = true
 ij_vue_interpolation_new_line_before_end_delimiter = true
@@ -120,9 +113,7 @@ ij_xml_space_around_equals_in_attribute = false
 ij_xml_space_inside_empty_tag = false
 ij_xml_text_wrap = normal
 
-[{*.ats,*.cts,*.mts,*.ts}]
-indent_size = 2
-ij_continuation_indent_size = 4
+[{*.ats,*.cts,*.mts,*.ts,*.vue}]
 ij_typescript_align_imports = false
 ij_typescript_align_multiline_array_initializer_expression = false
 ij_typescript_align_multiline_binary_operation = false
@@ -299,9 +290,7 @@ ij_typescript_while_brace_force = always
 ij_typescript_while_on_new_line = false
 ij_typescript_wrap_comments = false
 
-[{*.cjs,*.es6,*.js,*.mjs}]
-indent_size = 2
-ij_continuation_indent_size = 4
+[{*.cjs,*.es6,*.js,*.mjs,*.vue}]
 ij_javascript_align_imports = false
 ij_javascript_align_multiline_array_initializer_expression = false
 ij_javascript_align_multiline_binary_operation = false
@@ -475,7 +464,6 @@ ij_javascript_while_on_new_line = false
 ij_javascript_wrap_comments = false
 
 [{*.har,*.jsb2,*.jsb3,*.json,*.jsonc,*.postman_collection,*.postman_environment,.babelrc,.eslintrc,.prettierrc,.stylelintrc,.ws-context,jest.config}]
-indent_size = 2
 ij_json_array_wrapping = split_into_lines
 ij_json_keep_blank_lines_in_code = 0
 ij_json_keep_indents_on_empty_lines = false
@@ -491,9 +479,7 @@ ij_json_spaces_within_braces = false
 ij_json_spaces_within_brackets = false
 ij_json_wrap_long_lines = false
 
-[{*.htm,*.html,*.sht,*.shtm,*.shtml}]
-indent_size = 2
-ij_continuation_indent_size = 4
+[{*.htm,*.html,*.sht,*.shtm,*.shtml,*.vue}]
 ij_html_add_new_line_before_tags = body,div,p,form,h1,h2,h3
 ij_html_align_attributes = true
 ij_html_align_text = true
@@ -540,12 +526,9 @@ ij_markdown_wrap_text_if_long = true
 ij_markdown_wrap_text_inside_blockquotes = true
 
 [{*.toml,Cargo.lock,Cargo.toml.orig,Gopkg.lock,Pipfile,poetry.lock}]
-indent_size = 2
-ij_continuation_indent_size = 4
 ij_toml_keep_indents_on_empty_lines = false
 
 [{*.yaml,*.yml}]
-indent_size = 2
 ij_yaml_align_values_properties = do_not_align
 ij_yaml_autoinsert_sequence_marker = true
 ij_yaml_block_mapping_on_new_line = false

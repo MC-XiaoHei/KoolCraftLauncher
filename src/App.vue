@@ -1,6 +1,9 @@
 <template>
   <v-app id="app"
-         :class="{'bg-transparent': shouldTransparentBody,}"
+         :class="{
+            'bg-transparent': shouldTransparentBody,
+            'border': shouldCustomWindow,
+         }"
   >
     <v-app-bar id="navbar"
                flat
@@ -27,7 +30,9 @@
              @click="appWindow.close()"
       />
     </v-app-bar>
-    <router-view class="pt-12"></router-view>
+    <div class="pt-18 px-8 pb-6 h-full">
+      <router-view class="w-full h-full"></router-view>
+    </div>
   </v-app>
 </template>
 
@@ -36,12 +41,12 @@ import { mdiWindowClose } from "@mdi/js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { useTheme } from "vuetify";
-import { DarkMode } from "./settings/theme/models.ts";
-import { useThemeSettings } from "./settings/theme/theme.ts";
+import { DarkMode } from "./store/theme/models.ts";
+import { useThemeStore } from "./store/theme/theme.ts";
 
 const appWindow = getCurrentWindow();
 const theme = useTheme();
-const themeSettings = useThemeSettings();
+const themeSettings = useThemeStore();
 const shouldTransparentBody = ref(false);
 const shouldCustomWindow = ref(false);
 const windowMinimizeIcon = "M20,13H4V11H20";
@@ -99,11 +104,16 @@ onMounted(() => {
 
 <style lang="scss">
 body {
+  border-radius: 8px;
+}
+
+.border {
   border: 1px solid grey;
 }
 
 #navbar {
-  border: 1px solid grey;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   border-bottom: none;
 }
 

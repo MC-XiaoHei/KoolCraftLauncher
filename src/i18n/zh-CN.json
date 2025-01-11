@@ -1,0 +1,26 @@
+{
+  "pages": {
+    "index": {
+      "label": {
+        "account-type": {
+          "microsoft": "微软",
+          "offline": "离线",
+          "auth-lib": "外置",
+          "uni-pass": "通行证"
+        },
+        "add-account": "添加账号",
+        "explore-resources": "探索资源",
+        "launch-game": "启动游戏",
+        "no-available-account": "没有可用的账号"
+      }
+    },
+    "account": {
+      "add": {
+        "title": "添加账号",
+        "offline": {
+          "title": "添加离线账号"
+        }
+      }
+    }
+  }
+}
