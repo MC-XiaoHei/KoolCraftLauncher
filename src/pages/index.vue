@@ -28,6 +28,7 @@
           <v-btn
               size="28"
               variant="tonal"
+              v-tooltip:bottom="t('pages.index.label.change-skin-tooltip')"
               v-show="accountStore.currentAccount?.type !== AccountType.Offline"
           >
             <v-icon :icon="mdiHanger" size="18" />
@@ -35,6 +36,7 @@
           <v-btn
               size="28"
               variant="tonal"
+              v-tooltip:bottom="t('pages.index.label.modify-account-info-tooltip')"
               v-show="accountStore.currentAccount?.type !== AccountType.Offline"
           >
             <v-icon :icon="mdiPencilOutline" size="18" />
@@ -42,6 +44,8 @@
           <v-btn
               size="28"
               variant="tonal"
+              v-tooltip:bottom="t('pages.index.label.account-list-tooltip')"
+              @click="router.push('/account/list')"
           >
             <v-icon :icon="mdiFormatListBulletedType" size="18" />
           </v-btn>

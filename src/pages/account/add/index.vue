@@ -2,6 +2,7 @@
   <div class="flex flex-col gap-3">
     <v-btn size="x-large"
            variant="outlined"
+           disabled
            class="!h-16 custom-btn"
     >
       <template v-slot:default>
@@ -29,6 +30,7 @@
     </v-btn>
     <v-btn size="x-large"
            variant="outlined"
+           disabled
            class="!h-16 custom-btn"
     >
       <template v-slot:default>
@@ -42,6 +44,7 @@
     </v-btn>
     <v-btn size="x-large"
            variant="outlined"
+           disabled
            class="!h-16 custom-btn"
     >
       <template v-slot:default>
