@@ -119,7 +119,8 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
 			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Success)
 				.unwrap();
 		}
-		Err(_) => {
+		Err(e) => {
+			eprintln!("Error: {}", e);
 			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Error)
 				.unwrap();
 		}
@@ -129,11 +130,9 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
 async fn do_auth_internal(auth_code: &str) -> Result<(), Box<dyn std::error::Error>> {
 	let client = reqwest::Client::new();
 	let (access_token, refresh_token) = get_access_token(&client, auth_code).await?;
-	println!("access_token: {}", access_token);
-	println!("refresh_token: {}", refresh_token);
 	let (xbl_token, uhs) = get_xbl_token(&client, &access_token).await?;
-	println!("xbl_token: {}", xbl_token);
-	println!("uhs: {}", uhs);
+	let xsts_token = get_xsts_token(&client, &xbl_token).await?;
+	println!("xsts_token: {}", xsts_token);
 	Ok(())
 }
 
@@ -194,7 +193,40 @@ async fn get_xbl_token(
 		let body: HashMap<String, Value> = res.json().await?;
 		let token = body.get("Token").unwrap().to_string();
 		let uhs = body.get("DisplayClaims").unwrap()["xui"][0]["uhs"].to_string();
-		Ok((token, uhs))
+		Ok((
+			token[1..token.len() - 1].parse().unwrap(),
+			uhs[1..uhs.len() - 1].parse().unwrap(),
+		))
+	} else {
+		Err(format!("Request failed with status: {}", res.status()).into())
+	}
+}
+
+async fn get_xsts_token(
+	client: &reqwest::Client,
+	xbl_token: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+	let json_data = json!({
+		"Properties": {
+			"SandboxId": "RETAIL",
+			"UserTokens": [xbl_token],
+		},
+		"RelyingParty": "rp://api.minecraftservices.com/",
+		"TokenType": "JWT",
+	});
+
+	let res = client
+		.post("https://xsts.auth.xboxlive.com/xsts/authorize")
+		.json(&json_data)
+		.header("Content-Type", "application/json")
+		.header("Accept", "application/json")
+		.send()
+		.await?;
+
+	if res.status().is_success() {
+		let body: HashMap<String, Value> = res.json().await?;
+		let token = body.get("Token").unwrap().to_string();
+		Ok(token[1..token.len() - 1].parse().unwrap())
 	} else {
 		Err(format!("Request failed with status: {}", res.status()).into())
 	}
