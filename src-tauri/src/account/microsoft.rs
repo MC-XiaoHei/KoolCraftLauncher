@@ -132,7 +132,8 @@ async fn do_auth_internal(auth_code: &str) -> Result<(), Box<dyn std::error::Err
 	let (access_token, refresh_token) = get_access_token(&client, auth_code).await?;
 	let (xbl_token, uhs) = get_xbl_token(&client, &access_token).await?;
 	let xsts_token = get_xsts_token(&client, &xbl_token).await?;
-	println!("xsts_token: {}", xsts_token);
+	let minecraft_token = get_minecraft_token(&client, &xsts_token, &uhs).await?;
+	println!("Minecraft token: {}", minecraft_token);
 	Ok(())
 }
 
@@ -226,6 +227,32 @@ async fn get_xsts_token(
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = res.json().await?;
 		let token = body.get("Token").unwrap().to_string();
+		Ok(token[1..token.len() - 1].parse().unwrap())
+	} else {
+		Err(format!("Request failed with status: {}", res.status()).into())
+	}
+}
+
+async fn get_minecraft_token(
+	client: &reqwest::Client,
+	xsts_token: &str,
+	uhs: &str,
+) -> Result<String, Box<dyn std::error::Error>> {
+	let json_data = json!({
+		"identityToken": format!("XBL3.0 x={};{}", uhs, xsts_token),
+	});
+
+	let res = client
+		.post("https://api.minecraftservices.com/authentication/login_with_xbox")
+		.json(&json_data)
+		.header("Content-Type", "application/json")
+		.header("Accept", "application/json")
+		.send()
+		.await?;
+
+	if res.status().is_success() {
+		let body: HashMap<String, Value> = res.json().await?;
+		let token = body.get("access_token").unwrap().to_string();
 		Ok(token[1..token.len() - 1].parse().unwrap())
 	} else {
 		Err(format!("Request failed with status: {}", res.status()).into())
