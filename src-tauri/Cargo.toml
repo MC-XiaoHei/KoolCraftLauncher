@@ -15,7 +15,6 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2.0.1", features = [] }
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
 tauri = { version = "2.0.1", features = ["macos-private-api", "unstable"] }
 tauri-plugin-shell = "2.0.1"
 serde = { version = "1", features = ["derive"] }

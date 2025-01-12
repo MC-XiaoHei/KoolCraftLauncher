@@ -68,7 +68,7 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
                     app_clone.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Authenticating).unwrap();
                     let app_clone = app_clone.clone();
                     let code_str = code.to_string();
-                    tokio::spawn(async move {
+                    tauri::async_runtime::spawn(async move {
                         do_auth(app_clone, code_str).await;
                     });
                 }
