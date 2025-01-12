@@ -4,6 +4,7 @@ use tauri::{Manager, State};
 
 mod setup;
 mod vibrancy;
+mod account;
 
 #[tauri::command]
 fn get_vibrancy_state(state: State<'_, VibrancyStateStore>) -> String {
@@ -19,6 +20,16 @@ fn should_custom_window() -> bool {
         }
         _ => true,
     }
+}
+
+#[tauri::command]
+async fn start_microsoft_login(app: tauri::AppHandle) {
+  account::microsoft::open_microsoft_login_webview(app).await;
+}
+
+#[tauri::command]
+async fn terminate_microsoft_login(app: tauri::AppHandle) {
+  account::microsoft::close_microsoft_login_webview(app).await;
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -40,7 +51,12 @@ pub fn run() {
             state.set(vibrancy_state);
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_vibrancy_state, should_custom_window])
+        .invoke_handler(tauri::generate_handler![
+            get_vibrancy_state,
+            should_custom_window,
+            start_microsoft_login,
+            terminate_microsoft_login
+        ])
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_shell::init())
         .run(tauri::generate_context!())

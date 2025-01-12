@@ -2,8 +2,11 @@
   <div class="flex flex-col gap-3">
     <v-btn size="x-large"
            variant="outlined"
-           disabled
            class="!h-16 custom-btn"
+           @click="() => {
+             router.push('/account/add/microsoft');
+             invoke('start_microsoft_login');
+           }"
     >
       <template v-slot:default>
         <div class="items-start flex w-full">
@@ -62,6 +65,7 @@
 <script setup lang="ts">
 
 import { mdiAccountCowboyHatOutline, mdiAccountTieHatOutline, mdiCloudOffOutline } from "@mdi/js";
+import { invoke } from "@tauri-apps/api/core";
 
 const { t } = useI18n();
 const router = useRouter();

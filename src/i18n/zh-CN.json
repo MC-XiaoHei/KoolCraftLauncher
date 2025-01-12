@@ -25,6 +25,12 @@
             "username-invalid-characters": "用户名只能包含字母、数字和下划线",
             "username-already-exists": "同名账户已存在"
           }
+        },
+        "microsoft": {
+          "title": "添加微软账号",
+          "label": {
+            "login-window-loading": "正在加载登录窗口..."
+          }
         }
       },
       "list": {
