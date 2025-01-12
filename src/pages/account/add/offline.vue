@@ -69,7 +69,3 @@ function submit() {
   router.push("/");
 }
 </script>
-
-<style scoped lang="scss">
-
-</style>

@@ -2,12 +2,6 @@
   "pages": {
     "index": {
       "label": {
-        "account-type": {
-          "microsoft": "微软",
-          "offline": "离线",
-          "auth-lib": "外置",
-          "uni-pass": "通行证"
-        },
         "add-account": "添加账号",
         "explore-resources": "探索资源",
         "launch-game": "启动游戏",
@@ -20,12 +14,6 @@
     "account": {
       "add": {
         "title": "添加账号",
-        "label": {
-          "microsoft": "微软账号",
-          "offline": "离线账号",
-          "auth-lib": "外置账号",
-          "uni-pass": "统一通行证账号"
-        },
         "offline": {
           "title": "添加离线账号",
           "label": {
@@ -40,11 +28,28 @@
         }
       },
       "list": {
-        "title": "账号列表"
+        "title": "账号列表",
+        "label": {
+          "account-type": "账号类型"
+        }
       }
     },
     "empty": {
       "title": ""
+    }
+  },
+  "account": {
+    "type": {
+      "microsoft": "微软账号",
+      "offline": "离线账号",
+      "auth-lib": "外置账号",
+      "uni-pass": "统一通行证账号"
+    },
+    "type-short": {
+      "microsoft": "微软",
+      "offline": "离线",
+      "auth-lib": "外置",
+      "uni-pass": "通行证"
     }
   }
 }

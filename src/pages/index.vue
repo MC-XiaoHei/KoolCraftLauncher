@@ -22,7 +22,7 @@
               id="skin-viewer"
       ></canvas>
       <div v-if="!noAvailableAccount"
-           class="pos-absolute opacity-75 rounded-1 overflow-clip h-7"
+           class="pos-absolute opacity-75 rounded-1 overflow-clip h-7 account-fab"
       >
         <v-btn-group class="!h-7">
           <v-tooltip location="bottom" open-delay="300" :text="t('pages.index.label.change-skin-tooltip')">
@@ -71,7 +71,7 @@
       </span>
       <span v-else>
         [{{
-          t(`pages.index.label.account-type.${ accountStore.currentAccountTypeLabel() }`)
+          t(`account.type-short.${ accountStore.currentAccountTypeLabel() }`)
         }}]&thinsp;{{ accountStore.currentAccount!.name }}
       </span>
     </div>
@@ -111,6 +111,7 @@
           <span class="text-medium-emphasis text-transform-none">1.21.4-RE:Vanilla-1.0.0</span>
         </div>
       </v-btn>
+      <v-divider class="my-1" vertical />
       <v-btn
           :rounded="false"
           class="!h-18 !w-12"
@@ -190,3 +191,18 @@ onMounted(() => {
 
 watch(() => accountStore.currentAccount, () => updateSkinViewerSkin());
 </script>
+
+<style lang="scss" scoped>
+.account-fab {
+  transition: opacity 0.3s;
+  opacity: 0;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+canvas:hover + .account-fab {
+  opacity: 1;
+}
+</style>

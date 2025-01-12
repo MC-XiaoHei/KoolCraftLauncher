@@ -1,5 +1,6 @@
 import "vuetify/styles";
 import "virtual:uno.css";
+import "./app.scss";
 import App from "./App.vue";
 import { i18n } from "./plugins/i18n";
 import { pinia } from "./plugins/pinia";

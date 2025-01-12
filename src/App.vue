@@ -22,11 +22,11 @@
                  variant="plain"
                  rounded
                  :icon="mdiArrowLeft"
-                 @click="router.back"
+                 @click="() => router.back()"
           />
         </template>
 
-        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default">
+        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default select-none">
           {{ toolbarTitle }}
         </v-toolbar-title>
         <v-spacer></v-spacer>
@@ -34,16 +34,16 @@
                :rounded="0"
                class="no-drag"
                variant="plain"
-               @click="appWindow.minimize()"
+               @click="() => appWindow.minimize()"
         />
         <v-btn :icon="mdiWindowClose"
                :rounded="0"
                class="no-drag mr-0"
                variant="plain"
-               @click="appWindow.close()"
+               @click="() => appWindow.close()"
         />
       </v-app-bar>
-      <div class="pt-12 px-8 pb-6 h-full">
+      <div class="pt-14 px-8 pb-6 h-full">
         <router-view class="w-full h-full"></router-view>
       </div>
     </v-app>
@@ -129,67 +129,3 @@ onMounted(() => {
   });
 });
 </script>
-
-<style lang="scss">
-body {
-  border-radius: 8px;
-}
-
-.border {
-  border: 1px solid grey;
-  border-radius: 8px;
-}
-
-#navbar {
-  border-bottom: none !important;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-}
-
-body, html, #app {
-  overflow: clip !important;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-}
-
-#app {
-  background: rgb(var(--v-theme-surface));
-}
-
-@font-face {
-  font-family: "monocraft";
-  src: url("./fonts/Monocraft-Light.otf") format("opentype");
-  font-weight: 300;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "monocraft";
-  src: url("./fonts/Monocraft-Light-Italic.otf") format("opentype");
-  font-weight: 300;
-  font-style: italic;
-}
-
-.text-monocraft {
-  font-family: "monocraft", sans-serif;
-  font-weight: 300;
-}
-
-.text-transform-none {
-  text-transform: none;
-}
-
-.custom-btn {
-  display: block !important;
-  position: relative;
-}
-
-.custom-btn :deep(.v-btn__content) {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-</style>

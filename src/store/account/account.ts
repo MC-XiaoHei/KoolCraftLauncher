@@ -14,12 +14,15 @@ export const useAccountStore = defineStore("account", () => {
     }
   });
 
-  function currentAccountTypeLabel() {
-    try {
-      return currentAccount.value!.type.toString();
-    } catch (_) {
+  function currentAccountTypeLabel(): string {
+    if (!currentAccount.value) {
       return "";
     }
+    return getAccountTypeLabel(currentAccount.value!);
+  }
+
+  function getAccountTypeLabel(account: Account): string {
+    return account.type.toString();
   }
 
   function addAccount(account: Account) {
@@ -27,11 +30,18 @@ export const useAccountStore = defineStore("account", () => {
     // TODO - Save to tauri storage
   }
 
+  function isCurrentAccount(account: Account): boolean {
+    return currentAccount.value?.uuid === account.uuid
+        && currentAccount.value?.namespace === account.namespace;
+  }
+
   return {
     accounts,
     currentAccount,
     currentAccountTypeLabel,
+    getAccountTypeLabel,
     addAccount,
+    isCurrentAccount,
   };
 }, {
   persist: true,
