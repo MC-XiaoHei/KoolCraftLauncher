@@ -1,4 +1,4 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 use serde_json::{json, Value};
 use std::collections::HashMap;
 use tauri::webview::{PageLoadEvent, WebviewBuilder};
@@ -6,6 +6,8 @@ use tauri::{
 	AppHandle, Emitter, LogicalPosition, Manager, WebviewUrl, Window, WindowBuilder, WindowEvent,
 };
 use tauri_plugin_http::reqwest;
+use sys_locale::get_locale;
+use chrono::{Duration, Utc, DateTime};
 
 const MS_LOGIN_URL: &str = "https://login.live.com/oauth20_authorize.srf
         ?client_id=00000000402b5328
@@ -25,10 +27,26 @@ enum MicrosoftLoginStatus {
 	Error,
 }
 
+#[derive(Clone, Serialize, Deserialize, Debug)]
+struct MicrosoftAccountData {
+    uuid: String,
+    name: String,
+    access_token: String,
+    refresh_token: String,
+    expires_at: DateTime<Utc>,
+}
+
 pub async fn open_microsoft_login_webview(app: AppHandle) {
+    let is_zh = || -> bool {
+        if let Some(locale) = get_locale() {
+            return locale.starts_with("zh");
+        }
+        false
+    };
+
 	let window = match WindowBuilder::new(&app, MS_LOGIN_WINDOW_ID)
 		.visible(false)
-		.title("登录 | Login")
+		.title(if is_zh() { "登录" } else { "Login" })
 		.build()
 	{
 		Ok(window) => window,
@@ -119,8 +137,7 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
 			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Success)
 				.unwrap();
 		}
-		Err(e) => {
-			eprintln!("Error: {}", e);
+		Err(_) => {
 			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Error)
 				.unwrap();
 		}
@@ -132,8 +149,16 @@ async fn do_auth_internal(auth_code: &str) -> Result<(), Box<dyn std::error::Err
 	let (access_token, refresh_token) = get_access_token(&client, auth_code).await?;
 	let (xbl_token, uhs) = get_xbl_token(&client, &access_token).await?;
 	let xsts_token = get_xsts_token(&client, &xbl_token).await?;
-	let minecraft_token = get_minecraft_token(&client, &xsts_token, &uhs).await?;
-	println!("Minecraft token: {}", minecraft_token);
+	let (minecraft_token, expires_at) = get_minecraft_token(&client, &xsts_token, &uhs).await?;
+	let (uuid, name) = get_minecraft_profile(&client, &minecraft_token).await?;
+	let account_data = MicrosoftAccountData {
+        uuid,
+        name,
+        access_token,
+        refresh_token,
+        expires_at,
+    };
+    println!("{:?}", account_data);
 	Ok(())
 }
 
@@ -237,7 +262,7 @@ async fn get_minecraft_token(
 	client: &reqwest::Client,
 	xsts_token: &str,
 	uhs: &str,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<(String, DateTime<Utc>), Box<dyn std::error::Error>> {
 	let json_data = json!({
 		"identityToken": format!("XBL3.0 x={};{}", uhs, xsts_token),
 	});
@@ -253,8 +278,41 @@ async fn get_minecraft_token(
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = res.json().await?;
 		let token = body.get("access_token").unwrap().to_string();
-		Ok(token[1..token.len() - 1].parse().unwrap())
+		let expires_in = body.get("expires_in")
+		    .ok_or("expires_in is not present")?
+		    .as_i64()
+		    .ok_or("expires_in is not an integer")?;
+		let expires_at = Utc::now() + Duration::seconds(expires_in);
+
+		Ok((
+            token[1..token.len() - 1].parse().unwrap(),
+            expires_at,
+        ))
 	} else {
 		Err(format!("Request failed with status: {}", res.status()).into())
 	}
+}
+
+async fn get_minecraft_profile(
+        client: &reqwest::Client,
+    minecraft_token: &str,
+) -> Result<(String, String), Box<dyn std::error::Error>> {
+    let res = client
+        .get("https://api.minecraftservices.com/minecraft/profile")
+        .header("Authorization", format!("Bearer {}", minecraft_token))
+        .send()
+        .await?;
+
+    if res.status().is_success() {
+        let body: HashMap<String, Value> = res.json().await?;
+        let uuid = body.get("id").unwrap().to_string();
+        let name = body.get("name").unwrap().to_string();
+
+        Ok((
+            uuid[1..uuid.len() - 1].parse().unwrap(),
+            name[1..name.len() - 1].parse().unwrap(),
+        ))
+    } else {
+        Err(format!("Request failed with status: {}", res.status()).into())
+    }
 }

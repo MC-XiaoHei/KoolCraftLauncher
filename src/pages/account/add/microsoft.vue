@@ -25,15 +25,17 @@ appWindow.listen<string>("microsoft-login-status", (event) => {
 });
 
 appWindow.listen<string>("microsoft-login-window-closed", () => {
-  if (microsoftLoginStatus.value !== MicrosoftLoginStatus.Success &&
-      microsoftLoginStatus.value !== MicrosoftLoginStatus.Error) {
+  if (microsoftLoginStatus.value !== MicrosoftLoginStatus.Authenticating &&
+      microsoftLoginStatus.value !== MicrosoftLoginStatus.Success &&
+      microsoftLoginStatus.value !== MicrosoftLoginStatus.Error
+  ) {
     microsoftLoginStatus.value = MicrosoftLoginStatus.Cancelled;
   }
 });
 
 onMounted(() => {
   microsoftLoginStatus.value = MicrosoftLoginStatus.LoadingPage;
-})
+});
 
 onBeforeRouteLeave(() => {
   invoke("terminate_microsoft_login");
