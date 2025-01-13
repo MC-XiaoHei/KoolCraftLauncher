@@ -1,6 +1,7 @@
 <template>
   <div>
     {{ microsoftLoginStatus }}
+    {{ errorMsg}}
   </div>
 </template>
 
@@ -8,6 +9,11 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
+function toKebabCase(str: string): string {
+  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}
+
+// noinspection JSUnusedGlobalSymbols
 enum MicrosoftLoginStatus {
   LoadingPage = "LoadingPage",
   WaitingForOAuth = "WaitingForOAuth",
@@ -17,11 +23,28 @@ enum MicrosoftLoginStatus {
   Cancelled = "Cancelled",
 }
 
+const { t } = useI18n();
 const appWindow = getCurrentWindow();
 const microsoftLoginStatus = ref(MicrosoftLoginStatus.LoadingPage);
+const errorMsg = ref("");
 
 appWindow.listen<string>("microsoft-login-status", (event) => {
-  microsoftLoginStatus.value = MicrosoftLoginStatus[event.payload as keyof typeof MicrosoftLoginStatus];
+  const payload = event.payload;
+  if (Object.values(MicrosoftLoginStatus).includes(payload as MicrosoftLoginStatus)) {
+    microsoftLoginStatus.value = MicrosoftLoginStatus[payload as keyof typeof MicrosoftLoginStatus];
+  } else {
+    const object = payload as unknown as any;
+    const error = object.Error as string;
+    const networkError = object.Error.NetworkError as string;
+    if (networkError) {
+      errorMsg.value = t("pages.account.add.microsoft.error.label.network-error")
+          .replace("{code}", networkError);
+    } else {
+      const errorId = toKebabCase(error);
+      errorMsg.value = t(`pages.account.add.microsoft.label.${errorId}`);
+    }
+    microsoftLoginStatus.value = MicrosoftLoginStatus.Error;
+  }
 });
 
 appWindow.listen<string>("microsoft-login-window-closed", () => {
@@ -30,6 +53,12 @@ appWindow.listen<string>("microsoft-login-window-closed", () => {
       microsoftLoginStatus.value !== MicrosoftLoginStatus.Error
   ) {
     microsoftLoginStatus.value = MicrosoftLoginStatus.Cancelled;
+  }
+});
+
+watch(microsoftLoginStatus, (status) => {
+  if (status === MicrosoftLoginStatus.Success) {
+    appWindow.close();
   }
 });
 

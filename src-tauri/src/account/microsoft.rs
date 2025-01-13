@@ -8,6 +8,7 @@ use tauri::{
 use tauri_plugin_http::reqwest;
 use sys_locale::get_locale;
 use chrono::{Duration, Utc, DateTime};
+use std::fmt;
 
 const MS_LOGIN_URL: &str = "https://login.live.com/oauth20_authorize.srf
         ?client_id=00000000402b5328
@@ -24,10 +25,34 @@ enum MicrosoftLoginStatus {
 	WaitingForOAuth,
 	Authenticating,
 	Success,
-	Error,
+	Error(MicrosoftLoginError),
 }
 
+#[derive(Clone, Debug, Serialize)]
+enum MicrosoftLoginError{
+    CreateWindowError,
+    OAuthError,
+    NetworkError(u16),
+    ProfileNotFoundError,
+    UnknownError,
+}
+
+impl fmt::Display for MicrosoftLoginError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            MicrosoftLoginError::CreateWindowError => write!(f, "Create window error"),
+            MicrosoftLoginError::OAuthError => write!(f, "OAuth error"),
+            MicrosoftLoginError::NetworkError(code) => write!(f, "Network error: {}", code),
+            MicrosoftLoginError::ProfileNotFoundError => write!(f, "Profile not found"),
+            MicrosoftLoginError::UnknownError => write!(f, "Unknown error"),
+        }
+    }
+}
+
+impl std::error::Error for MicrosoftLoginError {}
+
 #[derive(Clone, Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct MicrosoftAccountData {
     uuid: String,
     name: String,
@@ -51,8 +76,10 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 	{
 		Ok(window) => window,
 		Err(_) => {
-			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Error)
-				.unwrap();
+			app.emit(
+                MS_LOGIN_STATUS_EVENT,
+                MicrosoftLoginStatus::Error(MicrosoftLoginError::CreateWindowError)
+            ).unwrap();
 			return;
 		}
 	};
@@ -106,9 +133,10 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 					});
 				}
 				None => {
-					app_clone
-						.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Error)
-						.unwrap();
+					app_clone.emit(
+                        MS_LOGIN_STATUS_EVENT,
+                        MicrosoftLoginStatus::Error(MicrosoftLoginError::OAuthError)
+                    ).unwrap();
 				}
 			}
 			return false;
@@ -137,9 +165,18 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
 			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Success)
 				.unwrap();
 		}
-		Err(_) => {
-			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Error)
-				.unwrap();
+		Err(error) => {
+			if let Some(microsoft_error) = error.downcast_ref::<MicrosoftLoginError>() {
+                app.emit(
+                    MS_LOGIN_STATUS_EVENT,
+                    MicrosoftLoginStatus::Error(microsoft_error.clone())
+                ).unwrap();
+            } else {
+                app.emit(
+                    MS_LOGIN_STATUS_EVENT,
+                    MicrosoftLoginStatus::Error(MicrosoftLoginError::UnknownError)
+                ).unwrap();
+            }
 		}
 	}
 }
@@ -189,7 +226,7 @@ async fn get_access_token(
 			refresh_token[1..refresh_token.len() - 1].parse().unwrap(),
 		))
 	} else {
-		Err(format!("Request failed with status: {}", res.status()).into())
+        Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
 	}
 }
 
@@ -224,7 +261,7 @@ async fn get_xbl_token(
 			uhs[1..uhs.len() - 1].parse().unwrap(),
 		))
 	} else {
-		Err(format!("Request failed with status: {}", res.status()).into())
+        Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
 	}
 }
 
@@ -254,7 +291,7 @@ async fn get_xsts_token(
 		let token = body.get("Token").unwrap().to_string();
 		Ok(token[1..token.len() - 1].parse().unwrap())
 	} else {
-		Err(format!("Request failed with status: {}", res.status()).into())
+        Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
 	}
 }
 
@@ -278,23 +315,24 @@ async fn get_minecraft_token(
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = res.json().await?;
 		let token = body.get("access_token").unwrap().to_string();
-		let expires_in = body.get("expires_in")
-		    .ok_or("expires_in is not present")?
-		    .as_i64()
-		    .ok_or("expires_in is not an integer")?;
-		let expires_at = Utc::now() + Duration::seconds(expires_in);
-
-		Ok((
-            token[1..token.len() - 1].parse().unwrap(),
-            expires_at,
-        ))
+		return match body.get("expires_in") {
+            Some(expires_in) => {
+                let expires_in = expires_in.as_i64().unwrap();
+                let expires_at = Utc::now() + Duration::seconds(expires_in);
+                 Ok((
+                    token[1..token.len() - 1].parse().unwrap(),
+                    expires_at,
+                ))
+            }
+            None => Err(MicrosoftLoginError::UnknownError.into()),
+        }
 	} else {
-		Err(format!("Request failed with status: {}", res.status()).into())
+        Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
 	}
 }
 
 async fn get_minecraft_profile(
-        client: &reqwest::Client,
+    client: &reqwest::Client,
     minecraft_token: &str,
 ) -> Result<(String, String), Box<dyn std::error::Error>> {
     let res = client
@@ -305,6 +343,9 @@ async fn get_minecraft_profile(
 
     if res.status().is_success() {
         let body: HashMap<String, Value> = res.json().await?;
+        if body.contains_key("error") {
+            return Err(MicrosoftLoginError::ProfileNotFoundError.into());
+        }
         let uuid = body.get("id").unwrap().to_string();
         let name = body.get("name").unwrap().to_string();
 
@@ -313,6 +354,6 @@ async fn get_minecraft_profile(
             name[1..name.len() - 1].parse().unwrap(),
         ))
     } else {
-        Err(format!("Request failed with status: {}", res.status()).into())
+        Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
     }
 }
