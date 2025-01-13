@@ -1,5 +1,5 @@
 use serde::{Serialize, Deserialize};
-use serde_json::{json, Value};
+use serde_json::{json, Value, to_value};
 use std::collections::HashMap;
 use tauri::webview::{PageLoadEvent, WebviewBuilder};
 use tauri::{
@@ -9,6 +9,7 @@ use tauri_plugin_http::reqwest;
 use sys_locale::get_locale;
 use chrono::{Duration, Utc, DateTime};
 use std::fmt;
+use tauri_plugin_store::StoreExt;
 
 const MS_LOGIN_URL: &str = "https://login.live.com/oauth20_authorize.srf
         ?client_id=00000000402b5328
@@ -161,9 +162,23 @@ pub async fn close_microsoft_login_webview(app: AppHandle) {
 
 async fn do_auth(app: AppHandle, auth_code: &str) {
 	match do_auth_internal(auth_code).await {
-		Ok(_) => {
-			app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Success)
-				.unwrap();
+		Ok(account_data) => {
+            match app.store("account-data.json") {
+                Ok(store) => {
+                    let value = to_value(&account_data).unwrap();
+                    let uuid = account_data.uuid.clone();
+                    println!("{}", value);
+                    store.set(format!("microsoft@{}", uuid), value);
+                    app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Success)
+                    	.unwrap();
+                }
+                Err(_) => {
+                    app.emit(
+                        MS_LOGIN_STATUS_EVENT,
+                        MicrosoftLoginStatus::Error(MicrosoftLoginError::UnknownError)
+                    ).unwrap();
+                }
+            }
 		}
 		Err(error) => {
 			if let Some(microsoft_error) = error.downcast_ref::<MicrosoftLoginError>() {
@@ -181,22 +196,20 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
 	}
 }
 
-async fn do_auth_internal(auth_code: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn do_auth_internal(auth_code: &str) -> Result<MicrosoftAccountData, Box<dyn std::error::Error>> {
 	let client = reqwest::Client::new();
 	let (access_token, refresh_token) = get_access_token(&client, auth_code).await?;
 	let (xbl_token, uhs) = get_xbl_token(&client, &access_token).await?;
 	let xsts_token = get_xsts_token(&client, &xbl_token).await?;
 	let (minecraft_token, expires_at) = get_minecraft_token(&client, &xsts_token, &uhs).await?;
 	let (uuid, name) = get_minecraft_profile(&client, &minecraft_token).await?;
-	let account_data = MicrosoftAccountData {
+	Ok(MicrosoftAccountData {
         uuid,
         name,
         access_token,
         refresh_token,
         expires_at,
-    };
-    println!("{:?}", account_data);
-	Ok(())
+    })
 }
 
 async fn get_access_token(
