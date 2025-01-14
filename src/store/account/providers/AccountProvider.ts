@@ -1,9 +1,12 @@
 import { Account } from "../models.ts";
 
-export abstract class AccountProvider<T extends Account> {
-  abstract build(name: string): T;
+export interface SkinData {
+  skinUrl: string,
+  capeUrl?: string,
+}
 
-  abstract skinUrl(account: T): string;
+export abstract class AccountProvider {
+  abstract build(name: string, uuid?: string): Account;
 
-  abstract capeUrl(account: T): string | null;
+  abstract getSkinData(account: Account): Promise<SkinData>;
 }

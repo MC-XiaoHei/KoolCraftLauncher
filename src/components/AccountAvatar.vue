@@ -25,8 +25,15 @@ const props = defineProps<{
 }>();
 
 const provider = computed(() => AccountProviders.get(props.account));
-const skinUrl = computed(() => provider.value.skinUrl(props.account));
+const skinUrl = ref("");
 const size = computed(() => props.size || 32);
+
+onMounted(() => {
+  provider.value.getSkinData(props.account).then((skinData) => {
+    console.log(skinData)
+    skinUrl.value = skinData.skinUrl;
+  });
+})
 </script>
 
 <style lang="scss" scoped>

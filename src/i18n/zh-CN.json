@@ -29,12 +29,20 @@
         "microsoft": {
           "title": "添加微软账号",
           "label": {
-            "login-window-loading": "正在加载登录窗口...",
-            "network-error": "网络错误",
-            "create-window-error": "创建登录窗口失败",
-            "o-auth-error": "进行 OAuth 时发生错误",
-            "profile-not-found-error": "这个账户似乎没有购买过 Minecraft",
-            "unknown-error": "未知错误"
+            "LoadingPage": "正在加载登录窗口...",
+            "WaitingForOAuth": "请在打开的新窗口中完成登录",
+            "NetworkError": "网络错误",
+            "CreateWindowError": "创建登录窗口失败",
+            "OAuthError": "进行 OAuth 时发生错误",
+            "ProfileNotFoundError": "这个账户似乎没有购买过 Minecraft",
+            "APIError": "请求 API 时发生错误",
+            "FileSystemError": "访问文件系统时发生错误",
+            "UnknownError": "发生未知错误",
+            "GetAccessToken": "正在获取 AccessToken...",
+            "GetXBLToken": "正在获取 XBL Token...",
+            "GetXSTSToken": "正在获取 XSTS Token...",
+            "GetMinecraftToken": "正在获取 Minecraft Token...",
+            "GetMinecraftProfile": "正在获取 Minecraft 账号信息..."
           }
         }
       },

@@ -1,9 +1,9 @@
 import { calcOfflineUuid, getDefaultSkinUrl } from "../../../utils/offline-utils.ts";
-import { AccountType, OfflineAccount } from "../models.ts";
-import { AccountProvider } from "./AccountProvider.ts";
+import { Account, AccountType } from "../models.ts";
+import { AccountProvider, SkinData } from "./AccountProvider.ts";
 
-export class OfflineAccountProvider extends AccountProvider<OfflineAccount> {
-  build(name: string): OfflineAccount {
+export class OfflineAccountProvider extends AccountProvider {
+  build(name: string): Account {
     return {
       type: AccountType.Offline,
       namespace: "offline",
@@ -12,11 +12,9 @@ export class OfflineAccountProvider extends AccountProvider<OfflineAccount> {
     };
   }
 
-  skinUrl(account: OfflineAccount): string {
-    return getDefaultSkinUrl(account.uuid);
-  }
-
-  capeUrl(_: OfflineAccount): string | null {
-    return null;
+  async getSkinData(account: Account): Promise<SkinData> {
+    return {
+      skinUrl: getDefaultSkinUrl(account.uuid),
+    };
   }
 }

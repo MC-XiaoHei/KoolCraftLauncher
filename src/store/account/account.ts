@@ -1,5 +1,6 @@
 import { Account, AccountType } from "./models.ts";
 import { AccountProvider } from "./providers/AccountProvider.ts";
+import { MicrosoftAccountProvider } from "./providers/MicrosoftAccountProvider.ts";
 import { OfflineAccountProvider } from "./providers/OfflineAccountProvider.ts";
 
 export const useAccountStore = defineStore("account", () => {
@@ -27,7 +28,6 @@ export const useAccountStore = defineStore("account", () => {
 
   function addAccount(account: Account) {
     accounts.value.push(account);
-    // TODO - Save to tauri storage
   }
 
   function isCurrentAccount(account: Account): boolean {
@@ -49,10 +49,13 @@ export const useAccountStore = defineStore("account", () => {
 
 export const AccountProviders = {
   Offline: new OfflineAccountProvider(),
-  get(account: Account): AccountProvider<Account> {
+  Microsoft: new MicrosoftAccountProvider(),
+  get(account: Account): AccountProvider {
     switch (account.type) {
       case AccountType.Offline:
         return AccountProviders.Offline;
+      case AccountType.Microsoft:
+        return AccountProviders.Microsoft;
       default:
         throw new Error(`Unknown account type: ${ account.type }`); // TODO
     }

@@ -23,8 +23,18 @@ const MS_LOGIN_WINDOW_CLOSED_EVENT: &str = "microsoft-login-window-closed";
 #[derive(Clone, Serialize)]
 struct UpdateStatusEvent {
     status: MicrosoftLoginStatus,
+    auth_progress: Option<AuthProgress>,
     profile: Option<ProfileData>,
     error: Option<MicrosoftLoginError>,
+}
+
+#[derive(Clone, Serialize)]
+enum AuthProgress {
+    GetAccessToken,
+    GetXBLToken,
+    GetXSTSToken,
+    GetMinecraftToken,
+    GetMinecraftProfile,
 }
 
 #[derive(Clone, Serialize)]
@@ -69,11 +79,13 @@ struct ProfileData {
 fn update_login_status(
     app: &AppHandle,
     status: MicrosoftLoginStatus,
+    auth_progress: Option<AuthProgress>,
     profile: Option<ProfileData>,
     error: Option<MicrosoftLoginError>
 ) {
     let _ = &app.emit(MS_LOGIN_STATUS_EVENT, UpdateStatusEvent {
         status,
+        auth_progress,
         profile,
         error,
     }).unwrap();
@@ -97,6 +109,7 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
             update_login_status(
                 &app,
                 MicrosoftLoginStatus::Error,
+                None,
                 None,
                 Some(MicrosoftLoginError {
                     error_type: MicrosoftLoginErrorType::CreateWindowError,
@@ -124,6 +137,7 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
             update_login_status(
                 &app_clone,
                 MicrosoftLoginStatus::WaitingForOAuth,
+                None,
                 None,
                 None,
             );
@@ -156,6 +170,7 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
                     MicrosoftLoginStatus::Authenticating,
                     None,
                     None,
+                    None,
                 );
 				let app_clone = app_clone.clone();
 				tauri::async_runtime::spawn(async move {
@@ -165,6 +180,7 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 			None => update_login_status(
                 &app_clone,
                 MicrosoftLoginStatus::Error,
+                None,
                 None,
                 Some(MicrosoftLoginError {
                     error_type: MicrosoftLoginErrorType::OAuthError,
@@ -191,12 +207,13 @@ pub async fn close_microsoft_login_webview(app: AppHandle) {
 }
 
 async fn do_auth(app: AppHandle, auth_code: &str) {
-    let account_data = match get_account_data(auth_code).await {
+    let account_data = match get_account_data(&app, auth_code).await {
         Ok(account_data) => account_data,
         Err(error) => {
             update_login_status(
                 &app,
                 MicrosoftLoginStatus::Error,
+                None,
                 None,
                 Some(error),
             );
@@ -209,6 +226,7 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
             update_login_status(
                 &app,
                 MicrosoftLoginStatus::Error,
+                None,
                 None,
                 Some(MicrosoftLoginError {
                     error_type: MicrosoftLoginErrorType::FileSystemError,
@@ -226,12 +244,14 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
         Ok(_) => update_login_status(
             &app,
             MicrosoftLoginStatus::Success,
+            None,
             Some(ProfileData { uuid, name }),
             None,
         ),
         Err(err) => update_login_status(
             &app,
             MicrosoftLoginStatus::Error,
+            None,
             None,
             Some(MicrosoftLoginError {
                 error_type: MicrosoftLoginErrorType::FileSystemError,
@@ -242,12 +262,47 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
     store.close_resource();
 }
 
-async fn get_account_data(auth_code: &str) -> Result<MicrosoftAccountData, MicrosoftLoginError> {
+async fn get_account_data(app: &AppHandle, auth_code: &str) -> Result<MicrosoftAccountData, MicrosoftLoginError> {
 	let client = reqwest::Client::new();
+	update_login_status(
+        &app,
+        MicrosoftLoginStatus::Authenticating,
+        Some(AuthProgress::GetAccessToken),
+        None,
+        None,
+    );
 	let (access_token, refresh_token) = get_access_token(&client, auth_code).await?;
+	update_login_status(
+        &app,
+        MicrosoftLoginStatus::Authenticating,
+        Some(AuthProgress::GetXBLToken),
+        None,
+        None,
+    );
 	let (xbl_token, uhs) = get_xbl_token(&client, &access_token).await?;
+	update_login_status(
+        &app,
+        MicrosoftLoginStatus::Authenticating,
+        Some(AuthProgress::GetXSTSToken),
+        None,
+        None,
+    );
 	let xsts_token = get_xsts_token(&client, &xbl_token).await?;
+	update_login_status(
+        &app,
+        MicrosoftLoginStatus::Authenticating,
+        Some(AuthProgress::GetMinecraftToken),
+        None,
+        None,
+    );
 	let (minecraft_token, expires_at) = get_minecraft_token(&client, &xsts_token, &uhs).await?;
+	update_login_status(
+        &app,
+        MicrosoftLoginStatus::Authenticating,
+        Some(AuthProgress::GetMinecraftProfile),
+        None,
+        None,
+    );
 	let (uuid, name) = get_minecraft_profile(&client, &minecraft_token).await?;
 	Ok(MicrosoftAccountData {
 		uuid,

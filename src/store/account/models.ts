@@ -11,6 +11,3 @@ export interface Account {
   uuid: string;
   name: string;
 }
-
-export interface OfflineAccount extends Account {
-}

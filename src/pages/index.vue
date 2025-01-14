@@ -25,6 +25,18 @@
            class="pos-absolute opacity-75 rounded-1 overflow-clip h-7 account-fab"
       >
         <v-btn-group class="!h-7">
+          <v-tooltip location="bottom" open-delay="300" :text="t('pages.index.label.account-list-tooltip')">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                  v-bind="props"
+                  size="28"
+                  variant="tonal"
+                  @click="router.push('/account/list')"
+              >
+                <v-icon :icon="mdiFormatListBulletedType" size="18" />
+              </v-btn>
+            </template>
+          </v-tooltip>
           <v-tooltip location="bottom" open-delay="300" :text="t('pages.index.label.change-skin-tooltip')">
             <template v-slot:activator="{ props }">
               <v-btn
@@ -46,18 +58,6 @@
                   v-show="accountStore.currentAccount?.type !== AccountType.Offline"
               >
                 <v-icon :icon="mdiPencilOutline" size="18" />
-              </v-btn>
-            </template>
-          </v-tooltip>
-          <v-tooltip location="bottom" open-delay="300" :text="t('pages.index.label.account-list-tooltip')">
-            <template v-slot:activator="{ props }">
-              <v-btn
-                  v-bind="props"
-                  size="28"
-                  variant="tonal"
-                  @click="router.push('/account/list')"
-              >
-                <v-icon :icon="mdiFormatListBulletedType" size="18" />
               </v-btn>
             </template>
           </v-tooltip>
@@ -146,14 +146,14 @@ const noAvailableAccount = computed(() => accountStore.currentAccount === null);
 const skinViewerContainer = ref<HTMLDivElement | null>(null);
 let skinViewer: SkinViewer;
 
-function updateSkinViewerSkin() {
+async function updateSkinViewerSkin() {
   if (accountStore.currentAccount) {
     const provider = AccountProviders.get(accountStore.currentAccount);
     if (skinViewer) {
-      skinViewer.loadSkin(provider.skinUrl(accountStore.currentAccount));
-      const capeUrl = provider.capeUrl(accountStore.currentAccount);
-      if (capeUrl) {
-        skinViewer.loadCape(capeUrl);
+      const skinData = await provider.getSkinData(accountStore.currentAccount);
+      await skinViewer.loadSkin(skinData.skinUrl);
+      if (skinData.capeUrl) {
+        await skinViewer.loadCape(skinData.capeUrl);
       }
     }
   }
