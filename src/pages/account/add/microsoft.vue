@@ -1,7 +1,16 @@
 <template>
   <div>
-    {{ microsoftLoginStatus }}
-    {{ errorMsg}}
+    {{ loginStatus }}<br/>
+    <div v-if="loginStatus === MicrosoftLoginStatus.Error">
+      {{
+        t(`pages.account.add.microsoft.label.${
+          toKebabCase((error?.error_type ?? MicrosoftLoginErrorType.UnknownError).toString())
+        }`)
+      }}
+    </div>
+    <div v-else-if="loginStatus === MicrosoftLoginStatus.Success">
+      {{ profile?.name }} ({{ profile?.uuid }})
+    </div>
   </div>
 </template>
 
@@ -10,7 +19,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 function toKebabCase(str: string): string {
-  return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+  return str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -23,47 +32,57 @@ enum MicrosoftLoginStatus {
   Cancelled = "Cancelled",
 }
 
+// noinspection JSUnusedGlobalSymbols
+enum MicrosoftLoginErrorType {
+  CreateWindowError,
+  OAuthError,
+  NetworkError,
+  ProfileNotFoundError,
+  APIError,
+  FileSystemError,
+  UnknownError,
+}
+
+interface ProfileData {
+  uuid: string;
+  name: string;
+}
+
+interface LoginError {
+  error_type: MicrosoftLoginErrorType;
+  message: string;
+}
+
+interface UpdateStatusEvent {
+  status: MicrosoftLoginStatus;
+  error?: LoginError;
+  profile?: ProfileData;
+}
+
 const { t } = useI18n();
 const appWindow = getCurrentWindow();
-const microsoftLoginStatus = ref(MicrosoftLoginStatus.LoadingPage);
-const errorMsg = ref("");
+const loginStatus = ref(MicrosoftLoginStatus.LoadingPage);
+const error = ref<LoginError | null>(null);
+const profile = ref<ProfileData | null>(null);
 
 appWindow.listen<string>("microsoft-login-status", (event) => {
-  const payload = event.payload;
-  if (Object.values(MicrosoftLoginStatus).includes(payload as MicrosoftLoginStatus)) {
-    microsoftLoginStatus.value = MicrosoftLoginStatus[payload as keyof typeof MicrosoftLoginStatus];
-  } else {
-    const object = payload as unknown as any;
-    const error = object.Error as string;
-    const networkError = object.Error.NetworkError as string;
-    if (networkError) {
-      errorMsg.value = t("pages.account.add.microsoft.error.label.network-error")
-          .replace("{code}", networkError);
-    } else {
-      const errorId = toKebabCase(error);
-      errorMsg.value = t(`pages.account.add.microsoft.label.${errorId}`);
-    }
-    microsoftLoginStatus.value = MicrosoftLoginStatus.Error;
-  }
+  const payload = event.payload as unknown as UpdateStatusEvent;
+  loginStatus.value = payload.status;
+  error.value = payload.error ?? null;
+  profile.value = payload.profile ?? null;
 });
 
 appWindow.listen<string>("microsoft-login-window-closed", () => {
-  if (microsoftLoginStatus.value !== MicrosoftLoginStatus.Authenticating &&
-      microsoftLoginStatus.value !== MicrosoftLoginStatus.Success &&
-      microsoftLoginStatus.value !== MicrosoftLoginStatus.Error
+  if (loginStatus.value !== MicrosoftLoginStatus.Authenticating &&
+      loginStatus.value !== MicrosoftLoginStatus.Success &&
+      loginStatus.value !== MicrosoftLoginStatus.Error
   ) {
-    microsoftLoginStatus.value = MicrosoftLoginStatus.Cancelled;
-  }
-});
-
-watch(microsoftLoginStatus, (status) => {
-  if (status === MicrosoftLoginStatus.Success) {
-    appWindow.close();
+    loginStatus.value = MicrosoftLoginStatus.Cancelled;
   }
 });
 
 onMounted(() => {
-  microsoftLoginStatus.value = MicrosoftLoginStatus.LoadingPage;
+  loginStatus.value = MicrosoftLoginStatus.LoadingPage;
 });
 
 onBeforeRouteLeave(() => {

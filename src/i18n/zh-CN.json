@@ -30,7 +30,7 @@
           "title": "添加微软账号",
           "label": {
             "login-window-loading": "正在加载登录窗口...",
-            "network-error": "网络错误：{code}",
+            "network-error": "网络错误",
             "create-window-error": "创建登录窗口失败",
             "o-auth-error": "进行 OAuth 时发生错误",
             "profile-not-found-error": "这个账户似乎没有购买过 Minecraft",

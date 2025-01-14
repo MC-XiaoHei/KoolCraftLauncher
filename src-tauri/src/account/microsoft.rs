@@ -1,5 +1,5 @@
 use chrono::{DateTime, Duration, Utc};
-use serde::{Deserialize, Serialize};
+use serde::{Serialize};
 use serde_json::{json, to_value, Value};
 use std::collections::HashMap;
 use sys_locale::get_locale;
@@ -21,29 +21,62 @@ const MS_LOGIN_STATUS_EVENT: &str = "microsoft-login-status";
 const MS_LOGIN_WINDOW_CLOSED_EVENT: &str = "microsoft-login-window-closed";
 
 #[derive(Clone, Serialize)]
+struct UpdateStatusEvent {
+    status: MicrosoftLoginStatus,
+    profile: Option<ProfileData>,
+    error: Option<MicrosoftLoginError>,
+}
+
+#[derive(Clone, Serialize)]
 enum MicrosoftLoginStatus {
 	WaitingForOAuth,
 	Authenticating,
 	Success,
-	Error(MicrosoftLoginError),
+	Error,
 }
 
-#[derive(Clone, Debug, Serialize)]
-enum MicrosoftLoginError {
+#[derive(Clone, Serialize)]
+struct MicrosoftLoginError {
+    error_type: MicrosoftLoginErrorType,
+    message: String,
+}
+
+#[derive(Clone, Serialize)]
+enum MicrosoftLoginErrorType {
 	CreateWindowError,
 	OAuthError,
-	NetworkError(u16),
+	NetworkError,
 	ProfileNotFoundError,
-	UnknownError,
+	APIError,
+	FileSystemError,
 }
 
-#[derive(Clone, Serialize, Debug)]
+#[derive(Clone, Serialize)]
 struct MicrosoftAccountData {
 	uuid: String,
 	name: String,
 	access_token: String,
 	refresh_token: String,
 	expires_at: DateTime<Utc>,
+}
+
+#[derive(Clone, Serialize)]
+struct ProfileData {
+    uuid: String,
+    name: String,
+}
+
+fn update_login_status(
+    app: &AppHandle,
+    status: MicrosoftLoginStatus,
+    profile: Option<ProfileData>,
+    error: Option<MicrosoftLoginError>
+) {
+    let _ = &app.emit(MS_LOGIN_STATUS_EVENT, UpdateStatusEvent {
+        status,
+        profile,
+        error,
+    }).unwrap();
 }
 
 pub async fn open_microsoft_login_webview(app: AppHandle) {
@@ -60,12 +93,16 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 		.build()
 	{
 		Ok(window) => window,
-		Err(_) => {
-			app.emit(
-				MS_LOGIN_STATUS_EVENT,
-				MicrosoftLoginStatus::Error(MicrosoftLoginError::CreateWindowError),
-			)
-			.unwrap();
+		Err(error) => {
+            update_login_status(
+                &app,
+                MicrosoftLoginStatus::Error,
+                None,
+                Some(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::CreateWindowError,
+                    message: error.to_string(),
+                }),
+            );
 			return;
 		}
 	};
@@ -84,9 +121,12 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 	.on_page_load(move |webview, payload| match payload.event() {
 		PageLoadEvent::Started => {}
 		PageLoadEvent::Finished => {
-			app_clone
-				.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::WaitingForOAuth)
-				.unwrap();
+            update_login_status(
+                &app_clone,
+                MicrosoftLoginStatus::WaitingForOAuth,
+                None,
+                None,
+            );
 			let window: Window = webview.window();
 			window.show().unwrap();
 			window.set_focus().unwrap();
@@ -94,42 +134,45 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 	});
 	let app_clone = app.clone();
 	let webview_builder = webview_builder.on_navigation(move |url| {
-		if url.host_str() == Some("login.live.com")
-			&& url.path() == "/oauth20_desktop.srf"
-			&& url.scheme() == "https"
-		{
-			app_clone
-				.get_window(MS_LOGIN_WINDOW_ID)
-				.unwrap()
-				.close()
-				.unwrap();
-			let query_pairs: Vec<(String, String)> = url
-				.query_pairs()
-				.map(|(k, v)| (k.to_string(), v.to_string()))
-				.collect();
-			match query_pairs.iter().find(|(key, _)| key == "code") {
-				Some((_, code)) => {
-					let code_clone = code.clone();
-					app_clone
-						.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Authenticating)
-						.unwrap();
-					let app_clone = app_clone.clone();
-					tauri::async_runtime::spawn(async move {
-						do_auth(app_clone, &code_clone).await;
-					});
-				}
-				None => {
-					app_clone
-						.emit(
-							MS_LOGIN_STATUS_EVENT,
-							MicrosoftLoginStatus::Error(MicrosoftLoginError::OAuthError),
-						)
-						.unwrap();
-				}
+		if url.host_str() != Some("login.live.com")
+		    || url.path() != "/oauth20_desktop.srf"
+		    || url.scheme() != "https" {
+            return true;
+        }
+		app_clone
+			.get_window(MS_LOGIN_WINDOW_ID)
+			.unwrap()
+			.close()
+			.unwrap();
+		let query_pairs: Vec<(String, String)> = url
+			.query_pairs()
+			.map(|(k, v)| (k.to_string(), v.to_string()))
+			.collect();
+		match query_pairs.iter().find(|(key, _)| key == "code") {
+			Some((_, code)) => {
+				let code_clone = code.clone();
+				update_login_status(
+                    &app_clone,
+                    MicrosoftLoginStatus::Authenticating,
+                    None,
+                    None,
+                );
+				let app_clone = app_clone.clone();
+				tauri::async_runtime::spawn(async move {
+					do_auth(app_clone, &code_clone).await;
+				});
 			}
-			return false;
+			None => update_login_status(
+                &app_clone,
+                MicrosoftLoginStatus::Error,
+                None,
+                Some(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::OAuthError,
+                    message: "oauth code do not exist".to_string(),
+                }),
+            )
 		}
-		true
+		false
 	});
 	let _ = window.add_child(
 		webview_builder,
@@ -148,50 +191,58 @@ pub async fn close_microsoft_login_webview(app: AppHandle) {
 }
 
 async fn do_auth(app: AppHandle, auth_code: &str) {
-	match do_auth_internal(auth_code).await {
-		Ok(account_data) => {
-			match app.store("account-data.json") {
-				Ok(store) => {
-					let value = to_value(&account_data).unwrap();
-					let uuid = account_data.uuid.clone();
-					println!("{}", value);
-					store.set(format!("microsoft@{}", uuid), value);
-					match store.save() {
-						Ok(_) => {
-							app.emit(MS_LOGIN_STATUS_EVENT, MicrosoftLoginStatus::Success)
-								.unwrap();
-						}
-						Err(_) => {
-							app.emit(
-								MS_LOGIN_STATUS_EVENT,
-								MicrosoftLoginStatus::Error(MicrosoftLoginError::UnknownError),
-							)
-							.unwrap();
-						}
-					}
-					store.close_resource();
-				}
-				Err(_) => {
-					app.emit(
-						MS_LOGIN_STATUS_EVENT,
-						MicrosoftLoginStatus::Error(MicrosoftLoginError::UnknownError),
-					)
-					.unwrap();
-				}
-			}
-			println!("{:?}", account_data);
-		}
-		Err(error) => {
-			app.emit(
-				MS_LOGIN_STATUS_EVENT,
-				MicrosoftLoginStatus::Error(error.clone()),
-			)
-			.unwrap();
-		}
-	}
+    let account_data = match get_account_data(auth_code).await {
+        Ok(account_data) => account_data,
+        Err(error) => {
+            update_login_status(
+                &app,
+                MicrosoftLoginStatus::Error,
+                None,
+                Some(error),
+            );
+            return;
+        }
+    };
+    let store = match app.store("account-data.json") {
+        Ok(store) => store,
+        Err(err) => {
+            update_login_status(
+                &app,
+                MicrosoftLoginStatus::Error,
+                None,
+                Some(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::FileSystemError,
+                    message: "cannot open store file, ".to_string() + &err.to_string(),
+                }),
+            );
+            return;
+        }
+    };
+    let value = to_value(&account_data).unwrap();
+    let uuid = account_data.uuid.clone();
+    let name = account_data.name.clone();
+    store.set(format!("microsoft@{}", uuid), value);
+    match store.save() {
+        Ok(_) => update_login_status(
+            &app,
+            MicrosoftLoginStatus::Success,
+            Some(ProfileData { uuid, name }),
+            None,
+        ),
+        Err(err) => update_login_status(
+            &app,
+            MicrosoftLoginStatus::Error,
+            None,
+            Some(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::FileSystemError,
+                message: "cannot save account data, ".to_string() + &err.to_string(),
+            }),
+        )
+    }
+    store.close_resource();
 }
 
-async fn do_auth_internal(auth_code: &str) -> Result<MicrosoftAccountData, MicrosoftLoginError> {
+async fn get_account_data(auth_code: &str) -> Result<MicrosoftAccountData, MicrosoftLoginError> {
 	let client = reqwest::Client::new();
 	let (access_token, refresh_token) = get_access_token(&client, auth_code).await?;
 	let (xbl_token, uhs) = get_xbl_token(&client, &access_token).await?;
@@ -227,15 +278,21 @@ async fn get_access_token(
 	{
 		Ok(res) => res,
 		Err(err) => {
-			return Err(MicrosoftLoginError::NetworkError(err.status().unwrap().as_u16()).into());
+			return Err(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::NetworkError,
+                message: err.to_string(),
+            });
 		}
 	};
 
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = match res.json().await {
 			Ok(body) => body,
-			Err(_) => {
-				return Err(MicrosoftLoginError::UnknownError.into());
+			Err(error) => {
+				return Err(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::APIError,
+                    message: error.to_string(),
+                });
 			}
 		};
 		let access_token = body.get("access_token").unwrap().to_string();
@@ -245,7 +302,10 @@ async fn get_access_token(
 			refresh_token[1..refresh_token.len() - 1].parse().unwrap(),
 		))
 	} else {
-		Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
+		Err(MicrosoftLoginError {
+            error_type: MicrosoftLoginErrorType::APIError,
+            message: res.text().await.unwrap(),
+        })
 	}
 }
 
@@ -273,15 +333,21 @@ async fn get_xbl_token(
 	{
 		Ok(res) => res,
 		Err(err) => {
-			return Err(MicrosoftLoginError::NetworkError(err.status().unwrap().as_u16()).into());
-		}
+        	return Err(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::NetworkError,
+                message: err.to_string(),
+            });
+        }
 	};
 
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = match res.json().await {
 			Ok(body) => body,
-			Err(_) => {
-				return Err(MicrosoftLoginError::UnknownError.into());
+			Err(err) => {
+				return Err(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::APIError,
+                    message: err.to_string(),
+                });
 			}
 		};
 		let token = body.get("Token").unwrap().to_string();
@@ -291,7 +357,10 @@ async fn get_xbl_token(
 			uhs[1..uhs.len() - 1].parse().unwrap(),
 		))
 	} else {
-		Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
+		Err(MicrosoftLoginError {
+            error_type: MicrosoftLoginErrorType::APIError,
+            message: res.text().await.unwrap(),
+        })
 	}
 }
 
@@ -318,21 +387,30 @@ async fn get_xsts_token(
 	{
 		Ok(res) => res,
 		Err(err) => {
-			return Err(MicrosoftLoginError::NetworkError(err.status().unwrap().as_u16()).into());
+            return Err(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::NetworkError,
+                message: err.to_string(),
+            });
 		}
 	};
 
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = match res.json().await {
 			Ok(body) => body,
-			Err(_) => {
-				return Err(MicrosoftLoginError::UnknownError.into());
+			Err(err) => {
+				return Err(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::APIError,
+                    message: err.to_string(),
+                });
 			}
 		};
 		let token = body.get("Token").unwrap().to_string();
 		Ok(token[1..token.len() - 1].parse().unwrap())
 	} else {
-		Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
+		Err(MicrosoftLoginError {
+            error_type: MicrosoftLoginErrorType::APIError,
+            message: res.text().await.unwrap(),
+        })
 	}
 }
 
@@ -355,15 +433,21 @@ async fn get_minecraft_token(
 	{
 		Ok(res) => res,
 		Err(err) => {
-			return Err(MicrosoftLoginError::NetworkError(err.status().unwrap().as_u16()).into());
+			return Err(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::NetworkError,
+                message: err.to_string(),
+            });
 		}
 	};
 
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = match res.json().await {
 			Ok(body) => body,
-			Err(_) => {
-				return Err(MicrosoftLoginError::UnknownError.into());
+			Err(err) => {
+				return Err(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::APIError,
+                    message: err.to_string(),
+                });
 			}
 		};
 		let token = body.get("access_token").unwrap().to_string();
@@ -372,11 +456,17 @@ async fn get_minecraft_token(
 				let expires_in = expires_in.as_i64().unwrap();
 				let expires_at = Utc::now() + Duration::seconds(expires_in);
 				Ok((token[1..token.len() - 1].parse().unwrap(), expires_at))
-			}
-			None => Err(MicrosoftLoginError::UnknownError.into()),
+			},
+			None => Err(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::APIError,
+                message: "expires_in do not exist".to_string(),
+            }),
 		}
 	} else {
-		Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
+		Err(MicrosoftLoginError {
+            error_type: MicrosoftLoginErrorType::APIError,
+            message: res.text().await.unwrap(),
+        })
 	}
 }
 
@@ -392,19 +482,28 @@ async fn get_minecraft_profile(
 	{
 		Ok(res) => res,
 		Err(err) => {
-			return Err(MicrosoftLoginError::NetworkError(err.status().unwrap().as_u16()).into());
+			return Err(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::NetworkError,
+                message: err.to_string(),
+            });
 		}
 	};
 
 	if res.status().is_success() {
 		let body: HashMap<String, Value> = match res.json().await {
 			Ok(body) => body,
-			Err(_) => {
-				return Err(MicrosoftLoginError::UnknownError.into());
+			Err(err) => {
+				return Err(MicrosoftLoginError {
+                    error_type: MicrosoftLoginErrorType::APIError,
+                    message: err.to_string(),
+                });
 			}
 		};
 		if body.contains_key("error") {
-			return Err(MicrosoftLoginError::ProfileNotFoundError.into());
+			return Err(MicrosoftLoginError {
+                error_type: MicrosoftLoginErrorType::ProfileNotFoundError,
+                message: "profile not found".to_string(),
+            });
 		}
 		let uuid = body.get("id").unwrap().to_string();
 		let name = body.get("name").unwrap().to_string();
@@ -414,6 +513,9 @@ async fn get_minecraft_profile(
 			name[1..name.len() - 1].parse().unwrap(),
 		))
 	} else {
-		Err(MicrosoftLoginError::NetworkError(res.status().as_u16()).into())
+		Err(MicrosoftLoginError {
+            error_type: MicrosoftLoginErrorType::APIError,
+            message: res.text().await.unwrap(),
+        })
 	}
 }
