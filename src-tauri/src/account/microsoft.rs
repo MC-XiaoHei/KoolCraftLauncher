@@ -259,7 +259,6 @@ async fn do_auth(app: AppHandle, auth_code: &str) {
             }),
         )
     }
-    store.close_resource();
 }
 
 async fn get_account_data(app: &AppHandle, auth_code: &str) -> Result<MicrosoftAccountData, MicrosoftLoginError> {
