@@ -15,9 +15,10 @@
     {
       "identifier": "http:default",
       "allow": [
-        "https://api.mojang.com/*",
-        "https://sessionserver.mojang.com/*",
-        "http://textures.minecraft.net/*"
+        "https://*"
+      ],
+      "deny": [
+        "http://*"
       ]
     }
   ]
