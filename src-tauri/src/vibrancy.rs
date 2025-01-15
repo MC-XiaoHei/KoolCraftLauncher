@@ -32,6 +32,6 @@ impl VibrancyStateStore {
             VibrancyState::Mica => "mica",
             VibrancyState::Vibrancy => "vibrancy",
         }
-        .to_string()
+            .to_string()
     }
 }

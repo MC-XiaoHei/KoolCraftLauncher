@@ -1,6 +1,6 @@
 use crate::vibrancy::VibrancyStateStore;
-use tauri_plugin_os::Version::Semantic;
 use tauri::{Manager, State};
+use tauri_plugin_os::Version::Semantic;
 
 mod setup;
 mod vibrancy;
@@ -24,12 +24,12 @@ fn should_custom_window() -> bool {
 
 #[tauri::command]
 async fn start_microsoft_login(app: tauri::AppHandle) {
-  account::microsoft::open_microsoft_login_webview(app).await;
+    account::microsoft::open_microsoft_login_webview(app).await;
 }
 
 #[tauri::command]
 async fn terminate_microsoft_login(app: tauri::AppHandle) {
-  account::microsoft::close_microsoft_login_webview(app).await;
+    account::microsoft::close_microsoft_login_webview(app).await;
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
