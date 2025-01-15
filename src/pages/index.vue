@@ -40,6 +40,7 @@
           <v-tooltip location="bottom" open-delay="300" :text="t('pages.index.label.change-skin-tooltip')">
             <template v-slot:activator="{ props }">
               <v-btn
+                  disabled
                   v-bind="props"
                   size="28"
                   variant="tonal"
@@ -52,6 +53,7 @@
           <v-tooltip location="bottom" open-delay="300" :text="t('pages.index.label.modify-account-info-tooltip')">
             <template v-slot:activator="{ props }">
               <v-btn
+                  disabled
                   v-bind="props"
                   size="28"
                   variant="tonal"

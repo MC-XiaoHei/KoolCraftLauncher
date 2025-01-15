@@ -1,6 +1,6 @@
 <template>
   <div class="pos-relative">
-    <div class="w-full h-full flex flex-col gap-2">
+    <div class="w-full h-full flex flex-col gap-3">
       <div v-for="account in accountStore.accounts"
            :key="account.namespace + account.uuid"
            class="px-0 flex h-11 w-full rounded-1 overflow-clip"
