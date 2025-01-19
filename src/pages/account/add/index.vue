@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-3">
     <v-btn size="x-large"
-           variant="outlined"
+           variant="text"
            class="!h-16 custom-btn"
            @click="() => {
              router.push('/account/add/microsoft');
@@ -18,7 +18,7 @@
       </template>
     </v-btn>
     <v-btn size="x-large"
-           variant="outlined"
+           variant="text"
            class="!h-16 custom-btn"
            @click="() => router.push('/account/add/offline')"
     >
@@ -32,7 +32,7 @@
       </template>
     </v-btn>
     <v-btn size="x-large"
-           variant="outlined"
+           variant="text"
            disabled
            class="!h-16 custom-btn"
     >
@@ -46,7 +46,7 @@
       </template>
     </v-btn>
     <v-btn size="x-large"
-           variant="outlined"
+           variant="text"
            disabled
            class="!h-16 custom-btn"
     >

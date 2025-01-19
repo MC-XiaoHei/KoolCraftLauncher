@@ -4,11 +4,16 @@
     <div class="text-body-1 pb-4 mt--8">
       {{ title }}
     </div>
-    <v-progress-linear v-if="loginStatus !== MicrosoftLoginStatus.Error" indeterminate />
-    <div v-else>
+    <v-progress-linear
+        v-if="loginStatus !== MicrosoftLoginStatus.Error && loginStatus !== MicrosoftLoginStatus.Cancelled"
+        indeterminate />
+    <div v-else-if="loginStatus !== MicrosoftLoginStatus.Cancelled">
       {{
         t(`pages.account.add.microsoft.label.${ error ?? MicrosoftLoginErrorType.UnknownError }`)
       }}
+    </div>
+    <div v-else>
+      {{ t("pages.account.add.microsoft.label.Cancelled") }}
     </div>
     <v-spacer />
   </div>
@@ -104,7 +109,7 @@ appWindow.listen<string>("microsoft-login-status", (event) => {
     const account = AccountProviders.Microsoft.build(
         profile.name,
         profile.uuid,
-    )
+    );
     accountStore.addAccount(account);
     accountStore.currentAccount = account;
     router.push("/");

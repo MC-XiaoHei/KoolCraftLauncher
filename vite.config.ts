@@ -27,7 +27,9 @@ export default defineConfig({
   },
   plugins: [
     UnoCSS(),
-    VueRouter({}),
+    VueRouter({
+      importMode: "sync",
+    }),
     Vue(),
     Vuetify({ autoImport: true }),
     VueDevTools({

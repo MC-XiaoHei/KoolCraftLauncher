@@ -29,6 +29,7 @@
         "microsoft": {
           "title": "添加微软账号",
           "label": {
+            "Cancelled": "登录已取消",
             "LoadingPage": "正在加载登录窗口...",
             "WaitingForOAuth": "请在打开的新窗口中完成登录",
             "NetworkError": "网络错误",
@@ -53,8 +54,16 @@
         }
       }
     },
-    "empty": {
-      "title": ""
+    "discover": {
+      "title": "探索资源",
+      "label": {
+        "game": "游戏",
+        "mod": "模组",
+        "resource-pack": "材质",
+        "shader": "光影",
+        "data-pack": "数据包",
+        "mod-pack": "整合包"
+      }
     }
   },
   "account": {

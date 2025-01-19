@@ -23,5 +23,6 @@ declare module 'vue-router/auto-routes' {
     '/account/add/microsoft': RouteRecordInfo<'/account/add/microsoft', '/account/add/microsoft', Record<never, never>, Record<never, never>>,
     '/account/add/offline': RouteRecordInfo<'/account/add/offline', '/account/add/offline', Record<never, never>, Record<never, never>>,
     '/account/list': RouteRecordInfo<'/account/list', '/account/list', Record<never, never>, Record<never, never>>,
+    '/discover/': RouteRecordInfo<'/discover/', '/discover', Record<never, never>, Record<never, never>>,
   }
 }

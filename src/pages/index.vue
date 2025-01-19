@@ -81,6 +81,7 @@
       <v-btn class="flex-grow !h-full justify-start"
              size="x-large"
              variant="tonal"
+             @click="() => router.push('/discover')"
       >
         <template v-slot:prepend>
           <v-icon class="ml--1" :icon="mdiCompassOutline" size="32" />
