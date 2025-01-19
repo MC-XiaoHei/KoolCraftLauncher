@@ -26,7 +26,7 @@
           />
         </template>
 
-        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default select-none">
+        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default select-none title">
           {{ toolbarTitle }}
         </v-toolbar-title>
         <v-spacer></v-spacer>
@@ -129,3 +129,9 @@ onMounted(() => {
   });
 });
 </script>
+
+<style scoped lang="scss">
+.title :deep(.v-toolbar-title__placeholder) {
+  width: 256px;
+}
+</style>

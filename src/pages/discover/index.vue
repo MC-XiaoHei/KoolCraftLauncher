@@ -6,6 +6,7 @@
         :key="category.route"
         size="x-large"
         variant="text"
+        :to="category.route"
     >
       <template v-slot:prepend>
         <v-icon class="ml--1" :icon="category.icon" size="32" />
