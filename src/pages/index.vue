@@ -79,7 +79,6 @@
     </div>
     <div class="flex gap-3">
       <v-btn class="flex-grow !h-full justify-start"
-             size="x-large"
              variant="tonal"
              @click="() => router.push('/discover')"
       >

@@ -8,9 +8,11 @@ body {
 }
 
 #navbar {
-  border-bottom: none !important;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  overflow: clip;
+}
+
+.v-app-bar.v-toolbar {
+  background: transparent !important;
 }
 
 body, html, #app {
@@ -20,8 +22,9 @@ body, html, #app {
   margin: 0;
 }
 
+
 #app {
-  background: rgb(var(--v-theme-surface));
+  background: rgb(var(--v-theme-background));
 }
 
 @font-face {
@@ -58,4 +61,8 @@ body, html, #app {
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+.v-expansion-panel-title > .v-expansion-panel-title__overlay {
+  transition: opacity 0.3s;
 }

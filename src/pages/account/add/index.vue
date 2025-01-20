@@ -1,8 +1,6 @@
 <template>
   <div class="flex flex-col gap-3">
-    <v-btn size="x-large"
-           variant="text"
-           class="!h-16 custom-btn"
+    <v-btn class="!h-16 custom-btn"
            @click="() => {
              router.push('/account/add/microsoft');
              invoke('start_microsoft_login');
@@ -17,9 +15,7 @@
         </div>
       </template>
     </v-btn>
-    <v-btn size="x-large"
-           variant="text"
-           class="!h-16 custom-btn"
+    <v-btn class="!h-16 custom-btn"
            @click="() => router.push('/account/add/offline')"
     >
       <template v-slot:default>
@@ -31,9 +27,7 @@
         </div>
       </template>
     </v-btn>
-    <v-btn size="x-large"
-           variant="text"
-           disabled
+    <v-btn disabled
            class="!h-16 custom-btn"
     >
       <template v-slot:default>
@@ -45,9 +39,7 @@
         </div>
       </template>
     </v-btn>
-    <v-btn size="x-large"
-           variant="text"
-           disabled
+    <v-btn disabled
            class="!h-16 custom-btn"
     >
       <template v-slot:default>

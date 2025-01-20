@@ -70,7 +70,9 @@
           "fetching": "正在获取版本列表...",
           "error": "获取版本列表失败",
           "retry": "重试",
-          "latest": "最新版本"
+          "latest": "最新版本",
+          "releases": "正式版",
+          "snapshots": "快照版"
         }
       }
     }

@@ -4,12 +4,10 @@
         class="justify-start"
         v-for="category in categories"
         :key="category.route"
-        size="x-large"
-        variant="text"
         :to="category.route"
     >
       <template v-slot:prepend>
-        <v-icon class="ml--1" :icon="category.icon" size="32" />
+        <v-icon class="ml--1 mb-1" :icon="category.icon" size="32" />
       </template>
       <span class="ml-2 text-body-1">
           {{ category.text }}

@@ -25,8 +25,7 @@
       </div>
     </v-form>
     <v-spacer />
-    <v-btn size="x-large"
-           variant="tonal"
+    <v-btn variant="tonal"
            :disabled="!canAddAccount"
            :text="t('pages.account.add.offline.label.add-account')"
            @click="() => submit()"
