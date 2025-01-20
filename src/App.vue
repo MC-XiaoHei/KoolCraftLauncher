@@ -53,7 +53,7 @@
         </v-app-bar>
         <div class="pt-14 w-full h-full overflow-hidden">
           <OverlayScrollbarsComponent class="w-full h-full px-8" defer>
-            <router-view class="w-full h-full"></router-view>
+            <router-view class="w-full h-full pb-6" />
           </OverlayScrollbarsComponent>
         </div>
       </v-app>

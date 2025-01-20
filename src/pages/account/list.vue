@@ -38,7 +38,7 @@
     <v-btn
         :icon="mdiPlus"
         position="absolute"
-        class="right-0 bottom-1"
+        class="right-0 bottom-7"
         variant="tonal"
         @click="() => router.push('/account/add')"
     />
