@@ -34,7 +34,6 @@
       </span>
     </div>
     <v-fab
-        variant="tonal"
         absolute
         :icon="mdiPlus"
         @click="() => router.push('/account/add')"

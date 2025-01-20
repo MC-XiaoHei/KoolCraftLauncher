@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <v-form v-model="canAddAccount">
-      <div class="h-12">
+      <div class="h-12 pt-2">
         <v-text-field autofocus
                       clearable
                       counter
@@ -52,19 +52,16 @@ const usernameRules = {
       || t("pages.account.add.offline.label.username-already-exists"),
 };
 const username = ref("");
-const haveMinecraftAccount = computed(() => {
-  accountStore.accounts.forEach((account) => {
-    if (account.type === AccountType.Microsoft) {
-      return true;
-    }
-  });
-  return false;
-});
+const haveMinecraftAccount = computed(() =>
+    accountStore.accounts.filter((account) => account.type == AccountType.Microsoft).length > 0,
+);
 const supportMojangWhenConditionsAllow = ref(false);
 const canAddAccount = ref(false);
 
 function submit() {
-  accountStore.addAccount(AccountProviders.Offline.build(username.value));
+  const account = AccountProviders.Offline.build(username.value);
+  accountStore.addAccount(account);
+  accountStore.currentAccount = account;
   router.push("/");
 }
 </script>
