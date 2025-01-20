@@ -1,10 +1,9 @@
 <template>
-  <div class="pos-relative">
-    <div class="w-full h-full flex flex-col gap-3">
-      <div v-for="account in accountStore.accounts"
-           :key="account.namespace + account.uuid"
-           class="px-0 flex h-11 w-full rounded-1 overflow-clip"
-      >
+  <div class="w-full h-full flex flex-col gap-3 position-relative">
+    <div v-for="account in accountStore.accounts"
+         :key="account.namespace + account.uuid"
+         class="px-0 flex h-11 w-full rounded-1 overflow-clip"
+    >
       <span>
         <account-avatar :size="44"
                         :account="account"
@@ -14,7 +13,7 @@
                         }"
         />
       </span>
-        <span class="w-full">
+      <span class="w-full">
         <v-btn size="large"
                :variant="accountStore.isCurrentAccount(account) ? 'tonal' : 'plain'"
                class="pt-0 w-full custom-btn"
@@ -33,13 +32,11 @@
           </div>
         </v-btn>
       </span>
-      </div>
     </div>
-    <v-btn
-        :icon="mdiPlus"
-        position="absolute"
-        class="right-0 bottom-7"
+    <v-fab
         variant="tonal"
+        absolute
+        :icon="mdiPlus"
         @click="() => router.push('/account/add')"
     />
   </div>
