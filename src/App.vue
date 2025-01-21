@@ -66,6 +66,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue";
 import { useTheme } from "vuetify";
+import { useMinecraftVersionCache } from "./store/cache/minecraft-version-cache.ts";
 import { DarkMode } from "./store/theme/models.ts";
 import { useThemeStore } from "./store/theme/theme.ts";
 
@@ -137,6 +138,7 @@ onMounted(() => {
       appWindow.startDragging();
     }
   });
+  useMinecraftVersionCache().updateData().then();
 });
 </script>
 

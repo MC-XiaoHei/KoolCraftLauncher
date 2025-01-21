@@ -1,5 +1,5 @@
 <template>
-  <div v-if="status == FetchVerListStatus.Ok">
+  <div v-if="versionCache.status == VersionCacheStatus.Ok">
     <div class="pb-6">
       <v-card class="rounded-md card mb-3" flat>
         <v-card-title class="text-subtitle-1">{{ t("pages.discover.game.label.latest") }}</v-card-title>
@@ -26,10 +26,10 @@
           </template>
           <template v-slot:text>
             <div :style="{
-              height: `${(verListData?.versions.filter((v) => v.type === 'release').length ?? 0) * 52}px`,
+              height: `${(versionCache.data?.versions.filter((v) => v.type === 'release').length ?? 0) * 52}px`,
             }">
               <intersection
-                  v-for="version in verListData?.versions.filter((v) => v.type === 'release')"
+                  v-for="version in versionCache.data?.versions.filter((v) => v.type === 'release')"
                   :key="version.id"
                   class="h-13"
               >
@@ -52,10 +52,10 @@
           </template>
           <template v-slot:text>
             <div :style="{
-              height: `${(verListData?.versions.filter((v) => v.type === 'snapshot').length ?? 0) * 52}px`,
+              height: `${(versionCache.data?.versions.filter((v) => v.type === 'snapshot').length ?? 0) * 52}px`,
             }">
               <intersection
-                  v-for="version in verListData?.versions.filter((v) => v.type === 'snapshot')"
+                  v-for="version in versionCache.data?.versions.filter((v) => v.type === 'snapshot')"
                   :key="version.id"
                   class="h-13"
               >
@@ -72,75 +72,36 @@
       </v-expansion-panels>
     </div>
   </div>
-  <div v-else-if="status == FetchVerListStatus.Fetching" class="flex flex-col justify-center items-center h-full">
+  <div v-else-if="versionCache.status == VersionCacheStatus.Fetching" class="flex flex-col justify-center items-center h-full">
     <span class="text-body-1 pb-2">{{ t("pages.discover.game.label.fetching") }}</span>
     <v-progress-linear indeterminate />
   </div>
   <div v-else class="flex flex-col justify-center items-center h-full">
     <span class="text-body-1 pb-2">{{ t("pages.discover.game.label.error") }}</span>
-    <v-btn @click="() => fetchVersion()" variant="text">{{ t("pages.discover.game.label.retry") }}</v-btn>
+    <v-btn @click="() => versionCache.updateData()" variant="text">{{ t("pages.discover.game.label.retry") }}</v-btn>
   </div>
 </template>
 
 <script setup lang="ts">
 import { mdiChevronDown } from "@mdi/js";
-import { fetch } from "@tauri-apps/plugin-http";
 import GameVersionCard from "../../components/GameVersionCard.vue";
 import Intersection from "../../components/Intersection.vue";
+import { useMinecraftVersionCache, VersionCacheStatus } from "../../store/cache/minecraft-version-cache.ts";
 import { formatDate } from "../../utils/date-utils.ts";
 
-enum FetchVerListStatus {
-  Fetching,
-  Ok,
-  Error,
-}
-
-interface VersionData {
-  id: string;
-  type: string;
-  url: string;
-  time: string;
-  releaseTime: string;
-}
-
-interface VerListData {
-  latest: {
-    release: string;
-    snapshot: string;
-  };
-  versions: VersionData[];
-}
 
 const { t } = useI18n();
-const status = ref(FetchVerListStatus.Fetching);
-const verListData = ref<VerListData | null>(null);
+const versionCache = useMinecraftVersionCache();
 const latestReleaseData = computed(() =>
-    verListData.value?.versions.find((v) => v.id === verListData.value?.latest.release),
+    versionCache.data?.versions.find((v) => v.id === versionCache.data?.latest.release),
 );
 const latestSnapshotData = computed(() =>
-    verListData.value?.versions.find((v) => v.id === verListData.value?.latest.snapshot),
+    versionCache.data?.versions.find((v) => v.id === versionCache.data?.latest.snapshot),
 );
 
 onMounted(() => {
-  fetchVersion().then();
+  versionCache.updateData().then();
 });
-
-async function fetchVersion() {
-  try {
-    status.value = FetchVerListStatus.Fetching;
-    const response = await fetch("https://piston-meta.mojang.com/mc/game/version_manifest.json", {
-      method: "GET",
-    });
-    if (!response.ok) {
-      status.value = FetchVerListStatus.Error;
-      return;
-    }
-    status.value = FetchVerListStatus.Ok;
-    verListData.value = await response.json();
-  } catch (e) {
-    status.value = FetchVerListStatus.Error;
-  }
-}
 </script>
 
 <style scoped lang="scss">
