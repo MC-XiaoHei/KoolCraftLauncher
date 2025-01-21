@@ -22,7 +22,7 @@ const iconUrl = computed(() => {
     case "release":
       return "/minecraft-assets/grass-block.png";
     case "snapshot":
-      return "/minecraft-assets/command-block.gif";
+      return "/minecraft-assets/command-block.png";
     case "old":
       return "/minecraft-assets/cobblestone.png";
     case "fool":

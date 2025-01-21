@@ -4,6 +4,7 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import VueRouter from "unplugin-vue-router/vite";
 import { defineConfig } from "vite";
+import ViteCompression from "vite-plugin-compression";
 import VueDevTools from "vite-plugin-vue-devtools";
 import Vuetify from "vite-plugin-vuetify";
 
@@ -22,8 +23,15 @@ export default defineConfig({
         process.env.TAURI_ENV_PLATFORM == "windows"
             ? "chrome90"
             : "safari15",
-    minify: !process.env.TAURI_ENV_DEBUG ? "esbuild" : false,
+    minify: !process.env.TAURI_ENV_DEBUG ? "terser" : false,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
+    chunkSizeWarningLimit: 1000,
   },
   plugins: [
     UnoCSS(),
@@ -46,5 +54,6 @@ export default defineConfig({
     Components({
       dts: true,
     }),
+    ViteCompression({}),
   ],
 });

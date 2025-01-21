@@ -26,3 +26,10 @@ tauri-plugin-prevent-default = "1.0.1"
 tauri-plugin-single-instance = "2.2.1"
 tauri-plugin-store = "2.2.0"
 rux-downloader = "0.1.0"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

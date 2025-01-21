@@ -10,7 +10,6 @@ declare module 'vue' {
     AccountAvatar: typeof import('./src/components/AccountAvatar.vue')['default']
     GameVersionCard: typeof import('./src/components/GameVersionCard.vue')['default']
     Intersection: typeof import('./src/components/Intersection.vue')['default']
-    KBtn: typeof import('./src/components/KBtn.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

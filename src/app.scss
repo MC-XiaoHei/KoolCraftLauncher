@@ -22,23 +22,15 @@ body, html, #app {
   margin: 0;
 }
 
-
 #app {
   background: rgb(var(--v-theme-background));
 }
 
 @font-face {
   font-family: "monocraft";
-  src: url("./fonts/Monocraft-Light.otf") format("opentype");
+  src: url("./fonts/Monocraft-Light.woff2") format("woff2");
   font-weight: 300;
   font-style: normal;
-}
-
-@font-face {
-  font-family: "monocraft";
-  src: url("./fonts/Monocraft-Light-Italic.otf") format("opentype");
-  font-weight: 300;
-  font-style: italic;
 }
 
 .text-monocraft {

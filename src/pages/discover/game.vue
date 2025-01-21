@@ -28,12 +28,10 @@
             <div :style="{
               height: `${(verListData?.versions.filter((v) => v.type === 'release').length ?? 0) * 52}px`,
             }">
-              <v-lazy
+              <intersection
                   v-for="version in verListData?.versions.filter((v) => v.type === 'release')"
-                  :min-height="52"
                   :key="version.id"
-                  :options="{'threshold':0.1}"
-                  transition="fade-transition"
+                  class="h-13"
               >
                 <game-version-card
                     class="w-full"
@@ -41,7 +39,7 @@
                     :version="version.id"
                     :text="formatDate(version.releaseTime)"
                 />
-              </v-lazy>
+              </intersection>
             </div>
           </template>
         </v-expansion-panel>
