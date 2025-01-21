@@ -137,7 +137,6 @@ async function fetchVersion() {
     }
     status.value = FetchVerListStatus.Ok;
     verListData.value = await response.json();
-    console.log(verListData.value);
   } catch (e) {
     status.value = FetchVerListStatus.Error;
   }

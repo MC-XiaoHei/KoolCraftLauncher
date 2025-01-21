@@ -30,7 +30,6 @@ const size = computed(() => props.size || 32);
 
 onMounted(() => {
   provider.value.getSkinData(props.account).then((skinData) => {
-    console.log(skinData)
     skinUrl.value = skinData.skinUrl;
   });
 })
