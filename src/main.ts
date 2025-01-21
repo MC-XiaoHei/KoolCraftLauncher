@@ -1,14 +1,15 @@
 import "vuetify/styles";
 import "virtual:uno.css";
 import "./app.scss";
-import 'overlayscrollbars/overlayscrollbars.css';
+import "overlayscrollbars/overlayscrollbars.css";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { ClickScrollPlugin, OverlayScrollbars } from "overlayscrollbars";
 import App from "./App.vue";
 import { i18n } from "./plugins/i18n";
 import { pinia } from "./plugins/pinia";
 import { router } from "./plugins/router";
 import { vuetify } from "./plugins/vuetify";
 
-import { OverlayScrollbars, ClickScrollPlugin } from 'overlayscrollbars';
 OverlayScrollbars.plugin(ClickScrollPlugin);
 
 createApp(App)
@@ -17,3 +18,5 @@ createApp(App)
     .use(vuetify)
     .use(pinia)
     .mount("#app");
+
+getCurrentWebviewWindow().show().then();

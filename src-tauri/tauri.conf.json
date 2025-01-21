@@ -20,7 +20,8 @@
         "decorations": false,
         "transparent": true,
         "resizable": false,
-        "center": true
+        "center": true,
+        "visible": false
       }
     ],
     "security": {
