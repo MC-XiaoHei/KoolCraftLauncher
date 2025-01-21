@@ -23,7 +23,6 @@
                    flat
         >
           <template v-slot:prepend>
-            <v-avatar v-show="isIndexPage" class="ml-2" image="/icon-32x.png" size="32" />
             <v-btn v-show="!isIndexPage"
                    class="ml-2"
                    size="32"
