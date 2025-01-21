@@ -1,63 +1,63 @@
 <template>
-  <keep-alive>
-    <v-defaults-provider
-        :defaults="{
+  <v-defaults-provider
+      :defaults="{
           'VBtn':{
             'color': 'primary',
             'size':'x-large',
             'variant':'text'
           },
         }"
-    >
-      <v-app id="app"
-             :class="{
+  >
+    <v-app id="app"
+           :class="{
               'bg-transparent': shouldTransparentBody,
               'border': shouldCustomWindow,
             }"
-      >
-        <v-app-bar id="navbar"
-                   :class="{
+    >
+      <v-app-bar id="navbar"
+                 :class="{
                     'bg-transparent': shouldTransparentBody,
                   }"
-                   density="compact"
-                   flat
-        >
-          <template v-slot:prepend>
-            <v-btn v-show="!isIndexPage"
-                   class="ml-2"
-                   size="32"
-                   variant="plain"
-                   rounded
-                   :icon="mdiArrowLeft"
-                   @click="() => router.back()"
-            />
-          </template>
+                 density="compact"
+                 flat
+      >
+        <template v-slot:prepend>
+          <v-btn v-show="!isIndexPage"
+                 class="ml-2 no-drag"
+                 size="32"
+                 variant="plain"
+                 rounded
+                 :icon="mdiArrowLeft"
+                 @click="() => router.back()"
+          />
+        </template>
 
-          <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default select-none title">
-            {{ toolbarTitle }}
-          </v-toolbar-title>
-          <v-spacer></v-spacer>
-          <v-btn :icon="windowMinimizeIcon"
-                 :rounded="0"
-                 class="no-drag"
-                 variant="plain"
-                 @click="() => appWindow.minimize()"
-          />
-          <v-btn :icon="mdiWindowClose"
-                 :rounded="0"
-                 class="no-drag mr-0"
-                 variant="plain"
-                 @click="() => appWindow.close()"
-          />
-        </v-app-bar>
-        <div class="pt-14 w-full h-full overflow-hidden">
-          <OverlayScrollbarsComponent class="w-full h-full px-8" defer>
-            <router-view class="w-full h-full pb-6" />
-          </OverlayScrollbarsComponent>
-        </div>
-      </v-app>
-    </v-defaults-provider>
-  </keep-alive>
+        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default select-none title">
+          {{ toolbarTitle }}
+        </v-toolbar-title>
+        <v-spacer></v-spacer>
+        <v-btn :icon="windowMinimizeIcon"
+               class="no-drag mr-2"
+               size="32"
+               variant="plain"
+               rounded
+               @click="() => appWindow.minimize()"
+        />
+        <v-btn :icon="mdiWindowClose"
+               class="no-drag mr-2"
+               size="32"
+               variant="plain"
+               rounded
+               @click="() => appWindow.close()"
+        />
+      </v-app-bar>
+      <div class="pt-14 w-full h-full overflow-hidden">
+        <OverlayScrollbarsComponent class="w-full h-full px-8" defer>
+          <router-view class="w-full h-full pb-6" />
+        </OverlayScrollbarsComponent>
+      </div>
+    </v-app>
+  </v-defaults-provider>
 </template>
 
 <script lang="ts" setup>

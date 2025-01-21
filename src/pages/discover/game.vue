@@ -148,7 +148,6 @@ async function fetchVersion() {
   background-color: rgb(var(--v-theme-surface));
 }
 
-
 :deep(.v-expansion-panel-text__wrapper) {
   padding: 0 16px 16px;
 }
