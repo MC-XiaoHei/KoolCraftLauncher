@@ -32,7 +32,7 @@
           />
         </template>
 
-        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default select-none title">
+        <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default title">
           {{ toolbarTitle }}
         </v-toolbar-title>
         <v-spacer></v-spacer>
@@ -51,9 +51,17 @@
                @click="() => appWindow.close()"
         />
       </v-app-bar>
-      <div class="pt-14 w-full h-full overflow-hidden">
-        <OverlayScrollbarsComponent class="w-full h-full px-8" defer>
-          <router-view class="w-full h-full pb-6" />
+      <div class="pt-12 pb-2 w-full h-full overflow-hidden">
+        <OverlayScrollbarsComponent class="w-full h-full px-8" defer :options="{
+          scrollbars: {
+            clickScroll: true,
+            dragScroll: true,
+          },
+          overflow: {
+            x: 'hidden',
+          },
+        }">
+          <router-view class="w-full h-full" />
         </OverlayScrollbarsComponent>
       </div>
     </v-app>

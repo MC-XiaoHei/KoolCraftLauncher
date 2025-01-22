@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-3">
+  <div class="flex flex-col gap-3 pb-3">
     <v-spacer />
     <div v-show="noAvailableAccount" class="w-full flex justify-center">
       <v-btn
@@ -74,7 +74,7 @@
       <span v-else>
         [{{
           t(`account.type-short.${ accountStore.currentAccountTypeLabel() }`)
-        }}]&thinsp;{{ accountStore.currentAccount!.name }}
+        }}]&thinsp;<span class="select-text">{{ accountStore.currentAccount!.name }}</span>
       </span>
     </div>
     <div class="flex gap-3">

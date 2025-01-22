@@ -1,6 +1,5 @@
 <template>
   <div v-if="versionCache.status == VersionCacheStatus.Ok">
-    <div class="pb-6">
       <v-card class="rounded-md card mb-3" flat>
         <v-card-title class="text-subtitle-1">{{ t("pages.discover.game.label.latest") }}</v-card-title>
         <v-card-text>
@@ -70,7 +69,6 @@
           </template>
         </v-expansion-panel>
       </v-expansion-panels>
-    </div>
   </div>
   <div v-else-if="versionCache.status == VersionCacheStatus.Fetching" class="flex flex-col justify-center items-center h-full">
     <span class="text-body-1 pb-2">{{ t("pages.discover.game.label.fetching") }}</span>
