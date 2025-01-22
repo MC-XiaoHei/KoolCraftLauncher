@@ -1,5 +1,7 @@
 import { createVuetify, ThemeDefinition } from "vuetify";
 import { aliases, mdi } from "vuetify/iconsets/mdi-svg";
+import { createVueI18nAdapter } from "vuetify/locale/adapters/vue-i18n";
+import { i18n } from "./i18n.ts";
 
 const defaultDarkTheme: ThemeDefinition = {
   dark: true,
@@ -39,5 +41,8 @@ export const vuetify = createVuetify({
       size: "x-large",
       variant: "text",
     },
+  },
+  locale: {
+    adapter: createVueI18nAdapter({ i18n, useI18n }),
   },
 });
