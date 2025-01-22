@@ -108,8 +108,11 @@
     <v-progress-linear indeterminate />
   </div>
   <div v-else class="flex flex-col justify-center items-center h-full">
-    <span class="text-body-1 pb-2">{{ t("pages.discover.game.label.error") }}</span>
-    <v-btn @click="() => versionCache.updateData()" variant="text">{{ t("pages.discover.game.label.retry") }}</v-btn>
+    <v-empty-state
+        :title="t('pages.discover.game.label.error')"
+        :action-text="t('pages.discover.game.label.retry')"
+        @click:action="() => versionCache.updateData()"
+    ></v-empty-state>
   </div>
 </template>
 

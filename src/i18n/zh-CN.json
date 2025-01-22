@@ -90,7 +90,11 @@
       }
     },
     "dynamic": {
-      "title": "404"
+      "title": "404",
+      "label": {
+        "not-found": "页面未找到",
+        "back-to-home": "返回首页"
+      }
     }
   },
   "account": {

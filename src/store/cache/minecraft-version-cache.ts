@@ -69,7 +69,7 @@ export const useMinecraftVersionCache = defineStore("minecraft-version-cache", (
 
   async function updateData() {
     try {
-      if (data === null) {
+      if (data === null || status.value === VersionCacheStatus.Error) {
         status.value = VersionCacheStatus.Fetching;
       } else {
         status.value = VersionCacheStatus.Ok;
