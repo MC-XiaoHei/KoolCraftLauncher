@@ -8,7 +8,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AccountAvatar: typeof import('./src/components/AccountAvatar.vue')['default']
-    FloatActionButton: typeof import('./src/components/FloatActionButton.vue')['default']
     GameVersionCard: typeof import('./src/components/GameVersionCard.vue')['default']
     Intersection: typeof import('./src/components/Intersection.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
