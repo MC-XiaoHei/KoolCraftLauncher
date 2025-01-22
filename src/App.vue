@@ -23,7 +23,11 @@
         />
       </template>
 
-      <v-toolbar-title class="text-monocraft mt--1 ml-3 cursor-default title">
+      <v-toolbar-title v-if="isIndexPage || !router.currentRoute.value.name"
+                       class="text-monocraft"
+      >KCl
+      </v-toolbar-title>
+      <v-toolbar-title v-else class="mt--1 ml-3 cursor-default title">
         {{ toolbarTitle }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
@@ -77,10 +81,8 @@ const shouldTransparentBody = ref(false);
 const shouldCustomWindow = ref(false);
 const isIndexPage = computed(() => router.currentRoute.value.name === "/");
 const toolbarTitle = computed(() => {
-  if (isIndexPage.value || !router.currentRoute.value.name) {
-    return "KCl";
-  }
-  let routeName = (router.currentRoute.value.name as string).replace(/\//g, ".");
+  const route = router.currentRoute.value;
+  let routeName = (route.name as string).replace(/\//g, ".");
   if (!routeName.startsWith(".")) {
     routeName = `.${ routeName }`;
   }
@@ -90,7 +92,11 @@ const toolbarTitle = computed(() => {
   if (!routeName.endsWith(".")) {
     routeName += ".";
   }
-  return t(`pages${ routeName }title`);
+  let translated = t(`pages${ routeName }title`);
+  Object.entries(route.params).forEach(([key, value]) => {
+    translated = translated.replace(`<${ key }>`, value);
+  });
+  return translated;
 });
 const windowMinimizeIcon = "M20,13H4V11H20";
 

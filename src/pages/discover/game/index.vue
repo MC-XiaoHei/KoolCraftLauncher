@@ -8,11 +8,13 @@
               icon="release"
               :version="latestReleaseData?.id ?? ''"
               :text="formatDate(latestReleaseData?.releaseTime ?? '')"
+              :on-click="() => router.push(`/discover/game/install/${latestReleaseData?.id ?? ''}`)"
           />
           <game-version-card
               icon="snapshot"
               :version="latestSnapshotData?.id ?? ''"
               :text="formatDate(latestSnapshotData?.releaseTime ?? '')"
+              :on-click="() => router.push(`/discover/game/install/${latestSnapshotData?.id ?? ''}`)"
           />
         </div>
       </v-card-text>
@@ -37,6 +39,7 @@
                   icon="release"
                   :version="version.id"
                   :text="formatDate(version.releaseTime)"
+                  :on-click="() => router.push(`/discover/game/install/${version.id}`)"
               />
             </intersection>
           </div>
@@ -63,6 +66,7 @@
                   icon="snapshot"
                   :version="version.id"
                   :text="formatDate(version.releaseTime)"
+                  :on-click="() => router.push(`/discover/game/install/${version.id}`)"
               />
             </intersection>
           </div>
@@ -95,6 +99,7 @@
                       }`,
                        formatDate(version.releaseTime)
                   )"
+                  :on-click="() => router.push(`/discover/game/install/${version.id}`)"
               />
             </intersection>
           </div>
@@ -122,6 +127,7 @@ import { formatDate } from "@/utils/date-utils.ts";
 import { mdiChevronDown } from "@mdi/js";
 
 const { t } = useI18n();
+const router = useRouter();
 const versionCache = useMinecraftVersionCache();
 const latestReleaseData = computed(() =>
     versionCache.data?.versions.find((v) => v.id === versionCache.data?.latest.release),

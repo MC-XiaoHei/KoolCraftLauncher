@@ -1,5 +1,9 @@
 <template>
-  <v-btn class="justify-start">
+  <v-btn class="justify-start" @click="() => {
+    if(onClick) {
+      onClick();
+    }
+  }">
     <template v-slot:prepend>
       <v-img class="ml--1" :src="iconUrl" width="32" height="32" />
     </template>
@@ -15,6 +19,7 @@ const props = defineProps<{
   icon: string;
   version: string;
   text: string;
+  onClick?: () => void;
 }>();
 
 const iconUrl = computed(() => {
