@@ -13,5 +13,4 @@ function onIntersection(isIntersecting: boolean, _: never, __: never) {
 </script>
 
 <style scoped lang="scss">
-
 </style>

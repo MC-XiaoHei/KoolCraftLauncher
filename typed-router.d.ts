@@ -24,6 +24,7 @@ declare module 'vue-router/auto-routes' {
     '/account/add/offline': RouteRecordInfo<'/account/add/offline', '/account/add/offline', Record<never, never>, Record<never, never>>,
     '/account/list': RouteRecordInfo<'/account/list', '/account/list', Record<never, never>, Record<never, never>>,
     '/discover/': RouteRecordInfo<'/discover/', '/discover', Record<never, never>, Record<never, never>>,
-    '/discover/game': RouteRecordInfo<'/discover/game', '/discover/game', Record<never, never>, Record<never, never>>,
+    '/discover/game/': RouteRecordInfo<'/discover/game/', '/discover/game', Record<never, never>, Record<never, never>>,
+    '/discover/game/install': RouteRecordInfo<'/discover/game/install', '/discover/game/install', Record<never, never>, Record<never, never>>,
   }
 }

@@ -16,8 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { AccountProviders } from "../store/account/account.ts";
-import { Account } from "../store/account/models.ts";
+import { AccountProviders } from "@/store/account/account.ts";
+import { Account } from "@/store/account/models.ts";
 
 const props = defineProps<{
   account: Account;

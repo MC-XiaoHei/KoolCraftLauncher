@@ -48,8 +48,7 @@
 
 <script setup lang="ts">
 import { mdiPlus } from "@mdi/js";
-import AccountAvatar from "../../components/AccountAvatar.vue";
-import { useAccountStore } from "../../store/account/account.ts";
+import { useAccountStore } from "@/store/account/account.ts";
 
 const { t } = useI18n();
 const router = useRouter();

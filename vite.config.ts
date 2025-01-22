@@ -7,6 +7,7 @@ import { defineConfig } from "vite";
 import ViteCompression from "vite-plugin-compression";
 import VueDevTools from "vite-plugin-vue-devtools";
 import Vuetify from "vite-plugin-vuetify";
+import { resolve } from 'path';
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -56,4 +57,12 @@ export default defineConfig({
     }),
     ViteCompression({}),
   ],
+  resolve: {
+    alias: [
+      {
+        find: '@',
+        replacement: resolve(__dirname, './src')
+      }
+    ]
+  }
 });

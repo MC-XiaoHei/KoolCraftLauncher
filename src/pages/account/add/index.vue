@@ -55,7 +55,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { mdiAccountCowboyHatOutline, mdiAccountTieHatOutline, mdiCloudOffOutline } from "@mdi/js";
 import { invoke } from "@tauri-apps/api/core";
 
