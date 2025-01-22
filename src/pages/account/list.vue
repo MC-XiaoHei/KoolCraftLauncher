@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full flex flex-col gap-3 position-relative">
+  <div class="w-full h-full flex flex-col gap-3">
     <div v-for="account in accountStore.accounts"
          :key="account.namespace + account.uuid"
          class="px-0 flex h-11 w-full rounded-1 overflow-clip"
@@ -33,11 +33,16 @@
         </v-btn>
       </span>
     </div>
-    <v-fab
-        absolute
-        :icon="mdiPlus"
-        @click="() => router.push('/account/add')"
-    />
+    <div>
+      <div class="h-16"></div>
+    </div>
+    <div class="pos-fixed bottom-4 right-6">
+      <v-btn size="large"
+             variant="elevated"
+             :icon="mdiPlus"
+             @click="() => router.push('/account/add')"
+      />
+    </div>
   </div>
 </template>
 
