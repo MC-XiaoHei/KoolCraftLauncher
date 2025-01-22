@@ -44,7 +44,7 @@
       </v-expansion-panel>
     </v-expansion-panels>
 
-    <v-expansion-panels class="rounded-md card" flat static>
+    <v-expansion-panels class="rounded-md card mb-3" flat static>
       <v-expansion-panel :expand-icon="mdiChevronDown" :collapse-icon="mdiChevronDown">
         <template v-slot:title>
           <span>{{ t("pages.discover.game.label.snapshots") }}</span>
@@ -63,6 +63,38 @@
                   icon="snapshot"
                   :version="version.id"
                   :text="formatDate(version.releaseTime)"
+              />
+            </intersection>
+          </div>
+        </template>
+      </v-expansion-panel>
+    </v-expansion-panels>
+
+    <v-expansion-panels class="rounded-md card" flat static>
+      <v-expansion-panel :expand-icon="mdiChevronDown" :collapse-icon="mdiChevronDown">
+        <template v-slot:title>
+          <span>{{ t("pages.discover.game.label.fools-day") }}</span>
+        </template>
+        <template v-slot:text>
+          <div :style="{
+              height: `${versionCache.foolsDayVersions.length * 52}px`,
+            }">
+            <intersection
+                v-for="version in versionCache.foolsDayVersions"
+                :key="version.id"
+                class="h-13"
+            >
+              <game-version-card
+                  class="w-full"
+                  icon="fools-day"
+                  :version="version.id"
+                  :text="t(
+                      `pages.discover.game.label.fools-day-tooltips.${
+                        version.id.replace(/ /g,'-')
+                                  .replace(/\./g, '-')
+                      }`,
+                       formatDate(version.releaseTime)
+                  )"
               />
             </intersection>
           </div>

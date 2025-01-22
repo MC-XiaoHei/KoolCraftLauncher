@@ -84,6 +84,9 @@ const toolbarTitle = computed(() => {
   if (!routeName.startsWith(".")) {
     routeName = `.${ routeName }`;
   }
+  if (routeName.includes("[") && routeName.includes("]")) {
+    routeName = routeName.replace(/\[.*]/g, "dynamic");
+  }
   if (!routeName.endsWith(".")) {
     routeName += ".";
   }

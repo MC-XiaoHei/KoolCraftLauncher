@@ -25,7 +25,7 @@ const iconUrl = computed(() => {
       return "/minecraft-assets/command-block.png";
     case "old":
       return "/minecraft-assets/cobblestone.png";
-    case "fool":
+    case "fools-day":
       return "/minecraft-assets/slime-block.png";
   }
 });

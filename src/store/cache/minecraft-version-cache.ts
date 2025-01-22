@@ -1,3 +1,4 @@
+import { isFoolsDay } from "@/utils/date-utils.ts";
 import { fetch } from "@tauri-apps/plugin-http";
 
 export interface VersionData {
@@ -22,8 +23,48 @@ export enum VersionCacheStatus {
   Error,
 }
 
+const unexpectedFoolsDayVersions = [
+  "1.RV-Pre1",
+];
+
+const unlistedFoolsDayVersions: VersionData[] = [
+  {
+    id: "2.0 - Blue",
+    type: "snapshot",
+    url: "https://archive.org/download/2point-0-blue/2point0_blue.json",
+    time: "2013-04-01",
+    releaseTime: "2013-04-01T11:45:14+00:00",
+  },
+  {
+    id: "2.0 - Red",
+    type: "snapshot",
+    url: "https://archive.org/download/2point-0-red/2point0_red.json",
+    time: "2013-04-01",
+    releaseTime: "2013-04-01T11:45:14+00:00",
+  },
+  {
+    id: "2.0 - Purple",
+    type: "snapshot",
+    url: "https://archive.org/download/2point-0-purple/2point0_purple.json",
+    time: "2013-04-01",
+    releaseTime: "2013-04-01T11:45:14+00:00",
+  },
+];
+
 export const useMinecraftVersionCache = defineStore("minecraft-version-cache", () => {
   const data = ref<VersionListData | null>(null);
+  const foolsDayVersions = computed(() => {
+    if (data.value === null) return [];
+    let versions = data.value.versions
+        .filter((version) => version.type === "snapshot")
+        .filter((version) =>
+            unexpectedFoolsDayVersions.includes(version.id) || isFoolsDay(version.releaseTime),
+        );
+    unlistedFoolsDayVersions.forEach((version) => {
+      versions.push(version);
+    });
+    return versions;
+  });
   const status = ref(VersionCacheStatus.Fetching);
 
   async function updateData() {
@@ -38,17 +79,18 @@ export const useMinecraftVersionCache = defineStore("minecraft-version-cache", (
       });
       if (response.ok) {
         data.value = await response.json();
-        status.value = VersionCacheStatus.Ok
+        status.value = VersionCacheStatus.Ok;
       } else {
         status.value = VersionCacheStatus.Error;
       }
     } catch (_) {
-        status.value = VersionCacheStatus.Error;
+      status.value = VersionCacheStatus.Error;
     }
   }
 
   return {
     data,
+    foolsDayVersions,
     status,
     updateData,
   };
