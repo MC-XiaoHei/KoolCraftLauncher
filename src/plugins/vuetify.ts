@@ -29,4 +29,15 @@ export const vuetify = createVuetify({
       mdi,
     },
   },
+  defaults: {
+    global: {
+      ripple: true,
+      elevation: 0,
+    },
+    VBtn: {
+      color: "primary",
+      size: "x-large",
+      variant: "text",
+    },
+  },
 });
