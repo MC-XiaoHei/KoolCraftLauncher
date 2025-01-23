@@ -54,9 +54,9 @@ jobs:
           args: ${{ matrix.args }}
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
-          name: kool-craft-launcher-artifacts
+          name: kool-craft-launcher-dev-build
           path: |
             /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/deb/*.deb
             /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/rpm/*.rpm
