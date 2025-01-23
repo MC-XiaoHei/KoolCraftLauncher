@@ -45,9 +45,6 @@ jobs:
       - name: Install Frontend Dependencies
         run: pnpm install
 
-      - name: Cache Rust Dependencies
-        uses: Swatinem/rust-cache@v2
-
       - name: Generate Icon
         run: pnpm run tauri icon
 
