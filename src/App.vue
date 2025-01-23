@@ -105,7 +105,7 @@ function getDarkModeMediaQuery() {
 }
 
 function setIsDark(isDark: boolean) {
-  theme.global.name.value = isDark ? "defaultDarkTheme" : "defaultLightTheme";
+  theme.global.name.value = isDark ? "defaultDarkTheme" : "defaultDarkTheme"; // TODO
 }
 
 function detectDarkMode() {
