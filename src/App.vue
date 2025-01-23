@@ -131,9 +131,15 @@ function detectDarkMode() {
 }
 
 router.beforeEach((to, from, next) => {
-  const fromPath = to.name?.toString() ?? "/";
-  const toPath = from.name?.toString() ?? "/";
-  routeBack.value = fromPath.split("/").length > toPath.split("/").length;
+  if (to.name === "/[...path]") {
+    routeBack.value = false;
+  } else if (from.name === "/[...path]") {
+    routeBack.value = true;
+  } else {
+    const fromPath = from.name?.toString().replace(/\./g, "/") ?? "/";
+    const toPath = to.name?.toString().replace(/\./g, "/") ?? "/";
+    routeBack.value = fromPath.split("/").length <= toPath.split("/").length;
+  }
   next();
 });
 
