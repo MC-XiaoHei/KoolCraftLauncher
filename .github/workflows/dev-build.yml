@@ -21,6 +21,9 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Setup Rust
+        run: rustup toolchain install stable --profile minimal
+
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -53,7 +56,8 @@ jobs:
         with:
           args: ${{ matrix.args }}
 
-      - name: List Files
-        run: |
-          ls -R /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release
-          ls /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release
+      - name: Upload Portable Executable(Windows-only)
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          path: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe'
