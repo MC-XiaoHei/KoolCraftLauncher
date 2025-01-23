@@ -60,21 +60,37 @@ jobs:
         with:
           args: ${{ matrix.args }}
 
-      - name: Upload Artifacts for Linux
+      - name: Upload Deb Artifacts
         if: matrix.platform == 'ubuntu-22.04'
         uses: actions/upload-artifact@v4
         with:
-          name: 'linux-artifact'
-          path: |
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/deb/*.deb
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/rpm/*.rpm
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage
+          name: 'linux-deb'
+          path: '/home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/deb/*.deb'
 
-      - name: Upload Artifacts for Windows
+      - name: Upload Rpm Artifacts
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'linux-rpm'
+          path: '/home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/rpm/*.rpm'
+
+      - name: Upload AppImage Artifacts
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'linux-appimage'
+          path: '/home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage'
+
+      - name: Upload NSIS Artifacts
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: 'windows-artifact'
-          path: |
-            D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\bundle\nsis\*.exe
-            D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe
+          name: 'windows-nsis'
+          path: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\bundle\nsis\*.exe'
+
+      - name: Upload Portable Artifacts
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'windows-portable'
+          path: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe'
