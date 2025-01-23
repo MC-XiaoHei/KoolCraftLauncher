@@ -55,4 +55,5 @@ jobs:
 
       - name: List Files
         run: |
-          ls -R /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/kool-craft-launcher
+          ls -R /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release
+          ls /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release
