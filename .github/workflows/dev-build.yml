@@ -65,6 +65,11 @@ jobs:
         run: |
           ls -R /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release
 
+      - name: List Files
+        if: matrix.platform == 'windows-latest'
+        run: |
+          ls -R 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release'
+
       - name: Upload Portable Executable(Windows-only)
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
