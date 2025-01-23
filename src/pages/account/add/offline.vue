@@ -17,19 +17,22 @@
                       :label="t('pages.account.add.offline.label.name-field')"
         />
       </div>
-      <div class="pt-8" v-if="!haveMinecraftAccount">
+      <div class="pt-8" v-if="!accountStore.haveMicrosoftAccount">
         <v-checkbox :label="t('pages.account.add.offline.label.support-mojang-when-conditions-allow')"
                     v-model="supportMojangWhenConditionsAllow"
-                    :rules="[(value: boolean) => haveMinecraftAccount || value]"
+                    :rules="[(value: boolean) => accountStore.haveMicrosoftAccount || value]"
         />
       </div>
     </v-form>
     <v-spacer />
-    <v-btn variant="tonal"
-           :disabled="!canAddAccount"
-           :text="t('pages.account.add.offline.label.add-account')"
-           @click="() => submit()"
-    />
+    <div class="pb-5 w-full">
+      <v-btn variant="tonal"
+             class="w-full"
+             :disabled="!canAddAccount"
+             :text="t('pages.account.add.offline.label.add-account')"
+             @click="() => submit()"
+      />
+    </div>
   </div>
 </template>
 
@@ -52,9 +55,6 @@ const usernameRules = {
       || t("pages.account.add.offline.label.username-already-exists"),
 };
 const username = ref("");
-const haveMinecraftAccount = computed(() =>
-    accountStore.accounts.filter((account) => account.type == AccountType.Microsoft).length > 0,
-);
 const supportMojangWhenConditionsAllow = ref(false);
 const canAddAccount = ref(false);
 

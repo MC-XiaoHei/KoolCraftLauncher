@@ -35,6 +35,10 @@ export const useAccountStore = defineStore("account", () => {
         && currentAccount.value?.namespace === account.namespace;
   }
 
+  const haveMicrosoftAccount = computed(() =>
+      accounts.value.filter((account) => account.type == AccountType.Microsoft).length > 0,
+  );
+
   return {
     accounts,
     currentAccount,
@@ -42,6 +46,7 @@ export const useAccountStore = defineStore("account", () => {
     getAccountTypeLabel,
     addAccount,
     isCurrentAccount,
+    haveMicrosoftAccount,
   };
 }, {
   persist: true,
