@@ -1,10 +1,12 @@
 use crate::vibrancy::VibrancyState;
-use tauri::{App, Manager};
+use tauri::App;
 
 #[cfg(target_os = "windows")]
 use tauri_plugin_os::Version::Semantic;
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "macos", target_os = "windows"))]
 use window_vibrancy::*;
+#[cfg(any(target_os = "macos", target_os = "windows"))]
+use tauri::Manager;
 
 pub fn can_use_acrylic(patch: u64) -> bool {
     const EARLIEST_WIN_10_PATCH_VERSION_CAN_ACRYLIC: u64 = 18090;
@@ -18,6 +20,7 @@ pub fn is_win11(patch: u64) -> bool {
     patch >= EARLIEST_WIN_11_PATCH_VERSION
 }
 
+#[allow(unused_variables)]
 pub fn setup_window(app: &mut App) -> Result<VibrancyState, Box<dyn std::error::Error>> {
     #[cfg(any(target_os = "macos", target_os = "windows"))]
     let win = app.get_webview_window("main").unwrap();
