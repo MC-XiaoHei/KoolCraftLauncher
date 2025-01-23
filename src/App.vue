@@ -13,7 +13,7 @@
                flat
     >
       <template v-slot:prepend>
-        <v-btn v-show="!isIndexPage"
+        <v-btn :disabled="isIndexPage"
                class="ml-2 no-drag"
                size="32"
                variant="plain"
@@ -23,13 +23,15 @@
         />
       </template>
 
-      <v-toolbar-title v-if="isIndexPage || !router.currentRoute.value.name"
-                       class="text-monocraft"
-      >KCl
-      </v-toolbar-title>
-      <v-toolbar-title v-else class="mt--1 ml-3 cursor-default title">
-        {{ toolbarTitle }}
-      </v-toolbar-title>
+      <transition :name="routeBack ? 'transform-back':'transform-forward'" mode="out-in">
+        <v-toolbar-title key="brand-title" v-if="isIndexPage || !router.currentRoute.value.name"
+                         class="text-monocraft mt--1"
+        >KCl
+        </v-toolbar-title>
+        <v-toolbar-title v-else :key="toolbarTitle" class="mt--1 ml-3 cursor-default title">
+          {{ toolbarTitle }}
+        </v-toolbar-title>
+      </transition>
       <v-spacer></v-spacer>
       <v-btn :icon="windowMinimizeIcon"
              class="no-drag mr-2"
@@ -56,7 +58,12 @@
             x: 'hidden',
           },
         }">
-        <router-view class="w-full h-full" />
+
+        <router-view v-slot="{ Component }">
+          <transition :name="routeBack ? 'transform-back':'transform-forward'" mode="out-in">
+            <component :is="Component" class="w-full h-full" />
+          </transition>
+        </router-view>
       </OverlayScrollbarsComponent>
     </div>
   </v-app>
@@ -99,6 +106,7 @@ const toolbarTitle = computed(() => {
   return translated;
 });
 const windowMinimizeIcon = "M20,13H4V11H20";
+const routeBack = ref(false);
 
 function getDarkModeMediaQuery() {
   return window.matchMedia("(prefers-color-scheme: dark)");
@@ -121,6 +129,13 @@ function detectDarkMode() {
       break;
   }
 }
+
+router.beforeEach((to, from, next) => {
+  const fromPath = to.name?.toString() ?? "/";
+  const toPath = from.name?.toString() ?? "/";
+  routeBack.value = fromPath.split("/").length > toPath.split("/").length;
+  next();
+});
 
 getDarkModeMediaQuery().addEventListener("change", detectDarkMode);
 detectDarkMode();
@@ -152,5 +167,23 @@ onMounted(() => {
 <style scoped lang="scss">
 .title :deep(.v-toolbar-title__placeholder) {
   width: 256px;
+}
+
+.transform-back-enter-active, .transform-back-leave-active {
+  transition: transform 100ms ease, opacity 100ms ease;
+}
+
+.transform-back-enter, .transform-back-leave-to {
+  transform: translateX(-5%);
+  opacity: 0;
+}
+
+.transform-forward-enter-active, .transform-forward-leave-active {
+  transition: transform 100ms ease, opacity 100ms ease;
+}
+
+.transform-forward-enter, .transform-forward-leave-to {
+  transform: translateX(5%);
+  opacity: 0;
 }
 </style>
