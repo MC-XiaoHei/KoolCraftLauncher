@@ -50,9 +50,6 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: Generate Icon
-        run: pnpm run tauri icon
-
       - name: Build App
         uses: tauri-apps/tauri-action@v0
         env:
