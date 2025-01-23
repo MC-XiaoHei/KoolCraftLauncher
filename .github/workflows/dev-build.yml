@@ -53,14 +53,7 @@ jobs:
         with:
           args: ${{ matrix.args }}
 
-      - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: kool-craft-launcher-dev-build
-          path: |
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/deb/*.deb
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/rpm/*.rpm
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage.sig
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.tar.gz
-            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.tar.gz.sig
+      - name: List Files
+        run: |
+          ls -R /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle
+          ls -R /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/kool-craft-launcher
