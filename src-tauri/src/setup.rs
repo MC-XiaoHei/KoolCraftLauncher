@@ -19,7 +19,7 @@ pub fn is_win11(patch: u64) -> bool {
 }
 
 pub fn setup_window(app: &mut App) -> Result<VibrancyState, Box<dyn std::error::Error>> {
-    #[cfg(target_os = "macos" || target_os = "windows")]
+    #[cfg(any(target_os = "macos", target_os = "windows"))]
     let win = app.get_webview_window("main").unwrap();
 
     #[cfg(target_os = "macos")]
