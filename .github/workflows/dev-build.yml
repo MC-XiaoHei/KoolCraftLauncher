@@ -45,6 +45,9 @@ jobs:
       - name: Cache Rust Dependencies
         uses: Swatinem/rust-cache@v2
 
+      - name: Generate Icon
+        run: pnpm run tauri icon
+
       - name: Build KCl
         uses: tauri-apps/tauri-action@v0
         with:
