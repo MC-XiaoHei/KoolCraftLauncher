@@ -25,10 +25,10 @@
 
       <transition :name="routeBack ? 'transform-back':'transform-forward'" mode="out-in">
         <v-toolbar-title key="brand-title" v-if="isIndexPage || !router.currentRoute.value.name"
-                         class="text-monocraft mt--1"
+                         class="text-monocraft"
         >KCl
         </v-toolbar-title>
-        <v-toolbar-title v-else :key="toolbarTitle" class="mt--1 ml-3 cursor-default title">
+        <v-toolbar-title v-else :key="toolbarTitle" class="ml-3 cursor-default title">
           {{ toolbarTitle }}
         </v-toolbar-title>
       </transition>
