@@ -48,7 +48,19 @@ jobs:
       - name: Generate Icon
         run: pnpm run tauri icon
 
-      - name: Build KCl
+      - name: Build App
         uses: tauri-apps/tauri-action@v0
         with:
           args: ${{ matrix.args }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: kool-craft-launcher-artifacts
+          path: |
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/deb/*.deb
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/rpm/*.rpm
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage.sig
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.tar.gz
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.tar.gz.sig

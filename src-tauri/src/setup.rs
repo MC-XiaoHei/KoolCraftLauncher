@@ -8,6 +8,7 @@ use window_vibrancy::*;
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use tauri::Manager;
 
+#[cfg(target_os = "windows")]
 pub fn can_use_acrylic(patch: u64) -> bool {
     const EARLIEST_WIN_10_PATCH_VERSION_CAN_ACRYLIC: u64 = 18090;
     const LATEST_WIN_10_PATCH_VERSION_CAN_ACRYLIC: u64 = 19039;
