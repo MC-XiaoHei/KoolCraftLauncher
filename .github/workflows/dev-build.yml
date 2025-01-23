@@ -60,9 +60,21 @@ jobs:
         with:
           args: ${{ matrix.args }}
 
-      - name: Upload Portable Executable(Windows-only)
+      - name: Upload Artifacts for Linux
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'linux-artifact'
+          path: |
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/deb/*.deb
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/rpm/*.rpm
+            /home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage
+
+      - name: Upload Artifacts for Windows
         if: matrix.platform == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: 'windows-portable-executable'
-          path: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe'
+          name: 'windows-artifact'
+          path: |
+            D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\bundle\nsis\*.exe
+            D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe
