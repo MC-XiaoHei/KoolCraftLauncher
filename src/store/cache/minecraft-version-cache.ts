@@ -71,7 +71,7 @@ export const useMinecraftVersionCache = defineStore("minecraft-version-cache", (
   function buildGame(id: string, dir: MinecraftDir): Game {
     let type = GameType.Release;
     let loader = GameLoader.Vanilla;
-    if (!/\d+\.\d+\.\d/.test(id)) {
+    if (!/\d+\.\d+\.\d/.test(id) && id !== "1.0" && id !== "1.1") {
       type = GameType.Snapshot;
     }
     if (foolsDayVersions.value.some((version) => version.id === id)) {
