@@ -1,3 +1,5 @@
+#![allow(dead_code)] // TODO: remove this
+
 use std::collections::HashMap;
 use serde::Deserialize;
 
