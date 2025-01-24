@@ -30,7 +30,7 @@
              class="w-full"
              :disabled="!canAddAccount"
              :text="t('pages.account.add.offline.label.add-account')"
-             @click="() => submit()"
+             @click="submit"
       />
     </div>
   </div>

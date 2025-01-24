@@ -116,13 +116,14 @@
     <v-empty-state
         :title="t('pages.discover.game.label.error')"
         :action-text="t('pages.discover.game.label.retry')"
-        @click:action="() => versionCache.updateData()"
+        @click:action="versionCache.updateData()"
     ></v-empty-state>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useMinecraftVersionCache, VersionCacheStatus } from "@/store/cache/minecraft-version-cache.ts";
+import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache.ts";
+import { VersionCacheStatus } from "@/store/cache/models.ts";
 import { formatDate } from "@/utils/date-utils.ts";
 import { mdiChevronDown } from "@mdi/js";
 

@@ -3,7 +3,7 @@
       :title="t('pages.dynamic.label.not-found')"
       :text="router.currentRoute.value.fullPath"
       :action-text="t('pages.dynamic.label.back-to-home')"
-      @click:action="() => router.push('/')"
+      @click:action="router.push('/')"
   ></v-empty-state>
 </template>
 

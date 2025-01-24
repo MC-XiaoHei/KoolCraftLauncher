@@ -13,19 +13,21 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2.0.5", features = [] }
 
 [dependencies]
-tauri = { version = "2.2.3", features = [ "macos-private-api", "unstable"] }
+tauri = { version = "2.2.3", features = ["macos-private-api", "unstable"] }
 tauri-plugin-shell = "2.2.0"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 sys-locale = "0.3.2"
 chrono = { version = "0.4.39", features = ["serde"] }
 window-vibrancy = "0.5.2"
-tauri-plugin-http = "2.2.0"
+tauri-plugin-http = {version =  "2.2.0", features = ["stream"] }
 tauri-plugin-os = "2.2.0"
 tauri-plugin-prevent-default = "1.0.2"
 tauri-plugin-single-instance = "2.2.1"
 tauri-plugin-store = "2.2.0"
-rux-downloader = "0.1.0"
+anyhow = "1.0.95"
+tokio = { version = "1.43.0", features = ["rt", "rt-multi-thread"] }
+futures = "0.3.31"
 
 [profile.release]
 panic = "abort"

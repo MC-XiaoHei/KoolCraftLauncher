@@ -89,7 +89,11 @@
         },
         "install": {
           "dynamic": {
-            "title": "安装 <version>"
+            "title": "安装 :version:",
+            "label": {
+              "no-other-install": "无附加安装",
+              "install": "开始安装"
+            }
           }
         }
       }
@@ -115,5 +119,8 @@
       "auth-lib": "外置",
       "uni-pass": "通行证"
     }
+  },
+  "defaults": {
+    "current-minecraft-dir-name": "当前目录"
   }
 }

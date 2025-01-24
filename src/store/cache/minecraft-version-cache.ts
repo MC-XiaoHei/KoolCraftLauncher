@@ -1,27 +1,7 @@
+import { VersionCacheStatus, VersionData, VersionListData } from "@/store/cache/models.ts";
+import { Game, GameLoader, GameType, MinecraftDir } from "@/store/game/models.ts";
 import { isFoolsDay } from "@/utils/date-utils.ts";
 import { fetch } from "@tauri-apps/plugin-http";
-
-export interface VersionData {
-  id: string;
-  type: string;
-  url: string;
-  time: string;
-  releaseTime: string;
-}
-
-export interface VersionListData {
-  latest: {
-    release: string;
-    snapshot: string;
-  };
-  versions: VersionData[];
-}
-
-export enum VersionCacheStatus {
-  Fetching,
-  Ok,
-  Error,
-}
 
 const unexpectedFoolsDayVersions = [
   "1.RV-Pre1",
@@ -53,7 +33,7 @@ const unlistedFoolsDayVersions: VersionData[] = [
 
 export const useMinecraftVersionCache = defineStore("minecraft-version-cache", () => {
   const data = ref<VersionListData | null>(null);
-  const foolsDayVersions = computed(() => {
+  const foolsDayVersions: Ref<VersionData[]> = computed(() => {
     if (data.value === null) return [];
     let versions = data.value.versions
         .filter((version) => version.type === "snapshot")
@@ -88,11 +68,37 @@ export const useMinecraftVersionCache = defineStore("minecraft-version-cache", (
     }
   }
 
+  function buildGame(id: string, dir: MinecraftDir): Game {
+    let type = GameType.Release;
+    let loader = GameLoader.Vanilla;
+    if (!/\d+\.\d+\.\d/.test(id)) {
+      type = GameType.Snapshot;
+    }
+    if (foolsDayVersions.value.some((version) => version.id === id)) {
+      type = GameType.FoolsDay;
+    }
+    // TODO: detect old versions
+    // TODO: detect loader
+    return {
+      id,
+      type,
+      loader,
+      dir,
+    };
+  }
+
+  function getVersionInfo(id: string): VersionData | null {
+    if (data.value === null) return null;
+    return data.value.versions.find((version) => version.id === id) || null;
+  }
+
   return {
     data,
     foolsDayVersions,
     status,
     updateData,
+    buildGame,
+    getVersionInfo,
   };
 }, {
   persist: true,

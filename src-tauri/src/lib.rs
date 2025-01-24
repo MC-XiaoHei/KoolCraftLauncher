@@ -1,37 +1,16 @@
 use crate::vibrancy::VibrancyStateStore;
-use tauri::{Manager, State};
-use tauri_plugin_os::Version::Semantic;
+use download::rux::download_manager::DownloadManager;
+use tauri::{App, Manager};
+use tauri_plugin_http::reqwest;
+use tauri_plugin_http::reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+use crate::download::rux::store::DownloadManagerStore;
 
 mod setup;
 mod vibrancy;
 mod account;
+mod download;
 
-#[tauri::command]
-fn get_vibrancy_state(state: State<'_, VibrancyStateStore>) -> String {
-    state.get()
-}
-
-#[tauri::command]
-fn should_custom_window() -> bool {
-    let os_version = tauri_plugin_os::version();
-    match os_version {
-        Semantic(10, _, patch) => {
-            !setup::is_win11(patch)
-        }
-        _ => true,
-    }
-}
-
-#[tauri::command]
-async fn start_microsoft_login(app: tauri::AppHandle) {
-    account::microsoft::open_microsoft_login_webview(app).await;
-}
-
-#[tauri::command]
-async fn terminate_microsoft_login(app: tauri::AppHandle) {
-    account::microsoft::close_microsoft_login_webview(app).await;
-}
-
+#[allow(unused_qualifications)]
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -47,15 +26,16 @@ pub fn run() {
         .manage(VibrancyStateStore::new())
         .setup(|app| {
             let vibrancy_state = setup::setup_window(app).unwrap();
-            let state = app.state::<VibrancyStateStore>();
-            state.set(vibrancy_state);
+            app.state::<VibrancyStateStore>().set(vibrancy_state);
+            inject_rux_download_manager(app);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            get_vibrancy_state,
-            should_custom_window,
-            start_microsoft_login,
-            terminate_microsoft_login
+            crate::vibrancy::get_vibrancy_state,
+            crate::vibrancy::should_custom_window,
+            crate::account::microsoft::start_microsoft_login,
+            crate::account::microsoft::terminate_microsoft_login,
+            crate::download::vanilla::install_vanilla,
         ])
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_shell::init())
@@ -70,6 +50,25 @@ fn prevent_default() -> tauri::plugin::TauriPlugin<tauri::Wry> {
     tauri_plugin_prevent_default::Builder::new()
         .with_flags(Flags::all().difference(Flags::DEV_TOOLS | Flags::RELOAD))
         .build()
+}
+
+fn inject_rux_download_manager(app: &App) {
+    let mut headers = HeaderMap::new();
+    headers.insert(
+        USER_AGENT,
+        HeaderValue::from_str(format!(
+            "KCl/{}",
+            app.package_info().version.to_string()).as_str()
+        ).unwrap(),
+    );
+
+    let client = reqwest::Client::builder()
+        .default_headers(headers)
+        .build()
+        .unwrap();
+
+    let download_manager = DownloadManager::new(client);
+    app.manage(DownloadManagerStore::new(download_manager));
 }
 
 #[cfg(not(debug_assertions))]

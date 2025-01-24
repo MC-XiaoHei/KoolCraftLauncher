@@ -19,7 +19,7 @@
                variant="plain"
                rounded
                :icon="mdiArrowLeft"
-               @click="() => router.back()"
+               @click="router.back()"
         />
       </template>
 
@@ -38,14 +38,14 @@
              size="32"
              variant="plain"
              rounded
-             @click="() => appWindow.minimize()"
+             @click="appWindow.minimize()"
       />
       <v-btn :icon="mdiWindowClose"
              class="no-drag mr-2"
              size="32"
              variant="plain"
              rounded
-             @click="() => appWindow.close()"
+             @click="appWindow.close()"
       />
     </v-app-bar>
     <div class="pt-12 pb-2 w-full h-full overflow-hidden">
@@ -101,7 +101,7 @@ const toolbarTitle = computed(() => {
   }
   let translated = t(`pages${ routeName }title`);
   Object.entries(route.params).forEach(([key, value]) => {
-    translated = translated.replace(`<${ key }>`, value);
+    translated = translated.replace(RegExp(`:${key}:`, "g"), value);
   });
   return translated;
 });
@@ -132,9 +132,9 @@ function detectDarkMode() {
 
 router.beforeEach((to, from, next) => {
   if (to.name === "/[...path]") {
-    routeBack.value = false;
-  } else if (from.name === "/[...path]") {
     routeBack.value = true;
+  } else if (from.name === "/[...path]") {
+    routeBack.value = false;
   } else {
     const fromPath = from.name?.toString().replace(/\./g, "/") ?? "/";
     const toPath = to.name?.toString().replace(/\./g, "/") ?? "/";

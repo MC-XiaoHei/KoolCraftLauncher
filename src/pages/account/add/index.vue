@@ -16,7 +16,7 @@
       </template>
     </v-btn>
     <v-btn class="!h-16 custom-btn"
-           @click="() => router.push('/account/add/offline')"
+           @click="router.push('/account/add/offline')"
     >
       <template v-slot:default>
         <div class="items-start flex w-full">

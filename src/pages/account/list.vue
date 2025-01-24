@@ -40,7 +40,7 @@
       <v-btn size="large"
              variant="elevated"
              :icon="mdiPlus"
-             @click="() => router.push('/account/add')"
+             @click="router.push('/account/add')"
       />
     </div>
   </div>
