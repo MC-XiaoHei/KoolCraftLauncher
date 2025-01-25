@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct VersionJson {
     pub id: String,
@@ -15,7 +15,7 @@ pub struct VersionJson {
     pub minecraft_arguments: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Library {
     pub downloads: LibraryDownloads,
     pub name: String,
@@ -23,34 +23,34 @@ pub struct Library {
     pub rules: Option<Vec<Rule>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Rule {
     pub action: String,
     pub features: Option<HashMap<String, bool>>,
     pub os: Option<Os>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Os {
     pub name: String,
     pub version: Option<String>,
     pub arch: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct LibraryNatives {
     pub linux: Option<String>,
     pub osx: Option<String>,
     pub windows: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct LibraryDownloads {
     pub artifact: Option<LibraryArtifact>,
     pub classifiers: Option<HashMap<String, LibraryArtifact>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct LibraryArtifact {
     pub path: String,
     pub sha1: String,
@@ -58,31 +58,31 @@ pub struct LibraryArtifact {
     pub url: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Downloads {
     pub client: DownloadsElement,
     pub server: Option<DownloadsElement>
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct DownloadsElement {
     pub url: String,
     pub sha1: String,
     pub size: u64,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Logging {
     pub client: LoggingClient,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct LoggingClient {
     pub argument: String,
     pub file: LoggingClientFile,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct LoggingClientFile {
     pub id: String,
     pub sha1: String,
@@ -90,7 +90,7 @@ pub struct LoggingClientFile {
     pub url: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct AssetIndex {
     pub id: String,
