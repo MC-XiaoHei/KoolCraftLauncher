@@ -68,7 +68,9 @@ pub fn is_rule_allowed(rule: &Option<Vec<Rule>>) -> bool {
 
 pub fn is_native_library(library: &Library) -> bool {
     library.natives.is_some() ||
-        (library.downloads.classifiers.is_none() && library.rules.is_some())
+        (library.downloads.classifiers.is_none() &&
+            library.rules.is_some() &&
+            library.name.contains("natives"))
 }
 
 pub async fn unzip_natives(
@@ -104,7 +106,7 @@ pub async fn unzip_natives(
 }
 
 pub fn is_need(library: &Library) -> bool {
-    if is_native_library(&library) {
+    if is_native_library(library) && library.natives.is_none() {
         let native_pattern = if cfg!(target_os = "windows") {
             match ARCH {
                 "x86" => vec!["natives-windows-x86"],
