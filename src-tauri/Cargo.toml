@@ -25,6 +25,7 @@ tauri-plugin-store = "2.2.0"
 anyhow = "1.0.95"
 tokio = { version = "1.43.0", features = ["rt", "rt-multi-thread"] }
 futures = "0.3.31"
+zip = "2.2.2"
 
 [target.'cfg(windows)'.dependencies]
 window-vibrancy = "0.5.2"
@@ -39,9 +40,6 @@ tauri-plugin-single-instance = "2.2.1"
 [target.'cfg(linux)'.dependencies]
 tauri-plugin-prevent-default = "1.0.2"
 tauri-plugin-single-instance = "2.2.1"
-
-[build]
-rustflags = ["-Z", "threads=8"]
 
 [profile.release]
 panic = "abort"

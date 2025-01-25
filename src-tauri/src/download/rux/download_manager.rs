@@ -80,7 +80,7 @@ impl DownloadManager {
         }
     }
     async fn tick_tasks(self: Arc<Self>) {
-        let tasks = self.download_tasks.read().await.clone();
+        let mut tasks = self.download_tasks.write().await.clone();
         let mut downloading = self.clone().get_downloading_num().await;
         let max_concurrent_downloads = self.max_concurrent_downloads.read().await.clone();
 
@@ -104,7 +104,7 @@ impl DownloadManager {
         }
 
         for index in for_removal.iter().rev() {
-            self.download_tasks.write().await.remove(*index);
+            tasks.remove(*index);
         }
     }
 
@@ -163,7 +163,11 @@ impl DownloadManager {
             let file = file.clone();
             let start = i * chunk_size;
             let end = if i == thread_num - 1 {
-                total_size - 1
+                if total_size > 0 {
+                    total_size - 1
+                } else {
+                    0
+                }
             } else {
                 (i + 1) * chunk_size - 1
             };

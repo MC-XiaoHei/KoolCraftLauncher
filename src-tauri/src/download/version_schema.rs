@@ -25,37 +25,37 @@ pub struct Library {
 
 #[derive(Deserialize, Debug)]
 pub struct Rule {
-    action: String,
-    features: Option<HashMap<String, bool>>,
-    os: Option<Os>,
+    pub action: String,
+    pub features: Option<HashMap<String, bool>>,
+    pub os: Option<Os>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct Os {
-    name: String,
-    version: Option<String>,
-    arch: Option<String>,
+    pub name: String,
+    pub version: Option<String>,
+    pub arch: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct LibraryNatives {
-    linux: Option<String>,
-    osx: Option<String>,
-    windows: Option<String>,
+    pub linux: Option<String>,
+    pub osx: Option<String>,
+    pub windows: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct LibraryDownloads {
-    artifact: Option<LibraryArtifact>,
-    classifiers: Option<HashMap<String, LibraryArtifact>>,
+    pub artifact: Option<LibraryArtifact>,
+    pub classifiers: Option<HashMap<String, LibraryArtifact>>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct LibraryArtifact {
-    path: String,
-    sha1: String,
-    size: u64,
-    url: String,
+    pub path: String,
+    pub sha1: String,
+    pub size: u64,
+    pub url: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -78,16 +78,16 @@ pub struct Logging {
 
 #[derive(Deserialize, Debug)]
 pub struct LoggingClient {
-    argument: String,
-    file: LoggingClientFile,
+    pub argument: String,
+    pub file: LoggingClientFile,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct LoggingClientFile {
-    id: String,
-    sha1: String,
-    size: u64,
-    url: String,
+    pub id: String,
+    pub sha1: String,
+    pub size: u64,
+    pub url: String,
 }
 
 #[derive(Deserialize, Debug)]
