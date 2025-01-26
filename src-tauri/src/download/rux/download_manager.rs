@@ -17,7 +17,6 @@ pub struct DownloadManager {
 	pub max_divide_num: Arc<RwLock<usize>>,
 	pub min_download_chunk_size: Arc<RwLock<usize>>,
 	pub download_timeout: Arc<RwLock<Duration>>,
-	ticking: RwLock<bool>,
 	http_client: Arc<Client>,
 }
 
@@ -31,7 +30,6 @@ impl DownloadManager {
 			min_download_chunk_size: Arc::new(RwLock::new(10 * 1024 * 1024)),
 			download_timeout: Arc::new(RwLock::new(Duration::from_secs(5))),
 			http_client: Arc::new(client),
-			ticking: RwLock::new(false),
 		});
 		download_manager
 	}
@@ -69,17 +67,8 @@ impl DownloadManager {
 
 	pub async fn add_task(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) {
 		self.download_tasks.write().await.push(task);
-		if !*self.ticking.read().await {
-			*self.ticking.write().await = false;
-			tokio::spawn(async move {
-				loop {
-					self.clone().tick_tasks().await;
-					tokio::time::sleep(Duration::from_secs(1)).await;
-				}
-			});
-		}
 	}
-	async fn tick_tasks(self: Arc<Self>) {
+	pub async fn tick_tasks(self: Arc<Self>) {
 		let mut tasks = self.download_tasks.write().await.clone();
 		let mut downloading = self.clone().get_downloading_num().await;
 		let max_concurrent_downloads = self.max_concurrent_downloads.read().await.clone();

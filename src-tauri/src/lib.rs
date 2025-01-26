@@ -1,7 +1,8 @@
 use crate::download::rux::store::DownloadManagerStore;
 use crate::vibrancy::VibrancyStateStore;
 use download::rux::download_manager::DownloadManager;
-use tauri::{App, Manager};
+use std::time::Duration;
+use tauri::{App, AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use tauri_plugin_http::reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
 
@@ -37,6 +38,7 @@ pub fn run() {
 			crate::account::microsoft::start_microsoft_login,
 			crate::account::microsoft::terminate_microsoft_login,
 			crate::download::vanilla::install_vanilla,
+			start_tick_thread,
 		])
 		.plugin(tauri_plugin_http::init())
 		.plugin(tauri_plugin_shell::init())
@@ -51,6 +53,18 @@ fn prevent_default() -> tauri::plugin::TauriPlugin<tauri::Wry> {
 	tauri_plugin_prevent_default::Builder::new()
 		.with_flags(Flags::all().difference(Flags::DEV_TOOLS | Flags::RELOAD))
 		.build()
+}
+
+#[tauri::command]
+async fn start_tick_thread(app: AppHandle) {
+	let store = app.state::<DownloadManagerStore>();
+	let rux = store.get();
+	tokio::spawn(async move {
+		loop {
+			rux.clone().tick_tasks().await;
+			tokio::time::sleep(Duration::from_secs(1)).await;
+		}
+	});
 }
 
 fn inject_rux_download_manager(app: &App) {

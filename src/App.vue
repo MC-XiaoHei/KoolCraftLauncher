@@ -158,6 +158,8 @@ invoke("should_custom_window").then((shouldCustom) => {
   }
 });
 
+invoke("start_tick_thread").then();
+
 onMounted(() => {
   document.getElementById("navbar")?.addEventListener("mousedown", (event) => {
     const isLeftClick = event.buttons === 1;
