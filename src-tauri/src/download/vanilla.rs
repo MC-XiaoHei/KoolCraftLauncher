@@ -1,3 +1,4 @@
+use crate::download::asset_index_schema::AssetIndexJson;
 use crate::download::rux::download_manager::DownloadManager;
 use crate::download::rux::download_task::DownloadTask;
 use crate::download::rux::store::DownloadManagerStore;
@@ -5,7 +6,7 @@ use crate::download::utils::{
 	get_artifact, get_library_path, is_native_library, is_need, parse_version_json,
 	submit_download_version_json, unzip_natives, wait_all_tasks, wait_task,
 };
-use crate::download::version_schema::VersionJson;
+use crate::download::version_schema::{AssetIndex, VersionJson};
 use anyhow::Result;
 use std::sync::Arc;
 use tauri::async_runtime::TokioJoinHandle;
@@ -72,7 +73,13 @@ async fn _install_vanilla(
 				.await?,
 		)
 		.await;
-
+		let asset_index_json =
+			parse_asset_index_json(minecraft_dir_clone.as_str(), &ver_json_clone.asset_index.id)
+				.await?;
+		let resolve_assets_tasks =
+			submit_resolve_assets(minecraft_dir_clone.as_str(), asset_index_json, rux.clone())
+				.await?;
+		wait_all_tasks(&resolve_assets_tasks).await;
 		Ok(())
 	});
 
@@ -113,6 +120,40 @@ async fn submit_resolve_assets_index(
 	let shared_task = Arc::new(RwLock::new(task));
 	rux.add_task(shared_task.clone()).await;
 	Ok(shared_task)
+}
+
+async fn parse_asset_index_json(minecraft_dir: &str, name: &str) -> Result<AssetIndexJson> {
+	let path = format!("{0}/assets/indexes/{1}.json", minecraft_dir, name);
+	let json = tokio::fs::read(path).await?;
+	Ok(serde_json::from_slice(&json)?)
+}
+
+async fn submit_resolve_assets(
+	minecraft_dir: &str,
+	asset_index_json: AssetIndexJson,
+	rux: Arc<DownloadManager>,
+) -> Result<Vec<Arc<RwLock<DownloadTask>>>> {
+	let mut tasks: Vec<Arc<RwLock<DownloadTask>>> = Vec::new();
+	for (_key, value) in asset_index_json.objects.iter() {
+		let hash = &value.hash;
+		let hash_prefix = &hash[0..2];
+		let asset_path = format!(
+			"{0}/assets/objects/{1}/{2}",
+			minecraft_dir, hash_prefix, hash
+		);
+		let task = DownloadTask::new(
+			format!(
+				"https://resources.download.minecraft.net/{0}/{1}",
+				hash_prefix, hash
+			)
+			.parse()?,
+		)
+		.save_to(asset_path.as_str());
+		let shared_task = Arc::new(RwLock::new(task));
+		tasks.push(shared_task.clone());
+		rux.clone().add_task(shared_task).await;
+	}
+	Ok(tasks)
 }
 
 async fn submit_resolve_libraries(

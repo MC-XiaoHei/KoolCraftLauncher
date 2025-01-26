@@ -14,8 +14,6 @@ use tokio::sync::{Mutex, RwLock};
 pub struct DownloadManager {
 	pub download_tasks: Arc<Mutex<Vec<Arc<RwLock<DownloadTask>>>>>,
 	pub max_concurrent_downloads: Arc<RwLock<usize>>,
-	pub max_divide_num: Arc<RwLock<usize>>,
-	pub min_download_chunk_size: Arc<RwLock<usize>>,
 	pub download_timeout: Arc<RwLock<Duration>>,
 	http_client: Arc<Client>,
 }
@@ -26,8 +24,6 @@ impl DownloadManager {
 		let download_manager = Arc::new(DownloadManager {
 			download_tasks: Arc::new(Mutex::new(Vec::new())),
 			max_concurrent_downloads: Arc::new(RwLock::new(32)),
-			max_divide_num: Arc::new(RwLock::new(4)),
-			min_download_chunk_size: Arc::new(RwLock::new(10 * 1024 * 1024)),
 			download_timeout: Arc::new(RwLock::new(Duration::from_secs(5))),
 			http_client: Arc::new(client),
 		});
@@ -36,14 +32,6 @@ impl DownloadManager {
 
 	pub async fn set_max_concurrent_downloads(self: Arc<Self>, max_concurrent_downloads: usize) {
 		*self.max_concurrent_downloads.write().await = max_concurrent_downloads;
-	}
-
-	pub async fn set_max_divide_num(self: Arc<Self>, max_divide_num: usize) {
-		*self.max_divide_num.write().await = max_divide_num;
-	}
-
-	pub async fn set_min_download_chunk_size(self: Arc<Self>, min_download_chunk_size: usize) {
-		*self.min_download_chunk_size.write().await = min_download_chunk_size;
 	}
 
 	pub async fn set_download_timeout(self: Arc<Self>, download_timeout: Duration) {
@@ -130,83 +118,31 @@ impl DownloadManager {
 			return Err(anyhow::anyhow!("Failed to get content length"));
 		}
 
-		let max_divide_num = self.max_divide_num.read().await.clone() as u64;
-		let min_chunk_size = self.min_download_chunk_size.read().await.clone() as u64;
-		let total_size = task.read().await.size.unwrap();
-
+		let total_size = task.read().await.size.unwrap_or(0);
 		let file_path = task.read().await.save_to.clone();
 		let dir_path = std::path::Path::new(&file_path).parent().unwrap();
 		create_dir_all(dir_path).await?;
 		let file = Arc::new(Mutex::new(File::create(file_path)?));
 		file.lock().await.set_len(total_size)?;
-		
-		let thread_num = {
-			if total_size < min_chunk_size {
-				1
-			} else if total_size < max_divide_num * min_chunk_size {
-				(total_size + min_chunk_size - 1) / min_chunk_size
-			} else {
-				max_divide_num
-			}
-		};
 
-		let chunk_size = {
-			if thread_num == 1 {
-				total_size
-			} else {
-				(total_size + thread_num - 1) / thread_num
-			}
-		};
+		let url = task.read().await.url.to_string();
+		let resp = self
+			.http_client
+			.get(&url)
+			.send()
+			.await
+			.map_err(|e| anyhow::anyhow!("Request failed: {}", e))?;
 
-		log::info!("Start download: {}, thread_num: {}, chunk_size: {}", task.read().await.file_name, thread_num, chunk_size);
+		let mut file = file.lock().await;
 
-		let mut handles = vec![];
-		for i in 0..thread_num {
-			let task = task.clone();
-			let client = self.http_client.clone();
-			let file = file.clone();
-			let start = i * chunk_size;
-			let end = if i == thread_num - 1 {
-				if total_size > 0 {
-					total_size - 1
-				} else {
-					0
-				}
-			} else {
-				(i + 1) * chunk_size - 1
-			};
-
-			let url = task.read().await.url.to_string();
-			handles.push(tokio::spawn(async move {
-				let resp = client
-					.get(&url)
-					.header(reqwest::header::RANGE, format!("bytes={}-{}", start, end))
-					.send()
-					.await
-					.map_err(|e| anyhow::anyhow!("Request failed: {}", e))?;
-
-				let mut file = file.lock().await;
-				file.seek(tokio::io::SeekFrom::Start(start))?;
-
-				let mut stream = resp.bytes_stream();
-				while let Some(chunk) = stream.next().await {
-					let chunk = chunk.context("Failed to read response chunk")?;
-					if task.read().await.file_name == "oshi-core-6.6.5.jar" {
-						log::info!("Download chunk: {}", chunk.len());
-					}
-					task.write().await.downloaded += chunk.len() as u64;
-					file.write_all(&chunk)
-						.context("Failed to write chunk to file")?;
-				}
-
-				Ok::<(), anyhow::Error>(())
-			}));
+		let mut stream = resp.bytes_stream();
+		while let Some(chunk) = stream.next().await {
+			let chunk = chunk.context("Failed to read response chunk")?;
+			task.write().await.downloaded += chunk.len() as u64;
+			file.write_all(&chunk)
+				.context("Failed to write chunk to file")?;
 		}
 		
-		for handle in handles {
-			handle.await??;
-		}
-
 		task.write().await.status = DownloadTaskStatus::Finished;
 		log::info!("Download finished: {}", task.read().await.file_name);
 
