@@ -12,7 +12,7 @@ use tokio::sync::{Mutex, RwLock};
 
 #[allow(dead_code)]
 pub struct DownloadManager {
-	pub download_tasks: Arc<RwLock<Vec<Arc<RwLock<DownloadTask>>>>>,
+	pub download_tasks: Arc<Mutex<Vec<Arc<RwLock<DownloadTask>>>>>,
 	pub max_concurrent_downloads: Arc<RwLock<usize>>,
 	pub max_divide_num: Arc<RwLock<usize>>,
 	pub min_download_chunk_size: Arc<RwLock<usize>>,
@@ -24,7 +24,7 @@ pub struct DownloadManager {
 impl DownloadManager {
 	pub fn new(client: Client) -> Arc<Self> {
 		let download_manager = Arc::new(DownloadManager {
-			download_tasks: Arc::new(RwLock::new(Vec::new())),
+			download_tasks: Arc::new(Mutex::new(Vec::new())),
 			max_concurrent_downloads: Arc::new(RwLock::new(32)),
 			max_divide_num: Arc::new(RwLock::new(4)),
 			min_download_chunk_size: Arc::new(RwLock::new(10 * 1024 * 1024)),
@@ -51,7 +51,7 @@ impl DownloadManager {
 	}
 
 	pub async fn get_downloading_num(self: Arc<Self>) -> usize {
-		let tasks = self.download_tasks.read().await.clone();
+		let tasks = self.download_tasks.lock().await.clone();
 		stream::iter(tasks)
 			.filter_map(|task| async move {
 				let task_read = task.read().await;
@@ -66,16 +66,16 @@ impl DownloadManager {
 	}
 
 	pub async fn add_task(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) {
-		self.download_tasks.write().await.push(task);
+		self.download_tasks.lock().await.push(task);
 	}
 	pub async fn tick_tasks(self: Arc<Self>) {
-		let mut tasks = self.download_tasks.write().await.clone();
+		let mut tasks = self.download_tasks.lock().await.clone();
 		let mut downloading = self.clone().get_downloading_num().await;
 		let max_concurrent_downloads = self.max_concurrent_downloads.read().await.clone();
 
-		let mut for_removal: Vec<usize> = vec![];
+		let mut for_removal = vec![];
 
-		for (index, task) in tasks.iter().enumerate() {
+		for (index, task) in tasks.iter().enumerate().rev() {
 			let status = task.read().await.status.clone();
 			match status {
 				DownloadTaskStatus::Pending => {
@@ -92,8 +92,21 @@ impl DownloadManager {
 			}
 		}
 
-		for index in for_removal.iter().rev() {
-			tasks.remove(*index);
+		for index in for_removal {
+			tasks.remove(index);
+		}
+
+		log::info!("Download tasks: {}", tasks.len());
+
+		if tasks.len() < 10 {
+			for x in tasks.iter() {
+				log::info!(
+					"Task: {}, progress: {}, total: {}",
+					x.read().await.file_name,
+					x.read().await.downloaded,
+					x.read().await.size.unwrap_or(0)
+				);
+			}
 		}
 	}
 
@@ -126,7 +139,7 @@ impl DownloadManager {
 		create_dir_all(dir_path).await?;
 		let file = Arc::new(Mutex::new(File::create(file_path)?));
 		file.lock().await.set_len(total_size)?;
-
+		
 		let thread_num = {
 			if total_size < min_chunk_size {
 				1
@@ -144,6 +157,8 @@ impl DownloadManager {
 				(total_size + thread_num - 1) / thread_num
 			}
 		};
+
+		log::info!("Start download: {}, thread_num: {}, chunk_size: {}", task.read().await.file_name, thread_num, chunk_size);
 
 		let mut handles = vec![];
 		for i in 0..thread_num {
@@ -176,6 +191,9 @@ impl DownloadManager {
 				let mut stream = resp.bytes_stream();
 				while let Some(chunk) = stream.next().await {
 					let chunk = chunk.context("Failed to read response chunk")?;
+					if task.read().await.file_name == "oshi-core-6.6.5.jar" {
+						log::info!("Download chunk: {}", chunk.len());
+					}
 					task.write().await.downloaded += chunk.len() as u64;
 					file.write_all(&chunk)
 						.context("Failed to write chunk to file")?;
@@ -184,12 +202,13 @@ impl DownloadManager {
 				Ok::<(), anyhow::Error>(())
 			}));
 		}
-
+		
 		for handle in handles {
 			handle.await??;
 		}
 
 		task.write().await.status = DownloadTaskStatus::Finished;
+		log::info!("Download finished: {}", task.read().await.file_name);
 
 		Ok(())
 	}

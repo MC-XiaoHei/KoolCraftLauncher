@@ -2281,6 +2281,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "futures",
+ "log",
  "serde",
  "serde_json",
  "sys-locale",

@@ -172,7 +172,7 @@ pub fn get_artifact(library: &Library) -> Option<&LibraryArtifact> {
 	}
 }
 
-pub async fn wait_all_tasks(tasks: Vec<Arc<RwLock<DownloadTask>>>) {
+pub async fn wait_all_tasks(tasks: &Vec<Arc<RwLock<DownloadTask>>>) {
 	for task in tasks.iter() {
 		wait_task(task.clone()).await;
 	}
