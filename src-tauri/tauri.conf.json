@@ -27,7 +27,8 @@
     "security": {
       "csp": null,
       "capabilities": [
-        "main-capability"
+        "default-capability",
+        "desktop-capability"
       ]
     }
   },

@@ -2,8 +2,8 @@ use crate::download::rux::download_manager::DownloadManager;
 use crate::download::rux::download_task::DownloadTask;
 use crate::download::rux::store::DownloadManagerStore;
 use crate::download::utils::{
-	download_version_json, get_artifact, get_library_path, is_native_library, is_need,
-	parse_version_json, unzip_natives, wait_all_tasks, wait_task,
+	get_artifact, get_library_path, is_native_library, is_need, parse_version_json,
+	submit_download_version_json, unzip_natives, wait_all_tasks, wait_task,
 };
 use crate::download::version_schema::VersionJson;
 use anyhow::Result;
@@ -34,7 +34,7 @@ async fn _install_vanilla(
 ) -> Result<()> {
 	let store = app.state::<DownloadManagerStore>();
 	let rux = store.get();
-	let download_version_json_task = download_version_json(
+	let download_version_json_task = submit_download_version_json(
 		ver_json_url.as_str(),
 		minecraft_dir.as_str(),
 		version_name.as_str(),
@@ -78,7 +78,7 @@ async fn _install_vanilla(
 
 	let (unzip_natives_res, resolve_assets_res) =
 		try_join!(unzip_natives_handle, resolve_assets_handle)?;
-	
+
 	unzip_natives_res?;
 	resolve_assets_res?;
 
@@ -103,8 +103,13 @@ async fn submit_resolve_assets_index(
 	version_json: &VersionJson,
 	rux: Arc<DownloadManager>,
 ) -> Result<Arc<RwLock<DownloadTask>>> {
-	let task = DownloadTask::new(version_json.asset_index.url.parse()?)
-		.save_to(format!("{0}/assets/indexes/{1}.json", minecraft_dir, version_json.asset_index.id).as_str());
+	let task = DownloadTask::new(version_json.asset_index.url.parse()?).save_to(
+		format!(
+			"{0}/assets/indexes/{1}.json",
+			minecraft_dir, version_json.asset_index.id
+		)
+		.as_str(),
+	);
 	let shared_task = Arc::new(RwLock::new(task));
 	rux.add_task(shared_task.clone()).await;
 	Ok(shared_task)

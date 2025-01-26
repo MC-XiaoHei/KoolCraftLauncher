@@ -3,6 +3,7 @@ name = "kool-craft-launcher"
 version = "0.0.1"
 description = "A Cool Minecraft Launcher"
 authors = ["MC_XiaoHei"]
+license-file = "LICENSE"
 edition = "2021"
 
 [lib]
@@ -13,33 +14,27 @@ crate-type = ["lib", "cdylib", "staticlib"]
 tauri-build = { version = "2.0.5", features = [] }
 
 [dependencies]
-tauri = { version = "2.2.3", features = ["macos-private-api", "unstable"] }
-tauri-plugin-shell = "2.2.0"
+tauri = { version = "2.2.5", features = ["macos-private-api", "unstable"] }
+tauri-plugin-shell = "2.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-sys-locale = "0.3.2"
-chrono = { version = "0.4.39", features = ["serde"] }
-tauri-plugin-http = { version = "2.2.0", features = ["stream"] }
-tauri-plugin-os = "2.2.0"
-tauri-plugin-store = "2.2.0"
-anyhow = "1.0.95"
-tokio = { version = "1.43.0", features = ["rt", "rt-multi-thread"] }
-futures = "0.3.31"
-zip = "2.2.2"
+sys-locale = "0.3"
+chrono = { version = "0.4", features = ["serde"] }
+tauri-plugin-http = { version = "2.2", features = ["stream", "json"] }
+tauri-plugin-os = "2.2"
+tauri-plugin-store = "2.0"
+anyhow = "1.0"
+tokio = { version = "1.43", features = ["rt", "rt-multi-thread"] }
+futures = "0.3"
+zip = "2.2"
+tauri-plugin-log = "2"
 
-[target.'cfg(windows)'.dependencies]
-window-vibrancy = "0.5.2"
-tauri-plugin-prevent-default = "1.0.2"
-tauri-plugin-single-instance = "2.2.1"
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-prevent-default = "1"
+tauri-plugin-single-instance = "2"
 
-[target.'cfg(macos)'.dependencies]
-window-vibrancy = "0.5.2"
-tauri-plugin-prevent-default = "1.0.2"
-tauri-plugin-single-instance = "2.2.1"
-
-[target.'cfg(linux)'.dependencies]
-tauri-plugin-prevent-default = "1.0.2"
-tauri-plugin-single-instance = "2.2.1"
+[target.'cfg(any(target_os = "macos", windows))'.dependencies]
+window-vibrancy = "0.5"
 
 [profile.release]
 panic = "abort"
