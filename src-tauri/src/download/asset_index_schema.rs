@@ -1,15 +1,15 @@
 #![allow(dead_code)] // TODO: remove this
 
-use std::collections::HashMap;
 use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct AssetIndexJson {
-    pub objects: HashMap<String, AssetObject>,
+	pub objects: HashMap<String, AssetObject>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct AssetObject {
-    pub hash: String,
-    pub size: u64,
+	pub hash: String,
+	pub size: u64,
 }

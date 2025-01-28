@@ -1055,6 +1055,11 @@
         <option name="INDENT_SIZE" value="2" />
       </indentOptions>
     </codeStyleSettings>
+    <codeStyleSettings language="Rust">
+      <indentOptions>
+        <option name="USE_TAB_CHARACTER" value="true" />
+      </indentOptions>
+    </codeStyleSettings>
     <codeStyleSettings language="SCSS">
       <option name="LINE_COMMENT_ADD_SPACE" value="true" />
       <indentOptions>

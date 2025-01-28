@@ -3,13 +3,13 @@ use crate::download::rux::download_task::DownloadTask;
 use crate::download::rux::download_task::DownloadTaskStatus::Finished;
 use crate::download::version_schema::{Library, LibraryArtifact, Rule, VersionJson};
 use anyhow::Result;
+use parking_lot::RwLock;
 use std::env::consts::ARCH;
 use std::io::{Read, Write};
 use std::option::Option;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
-use parking_lot::RwLock;
 use tokio::fs::create_dir_all;
 use zip::ZipArchive;
 
