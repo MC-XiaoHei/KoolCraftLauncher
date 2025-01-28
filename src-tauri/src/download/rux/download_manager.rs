@@ -1,21 +1,25 @@
 use crate::download::rux::download_task::{DownloadTask, DownloadTaskStatus};
 use anyhow::{Context, Result};
-use futures::stream::{self, StreamExt};
+use futures::stream::StreamExt;
+use parking_lot::{Mutex, RwLock};
 use std::fs::File;
-use std::io::{Seek, Write};
+use std::io::{BufWriter, Write};
 use std::sync::Arc;
 use std::time::Duration;
 use tauri_plugin_http::reqwest;
 use tauri_plugin_http::reqwest::Client;
 use tokio::fs::create_dir_all;
-use tokio::sync::{Mutex, RwLock};
 
 #[allow(dead_code)]
 pub struct DownloadManager {
-	pub download_tasks: Arc<Mutex<Vec<Arc<RwLock<DownloadTask>>>>>,
-	pub max_concurrent_downloads: Arc<RwLock<usize>>,
-	pub download_timeout: Arc<RwLock<Duration>>,
+	download_tasks: Arc<Mutex<Vec<Arc<RwLock<DownloadTask>>>>>,
+	max_concurrent_downloads: Arc<RwLock<usize>>,
+	download_timeout: Arc<RwLock<Duration>>,
 	http_client: Arc<Client>,
+	downloading_num: Arc<RwLock<usize>>,
+	ticking: Arc<RwLock<bool>>,
+	downloaded_per_sec_counter: Arc<RwLock<u64>>,
+	downloaded_per_sec: Arc<RwLock<u64>>,
 }
 
 #[allow(dead_code)]
@@ -26,106 +30,124 @@ impl DownloadManager {
 			max_concurrent_downloads: Arc::new(RwLock::new(32)),
 			download_timeout: Arc::new(RwLock::new(Duration::from_secs(5))),
 			http_client: Arc::new(client),
+			downloading_num: Arc::new(RwLock::new(0)),
+			ticking: Arc::new(RwLock::new(false)),
+			downloaded_per_sec_counter: Arc::new(RwLock::new(0)),
+			downloaded_per_sec: Arc::new(RwLock::new(0)),
 		});
 		download_manager
 	}
 
-	pub async fn set_max_concurrent_downloads(self: Arc<Self>, max_concurrent_downloads: usize) {
-		*self.max_concurrent_downloads.write().await = max_concurrent_downloads;
+	pub fn set_max_concurrent_downloads(self: Arc<Self>, max_concurrent_downloads: usize) {
+		*self.max_concurrent_downloads.write() = max_concurrent_downloads;
 	}
 
-	pub async fn set_download_timeout(self: Arc<Self>, download_timeout: Duration) {
-		*self.download_timeout.write().await = download_timeout;
+	pub fn set_download_timeout(self: Arc<Self>, download_timeout: Duration) {
+		*self.download_timeout.write() = download_timeout;
 	}
 
-	pub async fn get_downloading_num(self: Arc<Self>) -> usize {
-		let tasks = self.download_tasks.lock().await.clone();
-		stream::iter(tasks)
-			.filter_map(|task| async move {
-				let task_read = task.read().await;
-				if task_read.status == DownloadTaskStatus::Downloading {
-					Some(task_read.clone())
-				} else {
-					None
-				}
-			})
-			.count()
-			.await
+	pub fn get_downloading_num(self: Arc<Self>) -> usize {
+		*self.downloading_num.read()
 	}
 
-	pub async fn add_task(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) {
-		self.download_tasks.lock().await.push(task);
+	pub fn get_downloaded_per_sec(self: Arc<Self>) -> u64 {
+		*self.downloaded_per_sec.read()
 	}
-	pub async fn tick_tasks(self: Arc<Self>) {
-		let mut tasks = self.download_tasks.lock().await.clone();
-		let mut downloading = self.clone().get_downloading_num().await;
-		let max_concurrent_downloads = self.max_concurrent_downloads.read().await.clone();
 
+	pub async fn add_task(self: Arc<Self>, task: DownloadTask) -> Arc<RwLock<DownloadTask>> {
+		let shared_task = Arc::new(RwLock::new(task));
+		self.download_tasks.lock().push(shared_task.clone());
+		self.start_tick_thread().await;
+		shared_task
+	}
+
+	async fn start_tick_thread(self: Arc<Self>) {
+		if *self.ticking.read() {
+			return;
+		}
+		*self.ticking.write() = true;
+		tokio::spawn(async move {
+			loop {
+				self.clone().tick_tasks_per_sec().await;
+				tokio::time::sleep(Duration::from_secs(1)).await;
+			}
+		});
+	}
+
+	pub async fn tick_tasks_per_sec(self: Arc<Self>) {
+		*self.downloaded_per_sec.write() = *self.downloaded_per_sec_counter.read();
+		*self.downloaded_per_sec_counter.write() = 0;
+		let mut past_downloading = self.clone().get_downloading_num();
+		let max_concurrent_downloads = self.max_concurrent_downloads.read().clone();
+
+		let mut downloading = 0;
 		let mut for_removal = vec![];
+		let mut for_submission = vec![];
 
-		for (index, task) in tasks.iter().enumerate().rev() {
-			let status = task.read().await.status.clone();
-			match status {
-				DownloadTaskStatus::Pending => {
-					if downloading < max_concurrent_downloads {
-						task.write().await.status = DownloadTaskStatus::Downloading;
+		{
+			let mut tasks = self.download_tasks.lock();
+			for (index, task) in tasks.iter().enumerate().rev() {
+				let status = task.read().status.clone();
+				match status {
+					DownloadTaskStatus::Downloading(_, _) => {
 						downloading += 1;
-						self.clone().submit_task(task.clone()).await;
 					}
+					DownloadTaskStatus::Pending => {
+						if past_downloading < max_concurrent_downloads {
+							past_downloading += 1;
+							for_submission.push(task.clone());
+						}
+					}
+					DownloadTaskStatus::Finished => {
+						for_removal.push(index);
+					}
+					_ => {}
 				}
-				DownloadTaskStatus::Finished => {
-					for_removal.push(index);
-				}
-				_ => {}
+			}
+
+			for index in for_removal {
+				tasks.remove(index);
 			}
 		}
 
-		for index in for_removal {
-			tasks.remove(index);
-		}
+		*self.downloading_num.write() = downloading;
 
-		log::info!("Download tasks: {}", tasks.len());
-
-		if tasks.len() < 10 {
-			for x in tasks.iter() {
-				log::info!(
-					"Task: {}, progress: {}, total: {}",
-					x.read().await.file_name,
-					x.read().await.downloaded,
-					x.read().await.size.unwrap_or(0)
-				);
-			}
+		for task in for_submission {
+			self.clone().submit_task(task).await;
 		}
 	}
 
 	async fn submit_task(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) {
 		tokio::spawn(async move {
-			let total_size = self
-				.clone()
-				.get_total_size(task.clone())
-				.await
-				.unwrap_or_else(|_| 0);
-			task.write().await.size = Some(total_size);
-
-			if let Err(err) = self.start_download_task(task.clone()).await {
-				task.write().await.status = DownloadTaskStatus::Failed(err.to_string());
+			let url = task.clone().read().url.to_string();
+			let total_size = self.clone().get_total_size(url.clone()).await;
+			let total_size = match total_size {
+				Ok(total_size) => Some(total_size),
+				Err(_) => None,
+			};
+			task.clone().write().status = DownloadTaskStatus::Downloading(0, total_size);
+			let result = self.start_download_task(task.clone()).await;
+			match result {
+				Ok(_) => {}
+				Err(e) => task.write().status = DownloadTaskStatus::Failed(e.to_string()),
 			}
 		});
 	}
 
 	async fn start_download_task(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) -> Result<()> {
-		if let None = task.read().await.size {
-			return Err(anyhow::anyhow!("Failed to get content length"));
-		}
-
-		let total_size = task.read().await.size.unwrap_or(0);
-		let file_path = task.read().await.save_to.clone();
+		let DownloadTaskStatus::Downloading(_, total_size) = task.read().status.clone() else {
+			anyhow::bail!("Task is not in downloading status")
+		};
+		let file_path = task.read().save_to.clone();
 		let dir_path = std::path::Path::new(&file_path).parent().unwrap();
 		create_dir_all(dir_path).await?;
-		let file = Arc::new(Mutex::new(File::create(file_path)?));
-		file.lock().await.set_len(total_size)?;
+		let file = File::create(file_path)?;
+		if let Some(total_size) = total_size {
+			file.set_len(total_size)?;
+		}
+		let mut writer = BufWriter::new(file);
 
-		let url = task.read().await.url.to_string();
+		let url = task.read().url.to_string();
 		let resp = self
 			.http_client
 			.get(&url)
@@ -133,28 +155,25 @@ impl DownloadManager {
 			.await
 			.map_err(|e| anyhow::anyhow!("Request failed: {}", e))?;
 
-		let mut file = file.lock().await;
-
+		let mut downloaded = 0;
 		let mut stream = resp.bytes_stream();
 		while let Some(chunk) = stream.next().await {
 			let chunk = chunk.context("Failed to read response chunk")?;
-			task.write().await.downloaded += chunk.len() as u64;
-			file.write_all(&chunk)
+			downloaded += chunk.len() as u64;
+			*self.downloaded_per_sec_counter.write() += chunk.len() as u64;
+			writer
+				.write_all(&chunk)
 				.context("Failed to write chunk to file")?;
+			task.write().status = DownloadTaskStatus::Downloading(downloaded, total_size);
 		}
-		
-		task.write().await.status = DownloadTaskStatus::Finished;
-		log::info!("Download finished: {}", task.read().await.file_name);
+
+		task.write().status = DownloadTaskStatus::Finished;
 
 		Ok(())
 	}
 
-	async fn get_total_size(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) -> Result<u64> {
-		let response = self
-			.http_client
-			.head(task.read().await.url.clone())
-			.send()
-			.await?;
+	async fn get_total_size(self: Arc<Self>, url: String) -> Result<u64> {
+		let response = self.http_client.head(url).send().await?;
 		let total_size = response
 			.headers()
 			.get(reqwest::header::CONTENT_LENGTH)

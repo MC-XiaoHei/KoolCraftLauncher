@@ -1,7 +1,6 @@
 use crate::download::rux::store::DownloadManagerStore;
 use crate::vibrancy::VibrancyStateStore;
 use download::rux::download_manager::DownloadManager;
-use std::time::Duration;
 use tauri::{App, AppHandle, Manager};
 use tauri_plugin_http::reqwest;
 use tauri_plugin_http::reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
@@ -15,7 +14,11 @@ mod vibrancy;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
 	tauri::Builder::default()
-		.plugin(tauri_plugin_log::Builder::new().level(log::LevelFilter::Info).build())
+		.plugin(
+			tauri_plugin_log::Builder::new()
+				.level(log::LevelFilter::Info)
+				.build(),
+		)
 		.plugin(tauri_plugin_store::Builder::new().build())
 		.plugin(prevent_default())
 		.plugin(tauri_plugin_os::init())
@@ -38,7 +41,7 @@ pub fn run() {
 			crate::account::microsoft::start_microsoft_login,
 			crate::account::microsoft::terminate_microsoft_login,
 			crate::download::vanilla::install_vanilla,
-			start_tick_thread,
+			get_download_speed,
 		])
 		.plugin(tauri_plugin_http::init())
 		.plugin(tauri_plugin_shell::init())
@@ -53,18 +56,6 @@ fn prevent_default() -> tauri::plugin::TauriPlugin<tauri::Wry> {
 	tauri_plugin_prevent_default::Builder::new()
 		.with_flags(Flags::all().difference(Flags::DEV_TOOLS | Flags::RELOAD))
 		.build()
-}
-
-#[tauri::command]
-async fn start_tick_thread(app: AppHandle) {
-	let store = app.state::<DownloadManagerStore>();
-	let rux = store.get();
-	tokio::spawn(async move {
-		loop {
-			rux.clone().tick_tasks().await;
-			tokio::time::sleep(Duration::from_secs(1)).await;
-		}
-	});
 }
 
 fn inject_rux_download_manager(app: &App) {
@@ -82,6 +73,13 @@ fn inject_rux_download_manager(app: &App) {
 
 	let download_manager = DownloadManager::new(client);
 	app.manage(DownloadManagerStore::new(download_manager));
+}
+
+#[tauri::command]
+fn get_download_speed(app: AppHandle) -> u64 {
+	let store = app.state::<DownloadManagerStore>();
+	let rux = store.get();
+	rux.get_downloaded_per_sec()
 }
 
 #[cfg(not(debug_assertions))]

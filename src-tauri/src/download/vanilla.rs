@@ -6,13 +6,13 @@ use crate::download::utils::{
 	get_artifact, get_library_path, is_native_library, is_need, parse_version_json,
 	submit_download_version_json, unzip_natives, wait_all_tasks, wait_task,
 };
-use crate::download::version_schema::{AssetIndex, VersionJson};
+use crate::download::version_schema::VersionJson;
 use anyhow::Result;
+use futures::future::try_join3;
+use parking_lot::RwLock;
 use std::sync::Arc;
 use tauri::async_runtime::TokioJoinHandle;
 use tauri::{AppHandle, Manager};
-use tokio::sync::RwLock;
-use tokio::try_join;
 
 #[tauri::command]
 pub async fn install_vanilla(
@@ -46,13 +46,18 @@ async fn _install_vanilla(
 
 	let ver_json = parse_version_json(minecraft_dir.as_str(), version_name.as_str()).await?;
 
-	let _resolve_client_jar_task = submit_resolve_client_jar(
+	let resolve_client_jar_task = submit_resolve_client_jar(
 		minecraft_dir.as_str(),
 		version_name.as_str(),
 		&ver_json,
 		rux.clone(),
 	)
 	.await?;
+
+	let resolve_client_jar_handle: TokioJoinHandle<Result<()>> = tokio::spawn(async move {
+		wait_task(resolve_client_jar_task).await;
+		Ok(())
+	});
 
 	let resolve_libraries_tasks =
 		submit_resolve_libraries(minecraft_dir.as_str(), &ver_json, rux.clone()).await?;
@@ -83,9 +88,14 @@ async fn _install_vanilla(
 		Ok(())
 	});
 
-	let (unzip_natives_res, resolve_assets_res) =
-		try_join!(unzip_natives_handle, resolve_assets_handle)?;
+	let (resolve_client_jar_res, unzip_natives_res, resolve_assets_res) = try_join3(
+		resolve_client_jar_handle,
+		unzip_natives_handle,
+		resolve_assets_handle,
+	)
+	.await?;
 
+	resolve_client_jar_res?;
 	unzip_natives_res?;
 	resolve_assets_res?;
 
@@ -100,9 +110,7 @@ async fn submit_resolve_client_jar(
 ) -> Result<Arc<RwLock<DownloadTask>>> {
 	let task = DownloadTask::new(version_json.downloads.client.url.parse()?)
 		.save_to(format!("{0}/versions/{1}/{1}.jar", minecraft_dir, version_name).as_str());
-	let shared_task = Arc::new(RwLock::new(task));
-	rux.add_task(shared_task.clone()).await;
-	Ok(shared_task)
+	Ok(rux.add_task(task).await)
 }
 
 async fn submit_resolve_assets_index(
@@ -117,9 +125,7 @@ async fn submit_resolve_assets_index(
 		)
 		.as_str(),
 	);
-	let shared_task = Arc::new(RwLock::new(task));
-	rux.add_task(shared_task.clone()).await;
-	Ok(shared_task)
+	Ok(rux.add_task(task).await)
 }
 
 async fn parse_asset_index_json(minecraft_dir: &str, name: &str) -> Result<AssetIndexJson> {
@@ -149,9 +155,7 @@ async fn submit_resolve_assets(
 			.parse()?,
 		)
 		.save_to(asset_path.as_str());
-		let shared_task = Arc::new(RwLock::new(task));
-		tasks.push(shared_task.clone());
-		rux.clone().add_task(shared_task).await;
+		tasks.push(rux.clone().add_task(task).await);
 	}
 	Ok(tasks)
 }
@@ -167,9 +171,7 @@ async fn submit_resolve_libraries(
 		if let Some(artifact) = get_artifact(lib) {
 			let task = DownloadTask::new(artifact.url.parse()?)
 				.save_to(get_library_path(minecraft_dir, &artifact).as_str());
-			let shared_task = Arc::new(RwLock::new(task));
-			tasks.push(shared_task.clone());
-			rux.clone().add_task(shared_task).await;
+			tasks.push(rux.clone().add_task(task).await);
 		}
 	}
 	Ok(tasks)

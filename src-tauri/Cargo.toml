@@ -17,7 +17,7 @@ tauri-build = { version = "2.0.5", features = [] }
 tauri = { version = "2.2.5", features = ["macos-private-api", "unstable"] }
 tauri-plugin-shell = "2.2"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1.0.135"
+serde_json = "1.0"
 sys-locale = "0.3"
 chrono = { version = "0.4", features = ["serde"] }
 tauri-plugin-http = { version = "2.2", features = ["stream", "json"] }
@@ -29,6 +29,7 @@ futures = "0.3"
 zip = "2.2"
 tauri-plugin-log = "2.2"
 log = "0.4"
+parking_lot = { version = "0.12.3", features = ["arc_lock", "deadlock_detection"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-prevent-default = "1"

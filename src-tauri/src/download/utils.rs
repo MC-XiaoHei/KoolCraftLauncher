@@ -9,8 +9,8 @@ use std::option::Option;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
+use parking_lot::RwLock;
 use tokio::fs::create_dir_all;
-use tokio::sync::RwLock;
 use zip::ZipArchive;
 
 pub async fn submit_download_version_json(
@@ -21,9 +21,7 @@ pub async fn submit_download_version_json(
 ) -> Result<Arc<RwLock<DownloadTask>>> {
 	let task = DownloadTask::new(ver_json_url.parse()?)
 		.save_to(format!("{0}/versions/{1}/{1}.json", minecraft_dir, version_name).as_str());
-	let shared_task = Arc::new(RwLock::new(task));
-	rux.clone().add_task(shared_task.clone()).await;
-	Ok(shared_task)
+	Ok(rux.add_task(task).await)
 }
 
 pub async fn parse_version_json(minecraft_dir: &str, version_name: &str) -> Result<VersionJson> {
@@ -180,7 +178,7 @@ pub async fn wait_all_tasks(tasks: &Vec<Arc<RwLock<DownloadTask>>>) {
 
 pub async fn wait_task(task: Arc<RwLock<DownloadTask>>) {
 	loop {
-		if task.read().await.status == Finished {
+		if task.read().status == Finished {
 			break;
 		} else {
 			tokio::time::sleep(Duration::from_millis(100)).await;

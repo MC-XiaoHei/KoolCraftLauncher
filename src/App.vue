@@ -158,8 +158,6 @@ invoke("should_custom_window").then((shouldCustom) => {
   }
 });
 
-invoke("start_tick_thread").then();
-
 onMounted(() => {
   document.getElementById("navbar")?.addEventListener("mousedown", (event) => {
     const isLeftClick = event.buttons === 1;
@@ -169,6 +167,12 @@ onMounted(() => {
     }
   });
   useMinecraftVersionCache().updateData().then();
+
+  setInterval(() => {
+    invoke("get_download_speed").then((speed) => {
+      console.log("Download speed:", (speed as number / 1024 / 1024).toFixed(2), "MB/s");
+    });
+  }, 1000);
 });
 </script>
 
