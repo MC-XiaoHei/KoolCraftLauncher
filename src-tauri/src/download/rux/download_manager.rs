@@ -51,12 +51,8 @@ impl DownloadManager {
 		*self.downloading_num.read()
 	}
 
-	pub fn get_downloaded_per_sec(self: Arc<Self>, download_group: String) -> u64 {
-		*self
-			.downloaded_per_sec
-			.read()
-			.get(&download_group)
-			.unwrap_or(&0)
+	pub fn get_downloaded_per_sec(self: Arc<Self>, download_group: String) -> Option<u64> {
+		self.downloaded_per_sec.read().get(&download_group).cloned()
 	}
 
 	pub async fn add_task(self: Arc<Self>, task: DownloadTask) -> Arc<RwLock<DownloadTask>> {
@@ -99,10 +95,15 @@ impl DownloadManager {
 		let mut downloading = 0;
 		let mut for_removal = vec![];
 		let mut for_submission = vec![];
+		let mut groups = vec![];
 
 		{
 			let mut tasks = self.download_tasks.lock();
 			for (index, task) in tasks.iter().enumerate().rev() {
+				let download_group = task.read().download_group.clone();
+				if !groups.contains(&download_group) {
+					groups.push(download_group.clone());
+				}
 				let status = task.read().status.clone();
 				match status {
 					DownloadTaskStatus::Downloading(_, _) => {
@@ -125,6 +126,9 @@ impl DownloadManager {
 				tasks.remove(index);
 			}
 		}
+
+		self.downloaded_per_sec_counter.write().retain(|k, _| groups.contains(k));
+		self.downloaded_per_sec.write().retain(|k, _| groups.contains(k));
 
 		*self.downloading_num.write() = downloading;
 

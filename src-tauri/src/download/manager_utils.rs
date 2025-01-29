@@ -29,7 +29,7 @@ fn get_download_manager(app: &AppHandle) -> Arc<DownloadManager> {
 }
 
 #[tauri::command]
-pub fn get_download_speed(download_group: String, app: AppHandle) -> u64 {
+pub fn get_download_speed(download_group: String, app: AppHandle) -> Option<u64> {
 	let rux = get_download_manager(&app);
 	rux.get_downloaded_per_sec(download_group)
 }

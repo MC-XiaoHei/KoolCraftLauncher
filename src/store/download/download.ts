@@ -10,9 +10,9 @@ export const useDownloadManagerStore = defineStore("download-manager-store", () 
     return randomId;
   }
 
-  async function refresh() {
-    const result: [string, string][] = [];
 
+  onMounted(async () => {
+    const result: [string, string][] = [];
     for (let value of downloadGroups.value) {
       if (await invoke("is_download_group_exists", {
         downloadGroup: value[1],
@@ -20,14 +20,28 @@ export const useDownloadManagerStore = defineStore("download-manager-store", () 
         result.push(value);
       }
     }
-
     downloadGroups.value = result;
-  }
+
+    setInterval(() => {
+      const forRemoval: string[] = [];
+      downloadGroups.value.forEach((group) => {
+        invoke("get_download_speed", {
+          downloadGroup: group[1],
+        }).then((speed) => {
+          if (!speed) {
+            forRemoval.push(group[1]);
+          } else {
+            console.log(`Download speed(${ group[0] }): ${ (speed as number / 1024 / 1024).toFixed(2) } MB/s`);
+          }
+        });
+      });
+      downloadGroups.value = downloadGroups.value.filter((group) => !forRemoval.includes(group[1]));
+    }, 1000);
+  });
 
   return {
     downloadGroups,
     createGroup,
-    refresh,
   };
 }, {
   persist: true,

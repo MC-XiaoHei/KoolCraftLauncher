@@ -70,21 +70,19 @@
 </template>
 
 <script lang="ts" setup>
-import { useDownloadManagerStore } from "@/store/download/download.ts";
+import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache";
+import { DarkMode } from "@/store/theme/models";
+import { useThemeStore } from "@/store/theme/theme";
 import { mdiArrowLeft, mdiWindowClose } from "@mdi/js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { OverlayScrollbarsComponent } from "overlayscrollbars-vue";
 import { useTheme } from "vuetify";
-import { useMinecraftVersionCache } from "./store/cache/minecraft-version-cache.ts";
-import { DarkMode } from "./store/theme/models.ts";
-import { useThemeStore } from "./store/theme/theme.ts";
 
 const { t } = useI18n();
 const appWindow = getCurrentWindow();
 const theme = useTheme();
 const themeSettings = useThemeStore();
-const downloadManagerStore = useDownloadManagerStore();
 const router = useRouter();
 const shouldTransparentBody = ref(false);
 const shouldCustomWindow = ref(false);
@@ -161,8 +159,6 @@ invoke("should_custom_window").then((shouldCustom) => {
 });
 
 onMounted(async () => {
-  await downloadManagerStore.refresh();
-
   document.getElementById("navbar")?.addEventListener("mousedown", (event) => {
     const isLeftClick = event.buttons === 1;
     const isDraggable = event.target instanceof HTMLElement && event.target.closest(".no-drag") === null;
@@ -171,16 +167,6 @@ onMounted(async () => {
     }
   });
   useMinecraftVersionCache().updateData().then();
-
-  setInterval(() => {
-    downloadManagerStore.downloadGroups.forEach((group) => {
-      invoke("get_download_speed", {
-        downloadGroup: group[1],
-      }).then((speed) => {
-        console.log(`Download speed(${ group[0] }): ${ (speed as number / 1024 / 1024).toFixed(2) } MB/s`);
-      });
-    });
-  }, 1000);
 });
 </script>
 
