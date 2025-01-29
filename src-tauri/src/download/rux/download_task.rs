@@ -1,7 +1,7 @@
 use tauri_plugin_http::reqwest::Url;
 
 #[allow(dead_code)]
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum DownloadTaskStatus {
 	Pending,
 	Downloading(u64, Option<u64>),
@@ -10,8 +10,10 @@ pub enum DownloadTaskStatus {
 }
 
 #[allow(dead_code)]
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct DownloadTask {
+	pub download_group: String,
+	pub task_type: String,
 	pub url: Url,
 	pub file_name: String,
 	pub save_to: String,
@@ -19,9 +21,11 @@ pub struct DownloadTask {
 }
 
 impl DownloadTask {
-	pub fn new(url: Url) -> Self {
+	pub fn new(url: Url, download_group: String, task_type: String) -> Self {
 		let file_name = get_file_name_from_url(url.as_str()).unwrap();
 		DownloadTask {
+			download_group,
+			task_type,
 			url,
 			file_name: file_name.clone(),
 			save_to: file_name,

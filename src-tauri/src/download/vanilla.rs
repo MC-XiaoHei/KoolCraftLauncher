@@ -4,7 +4,7 @@ use crate::download::rux::download_task::DownloadTask;
 use crate::download::rux::store::DownloadManagerStore;
 use crate::download::utils::{
 	get_artifact, get_library_path, is_native_library, is_need, parse_version_json,
-	submit_download_version_json, unzip_natives, wait_all_tasks, wait_task,
+	submit_resolve_version_json, unzip_natives, wait_all_tasks, wait_task,
 };
 use crate::download::version_schema::VersionJson;
 use anyhow::Result;
@@ -19,11 +19,18 @@ pub async fn install_vanilla(
 	ver_json_url: String,
 	minecraft_dir: String,
 	version_name: String,
+	download_group: String,
 	app: AppHandle,
 ) -> Result<(), String> {
-	_install_vanilla(ver_json_url, minecraft_dir, version_name, app)
-		.await
-		.map_err(|e| e.to_string())?;
+	_install_vanilla(
+		ver_json_url,
+		minecraft_dir,
+		version_name,
+		download_group,
+		app,
+	)
+	.await
+	.map_err(|e| e.to_string())?;
 	Ok(())
 }
 
@@ -31,14 +38,16 @@ async fn _install_vanilla(
 	ver_json_url: String,
 	minecraft_dir: String,
 	version_name: String,
+	download_group: String,
 	app: AppHandle,
 ) -> Result<()> {
 	let store = app.state::<DownloadManagerStore>();
 	let rux = store.get();
-	let download_version_json_task = submit_download_version_json(
+	let download_version_json_task = submit_resolve_version_json(
 		ver_json_url.as_str(),
 		minecraft_dir.as_str(),
 		version_name.as_str(),
+		download_group.as_str(),
 		rux.clone(),
 	)
 	.await?;
@@ -50,6 +59,7 @@ async fn _install_vanilla(
 		minecraft_dir.as_str(),
 		version_name.as_str(),
 		&ver_json,
+		download_group.as_str(),
 		rux.clone(),
 	)
 	.await?;
@@ -59,8 +69,13 @@ async fn _install_vanilla(
 		Ok(())
 	});
 
-	let resolve_libraries_tasks =
-		submit_resolve_libraries(minecraft_dir.as_str(), &ver_json, rux.clone()).await?;
+	let resolve_libraries_tasks = submit_resolve_libraries(
+		minecraft_dir.as_str(),
+		&ver_json,
+		download_group.as_str(),
+		rux.clone(),
+	)
+	.await?;
 
 	let ver_json_clone = ver_json.clone();
 	let minecraft_dir_clone = minecraft_dir.clone();
@@ -74,16 +89,25 @@ async fn _install_vanilla(
 	let minecraft_dir_clone = minecraft_dir.clone();
 	let resolve_assets_handle: TokioJoinHandle<Result<()>> = tokio::spawn(async move {
 		wait_task(
-			submit_resolve_assets_index(minecraft_dir_clone.as_str(), &ver_json_clone, rux.clone())
-				.await?,
+			submit_resolve_assets_index(
+				minecraft_dir_clone.as_str(),
+				&ver_json_clone,
+				download_group.as_str(),
+				rux.clone(),
+			)
+			.await?,
 		)
 		.await;
 		let asset_index_json =
 			parse_asset_index_json(minecraft_dir_clone.as_str(), &ver_json_clone.asset_index.id)
 				.await?;
-		let resolve_assets_tasks =
-			submit_resolve_assets(minecraft_dir_clone.as_str(), asset_index_json, rux.clone())
-				.await?;
+		let resolve_assets_tasks = submit_resolve_assets(
+			minecraft_dir_clone.as_str(),
+			asset_index_json,
+			download_group.as_str(),
+			rux.clone(),
+		)
+		.await?;
 		wait_all_tasks(&resolve_assets_tasks).await;
 		Ok(())
 	});
@@ -106,19 +130,30 @@ async fn submit_resolve_client_jar(
 	minecraft_dir: &str,
 	version_name: &str,
 	version_json: &VersionJson,
+	download_group: &str,
 	rux: Arc<DownloadManager>,
 ) -> Result<Arc<RwLock<DownloadTask>>> {
-	let task = DownloadTask::new(version_json.downloads.client.url.parse()?)
-		.save_to(format!("{0}/versions/{1}/{1}.jar", minecraft_dir, version_name).as_str());
+	let task = DownloadTask::new(
+		version_json.downloads.client.url.parse()?,
+		download_group.to_string(),
+		"download-client-jar".to_string(),
+	)
+	.save_to(format!("{0}/versions/{1}/{1}.jar", minecraft_dir, version_name).as_str());
 	Ok(rux.add_task(task).await)
 }
 
 async fn submit_resolve_assets_index(
 	minecraft_dir: &str,
 	version_json: &VersionJson,
+	download_group: &str,
 	rux: Arc<DownloadManager>,
 ) -> Result<Arc<RwLock<DownloadTask>>> {
-	let task = DownloadTask::new(version_json.asset_index.url.parse()?).save_to(
+	let task = DownloadTask::new(
+		version_json.asset_index.url.parse()?,
+		download_group.to_string(),
+		"download-asset-index".to_string(),
+	)
+	.save_to(
 		format!(
 			"{0}/assets/indexes/{1}.json",
 			minecraft_dir, version_json.asset_index.id
@@ -137,6 +172,7 @@ async fn parse_asset_index_json(minecraft_dir: &str, name: &str) -> Result<Asset
 async fn submit_resolve_assets(
 	minecraft_dir: &str,
 	asset_index_json: AssetIndexJson,
+	download_group: &str,
 	rux: Arc<DownloadManager>,
 ) -> Result<Vec<Arc<RwLock<DownloadTask>>>> {
 	let mut tasks: Vec<Arc<RwLock<DownloadTask>>> = Vec::new();
@@ -153,6 +189,8 @@ async fn submit_resolve_assets(
 				hash_prefix, hash
 			)
 			.parse()?,
+			download_group.to_string(),
+			"download-assets".to_string(),
 		)
 		.save_to(asset_path.as_str());
 		tasks.push(rux.clone().add_task(task).await);
@@ -163,14 +201,19 @@ async fn submit_resolve_assets(
 async fn submit_resolve_libraries(
 	minecraft_dir: &str,
 	version_json: &VersionJson,
+	download_group: &str,
 	rux: Arc<DownloadManager>,
 ) -> Result<Vec<Arc<RwLock<DownloadTask>>>> {
 	let mut tasks: Vec<Arc<RwLock<DownloadTask>>> = Vec::new();
 	let libraries = version_json.libraries.iter().filter(|lib| is_need(lib));
 	for lib in libraries {
 		if let Some(artifact) = get_artifact(lib) {
-			let task = DownloadTask::new(artifact.url.parse()?)
-				.save_to(get_library_path(minecraft_dir, &artifact).as_str());
+			let task = DownloadTask::new(
+				artifact.url.parse()?,
+				download_group.to_string(),
+				"download-libraries".to_string(),
+			)
+			.save_to(get_library_path(minecraft_dir, &artifact).as_str());
 			tasks.push(rux.clone().add_task(task).await);
 		}
 	}

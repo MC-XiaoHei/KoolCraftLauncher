@@ -1,4 +1,6 @@
 import Vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
+import { presetAttributify, presetUno } from "unocss";
 import UnoCSS from "unocss/vite";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
@@ -7,7 +9,6 @@ import { defineConfig } from "vite";
 import ViteCompression from "vite-plugin-compression";
 import VueDevTools from "vite-plugin-vue-devtools";
 import Vuetify from "vite-plugin-vuetify";
-import { resolve } from 'path';
 
 const host = process.env.TAURI_DEV_HOST;
 
@@ -35,7 +36,12 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
   plugins: [
-    UnoCSS(),
+    UnoCSS({
+      presets: [
+        presetUno(),
+        presetAttributify({}),
+      ],
+    }),
     VueRouter({
       importMode: "sync",
     }),
@@ -60,9 +66,9 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: '@',
-        replacement: resolve(__dirname, './src')
-      }
-    ]
-  }
+        find: "@",
+        replacement: resolve(__dirname, "./src"),
+      },
+    ],
+  },
 });

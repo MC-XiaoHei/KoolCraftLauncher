@@ -124,7 +124,7 @@
 <script setup lang="ts">
 import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache.ts";
 import { VersionCacheStatus } from "@/store/cache/models.ts";
-import { formatDate } from "@/utils/date-utils.ts";
+import { formatDate } from "@/utils/date.ts";
 import { mdiChevronDown } from "@mdi/js";
 
 const { t } = useI18n();

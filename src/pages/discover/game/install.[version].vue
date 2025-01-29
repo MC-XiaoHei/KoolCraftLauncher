@@ -25,13 +25,7 @@
                  color="primary"
                  :text="t('pages.discover.game.install.dynamic.label.install')"
                  class="mt--2"
-                 @click="() => {
-                   invoke('install_vanilla',{
-                     verJsonUrl: minecraftVersionCache.getVersionInfo(game.id)?.url,
-                     versionName: name,
-                     minecraftDir: minecraftDirStore.currentDir.path,
-                   });
-                 }"
+                 @click="install"
           />
         </div>
       </div>
@@ -41,6 +35,7 @@
 
 <script setup lang="ts">
 import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache.ts";
+import { useDownloadManagerStore } from "@/store/download/download.ts";
 import { useMinecraftDirStore } from "@/store/game/minecraft-dir-store.ts";
 import { useMinecraftGameStore } from "@/store/game/minecraft-game-store.ts";
 import { getBuiltInGameIcon } from "@/store/game/models.ts";
@@ -51,12 +46,23 @@ const router = useRouter();
 const minecraftVersionCache = useMinecraftVersionCache();
 const minecraftDirStore = useMinecraftDirStore();
 const minecraftGameStore = useMinecraftGameStore();
+const downloadManagerStore = useDownloadManagerStore();
 // @ts-ignore
 const game = minecraftVersionCache.buildGame(router.currentRoute.value.params.version, minecraftDirStore.currentDir);
 const name = ref(game.id);
 const idValid = computed(() =>
     !minecraftGameStore.getGames(minecraftDirStore.currentDir).some((game) => game.id === name.value),
 );
+
+function install() {
+  const downloadGroupId = downloadManagerStore.createGroup(`install@vanilla@${ name.value }`);
+  invoke("install_vanilla", {
+    verJsonUrl: minecraftVersionCache.getVersionInfo(game.id)?.url,
+    versionName: name.value,
+    minecraftDir: minecraftDirStore.currentDir.path,
+    downloadGroup: downloadGroupId,
+  });
+}
 
 watch(() => name.value, (value) => {
   if (!value) {

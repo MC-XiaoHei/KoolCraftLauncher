@@ -13,14 +13,19 @@ use std::time::Duration;
 use tokio::fs::create_dir_all;
 use zip::ZipArchive;
 
-pub async fn submit_download_version_json(
+pub async fn submit_resolve_version_json(
 	ver_json_url: &str,
 	minecraft_dir: &str,
 	version_name: &str,
+	download_group: &str,
 	rux: Arc<DownloadManager>,
 ) -> Result<Arc<RwLock<DownloadTask>>> {
-	let task = DownloadTask::new(ver_json_url.parse()?)
-		.save_to(format!("{0}/versions/{1}/{1}.json", minecraft_dir, version_name).as_str());
+	let task = DownloadTask::new(
+		ver_json_url.parse()?,
+		download_group.to_string(),
+		"download-version-json".to_string(),
+	)
+	.save_to(format!("{0}/versions/{1}/{1}.json", minecraft_dir, version_name).as_str());
 	Ok(rux.add_task(task).await)
 }
 

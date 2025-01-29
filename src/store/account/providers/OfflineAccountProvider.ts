@@ -1,4 +1,4 @@
-import { calcOfflineUuid, getDefaultSkinUrl } from "../../../utils/offline-utils.ts";
+import { calcOfflineUuid, getDefaultSkinUrl } from "../../../utils/offline.ts";
 import { Account, AccountType } from "../models.ts";
 import { AccountProvider, SkinData } from "./AccountProvider.ts";
 

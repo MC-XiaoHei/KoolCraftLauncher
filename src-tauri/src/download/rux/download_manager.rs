@@ -2,6 +2,7 @@ use crate::download::rux::download_task::{DownloadTask, DownloadTaskStatus};
 use anyhow::{Context, Result};
 use futures::stream::StreamExt;
 use parking_lot::{Mutex, RwLock};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::sync::Arc;
@@ -18,8 +19,8 @@ pub struct DownloadManager {
 	http_client: Arc<Client>,
 	downloading_num: Arc<RwLock<usize>>,
 	ticking: Arc<RwLock<bool>>,
-	downloaded_per_sec_counter: Arc<RwLock<u64>>,
-	downloaded_per_sec: Arc<RwLock<u64>>,
+	downloaded_per_sec_counter: Arc<RwLock<HashMap<String, u64>>>,
+	downloaded_per_sec: Arc<RwLock<HashMap<String, u64>>>,
 }
 
 #[allow(dead_code)]
@@ -32,8 +33,8 @@ impl DownloadManager {
 			http_client: Arc::new(client),
 			downloading_num: Arc::new(RwLock::new(0)),
 			ticking: Arc::new(RwLock::new(false)),
-			downloaded_per_sec_counter: Arc::new(RwLock::new(0)),
-			downloaded_per_sec: Arc::new(RwLock::new(0)),
+			downloaded_per_sec_counter: Arc::new(RwLock::new(HashMap::new())),
+			downloaded_per_sec: Arc::new(RwLock::new(HashMap::new())),
 		});
 		download_manager
 	}
@@ -50,33 +51,48 @@ impl DownloadManager {
 		*self.downloading_num.read()
 	}
 
-	pub fn get_downloaded_per_sec(self: Arc<Self>) -> u64 {
-		*self.downloaded_per_sec.read()
+	pub fn get_downloaded_per_sec(self: Arc<Self>, download_group: String) -> u64 {
+		*self
+			.downloaded_per_sec
+			.read()
+			.get(&download_group)
+			.unwrap_or(&0)
 	}
 
 	pub async fn add_task(self: Arc<Self>, task: DownloadTask) -> Arc<RwLock<DownloadTask>> {
 		let shared_task = Arc::new(RwLock::new(task));
 		self.download_tasks.lock().push(shared_task.clone());
-		self.start_tick_thread().await;
+		self.start_tick_thread();
 		shared_task
 	}
 
-	async fn start_tick_thread(self: Arc<Self>) {
+	pub fn is_download_group_exists(self: Arc<Self>, download_group: String) -> bool {
+		for task in self.download_tasks.lock().iter() {
+			if task.read().download_group == download_group {
+				return true;
+			}
+		}
+		false
+	}
+
+	fn start_tick_thread(self: Arc<Self>) {
 		if *self.ticking.read() {
 			return;
 		}
 		*self.ticking.write() = true;
 		tokio::spawn(async move {
 			loop {
-				self.clone().tick_tasks_per_sec().await;
+				self.clone().tick_tasks_per_sec();
 				tokio::time::sleep(Duration::from_secs(1)).await;
 			}
 		});
 	}
 
-	pub async fn tick_tasks_per_sec(self: Arc<Self>) {
-		*self.downloaded_per_sec.write() = *self.downloaded_per_sec_counter.read();
-		*self.downloaded_per_sec_counter.write() = 0;
+	pub fn tick_tasks_per_sec(self: Arc<Self>) {
+		for (group, counter) in self.downloaded_per_sec_counter.read().iter() {
+			self.downloaded_per_sec.write().insert(group.clone(), counter.clone());
+		}
+		self.downloaded_per_sec_counter.write().clear();
 		let mut past_downloading = self.clone().get_downloading_num();
 		let max_concurrent_downloads = self.max_concurrent_downloads.read().clone();
 
@@ -113,11 +129,11 @@ impl DownloadManager {
 		*self.downloading_num.write() = downloading;
 
 		for task in for_submission {
-			self.clone().submit_task(task).await;
+			self.clone().submit_task(task);
 		}
 	}
 
-	async fn submit_task(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) {
+	fn submit_task(self: Arc<Self>, task: Arc<RwLock<DownloadTask>>) {
 		tokio::spawn(async move {
 			let url = task.clone().read().url.to_string();
 			let total_size = self.clone().get_total_size(url.clone()).await;
@@ -138,6 +154,7 @@ impl DownloadManager {
 		let DownloadTaskStatus::Downloading(_, total_size) = task.read().status.clone() else {
 			anyhow::bail!("Task is not in downloading status")
 		};
+		let download_group = task.read().download_group.clone();
 		let file_path = task.read().save_to.clone();
 		let dir_path = std::path::Path::new(&file_path).parent().unwrap();
 		create_dir_all(dir_path).await?;
@@ -160,7 +177,11 @@ impl DownloadManager {
 		while let Some(chunk) = stream.next().await {
 			let chunk = chunk.context("Failed to read response chunk")?;
 			downloaded += chunk.len() as u64;
-			*self.downloaded_per_sec_counter.write() += chunk.len() as u64;
+			*self
+				.downloaded_per_sec_counter
+				.write()
+				.entry(download_group.clone())
+				.or_insert(0) += chunk.len() as u64;
 			writer
 				.write_all(&chunk)
 				.context("Failed to write chunk to file")?;

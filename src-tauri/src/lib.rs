@@ -1,9 +1,6 @@
-use crate::download::rux::store::DownloadManagerStore;
 use crate::vibrancy::VibrancyStateStore;
-use download::rux::download_manager::DownloadManager;
-use tauri::{App, AppHandle, Manager};
-use tauri_plugin_http::reqwest;
-use tauri_plugin_http::reqwest::header::{HeaderMap, HeaderValue, USER_AGENT};
+use download::manager_utils;
+use tauri::Manager;
 
 mod account;
 mod download;
@@ -32,7 +29,7 @@ pub fn run() {
 		.setup(|app| {
 			let vibrancy_state = setup::setup_window(app).unwrap();
 			app.state::<VibrancyStateStore>().set(vibrancy_state);
-			inject_rux_download_manager(app);
+			manager_utils::inject_rux_download_manager(app);
 			Ok(())
 		})
 		.invoke_handler(tauri::generate_handler![
@@ -41,7 +38,8 @@ pub fn run() {
 			crate::account::microsoft::start_microsoft_login,
 			crate::account::microsoft::terminate_microsoft_login,
 			crate::download::vanilla::install_vanilla,
-			get_download_speed,
+			crate::download::manager_utils::get_download_speed,
+			crate::download::manager_utils::is_download_group_exists
 		])
 		.plugin(tauri_plugin_http::init())
 		.plugin(tauri_plugin_shell::init())
@@ -56,30 +54,6 @@ fn prevent_default() -> tauri::plugin::TauriPlugin<tauri::Wry> {
 	tauri_plugin_prevent_default::Builder::new()
 		.with_flags(Flags::all().difference(Flags::DEV_TOOLS | Flags::RELOAD))
 		.build()
-}
-
-fn inject_rux_download_manager(app: &App) {
-	let mut headers = HeaderMap::new();
-	headers.insert(
-		USER_AGENT,
-		HeaderValue::from_str(format!("KCl/{}", app.package_info().version.to_string()).as_str())
-			.unwrap(),
-	);
-
-	let client = reqwest::Client::builder()
-		.default_headers(headers)
-		.build()
-		.unwrap();
-
-	let download_manager = DownloadManager::new(client);
-	app.manage(DownloadManagerStore::new(download_manager));
-}
-
-#[tauri::command]
-fn get_download_speed(app: AppHandle) -> u64 {
-	let store = app.state::<DownloadManagerStore>();
-	let rux = store.get();
-	rux.get_downloaded_per_sec()
 }
 
 #[cfg(not(debug_assertions))]

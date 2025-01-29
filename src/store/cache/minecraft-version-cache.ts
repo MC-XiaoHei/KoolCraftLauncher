@@ -1,6 +1,6 @@
 import { VersionCacheStatus, VersionData, VersionListData } from "@/store/cache/models.ts";
 import { Game, GameLoader, GameType, MinecraftDir } from "@/store/game/models.ts";
-import { isFoolsDay } from "@/utils/date-utils.ts";
+import { isFoolsDay } from "@/utils/date.ts";
 import { fetch } from "@tauri-apps/plugin-http";
 
 const unexpectedFoolsDayVersions = [
