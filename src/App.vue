@@ -33,14 +33,22 @@
         </v-toolbar-title>
       </transition>
       <v-spacer></v-spacer>
-      <v-btn class="no-drag mr-2 w-8 h-8"
-             size="32"
-             icon=""
-             variant="plain"
-             rounded
-      >
-        <v-icon :icon="downloadingIcons[downloadingIconFrame]" size="24" />
-      </v-btn>
+      <v-tooltip location="bottom" open-delay="300"
+                 :text="downloadManagerStore.downloading ?
+                 (formatBytes(totalDownloadSpeed) + '/s') :
+                 t('layout.label.download-page')">
+        <template v-slot:activator="{ props }">
+          <v-btn class="no-drag mr-2 w-8 h-8"
+                 size="32"
+                 v-bind="props"
+                 icon=""
+                 variant="plain"
+                 rounded
+          >
+            <v-icon :icon="downloadingIcons[downloadingIconFrame]" size="24" />
+          </v-btn>
+        </template>
+      </v-tooltip>
       <v-btn :icon="windowMinimizeIcon"
              class="no-drag mr-2"
              size="32"
@@ -79,9 +87,10 @@
 
 <script lang="ts" setup>
 import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache";
-import { useDownloadManagerStore } from "@/store/download/download";
+import { totalDownloadSpeed, useDownloadManagerStore } from "@/store/download/download";
 import { DarkMode } from "@/store/theme/models";
 import { useThemeStore } from "@/store/theme/theme";
+import { formatBytes } from "@/utils/size.ts";
 import { mdiArrowLeft, mdiWindowClose } from "@mdi/js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";

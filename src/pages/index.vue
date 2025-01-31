@@ -186,6 +186,7 @@ onMounted(() => {
 
   skinViewer.zoom = 0.85;
   skinViewer.animation!.speed = 0.5;
+  skinViewer.controls.enableZoom = false;
 
   updateSkinViewerSkin();
   resizeSkinViewer();

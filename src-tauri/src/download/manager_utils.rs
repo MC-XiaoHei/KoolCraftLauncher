@@ -33,3 +33,10 @@ pub fn get_download_speed(download_group: String, app: AppHandle) -> Option<u64>
 	let rux = get_download_manager(&app);
 	rux.get_downloaded_per_sec(download_group)
 }
+
+
+#[tauri::command]
+pub fn is_download_group_exists(download_group: String, app: AppHandle) -> bool {
+	let rux = get_download_manager(&app);
+	rux.is_download_group_exists(download_group)
+}
