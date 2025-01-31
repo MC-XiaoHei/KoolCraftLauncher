@@ -79,7 +79,7 @@
 
 <script lang="ts" setup>
 import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache";
-import { useDownloadManagerStore } from "@/store/download/download.ts";
+import { useDownloadManagerStore } from "@/store/download/download";
 import { DarkMode } from "@/store/theme/models";
 import { useThemeStore } from "@/store/theme/theme";
 import { mdiArrowLeft, mdiWindowClose } from "@mdi/js";

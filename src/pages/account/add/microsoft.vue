@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { AccountProviders, useAccountStore } from "@/store/account/account.ts";
+import { AccountProviders, useAccountStore } from "@/store/account/account";
 
 // noinspection JSUnusedGlobalSymbols
 enum MicrosoftLoginStatus {

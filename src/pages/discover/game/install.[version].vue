@@ -34,11 +34,11 @@
 </template>
 
 <script setup lang="ts">
-import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache.ts";
-import { useDownloadManagerStore } from "@/store/download/download.ts";
-import { useMinecraftDirStore } from "@/store/game/minecraft-dir-store.ts";
-import { useMinecraftGameStore } from "@/store/game/minecraft-game-store.ts";
-import { getBuiltInGameIcon } from "@/store/game/models.ts";
+import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache";
+import { useDownloadManagerStore } from "@/store/download/download";
+import { useMinecraftDirStore } from "@/store/game/minecraft-dir-store";
+import { useMinecraftGameStore } from "@/store/game/minecraft-game-store";
+import { getBuiltInGameIcon } from "@/store/game/models";
 import { invoke } from "@tauri-apps/api/core";
 
 const { t } = useI18n();
