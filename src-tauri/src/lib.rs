@@ -39,7 +39,6 @@ pub fn run() {
 			crate::account::microsoft::terminate_microsoft_login,
 			crate::download::vanilla::install_vanilla,
 			crate::download::manager_utils::get_download_speed,
-			crate::download::manager_utils::is_download_group_exists
 		])
 		.plugin(tauri_plugin_http::init())
 		.plugin(tauri_plugin_shell::init())
