@@ -27,5 +27,6 @@ declare module 'vue-router/auto-routes' {
     '/discover/': RouteRecordInfo<'/discover/', '/discover', Record<never, never>, Record<never, never>>,
     '/discover/game/': RouteRecordInfo<'/discover/game/', '/discover/game', Record<never, never>, Record<never, never>>,
     '/discover/game/install.[version]': RouteRecordInfo<'/discover/game/install.[version]', '/discover/game/install/:version', { version: ParamValue<true> }, { version: ParamValue<false> }>,
+    '/download/': RouteRecordInfo<'/download/', '/download', Record<never, never>, Record<never, never>>,
   }
 }

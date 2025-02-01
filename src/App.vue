@@ -23,7 +23,7 @@
         />
       </template>
 
-      <transition :name="routeBack ? 'transform-back':'transform-forward'" mode="out-in">
+      <transition :name="routingBack ? 'transform-back':'transform-forward'" mode="out-in">
         <v-toolbar-title key="brand-title" v-if="isIndexPage || !router.currentRoute.value.name"
                          class="text-monocraft"
         >KCl
@@ -42,6 +42,7 @@
                  size="32"
                  v-bind="props"
                  icon=""
+                 @click="router.push('/download')"
                  variant="plain"
                  rounded
           >
@@ -76,7 +77,7 @@
         }">
 
         <router-view v-slot="{ Component }">
-          <transition :name="routeBack ? 'transform-back':'transform-forward'" mode="out-in">
+          <transition :name="routingBack ? 'transform-back':'transform-forward'" mode="out-in">
             <component :is="Component" class="w-full h-full" />
           </transition>
         </router-view>
@@ -86,6 +87,7 @@
 </template>
 
 <script lang="ts" setup>
+import { routingBack } from "@/plugins/router.ts";
 import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache";
 import { totalDownloadSpeed, useDownloadManagerStore } from "@/store/download/download";
 import { DarkMode } from "@/store/theme/models";
@@ -142,7 +144,6 @@ const downloadingIcons = [
   "M16.034 5.09A7.95 7.95 0 0 0 13 4.062V2.049c2.011.2 3.847.996 5.329 2.208L16.906 5.68a8 8 0 0 0-.872-.59M5.67 4.257A9.95 9.95 0 0 1 11 2.049v2.013A7.96 7.96 0 0 0 7.094 5.68zm.01 2.837A7.96 7.96 0 0 0 4.06 11H2.05a9.95 9.95 0 0 1 2.208-5.329zM12 16.5 7.5 12H11V8h2v4h3.5zM4.062 13H2.049a9.95 9.95 0 0 0 2.208 5.329l1.423-1.423A7.947 7.947 0 0 1 4.062 13m3.032 5.32-1.423 1.423A9.933 9.933 0 0 0 11 21.951v-2.013a7.94 7.94 0 0 1-3.906-1.618M20 12a8 8 0 0 1-7 7.938v2.013q.237-.024.47-.058a9.94 9.94 0 0 0 4.859-2.15q.777-.636 1.414-1.414A10 10 0 0 0 21.95 13a10 10 0 0 0-.038-2.328 9.94 9.94 0 0 0-2.17-5L18.32 7.093a8 8 0 0 1 .873 1.401A8 8 0 0 1 20 12",
   "M16.034 5.09A7.95 7.95 0 0 0 13 4.062V2.049c2.011.2 3.847.996 5.329 2.208L16.906 5.68a8 8 0 0 0-.872-.59M5.67 4.257A9.95 9.95 0 0 1 11 2.049v2.013A7.96 7.96 0 0 0 7.094 5.68zm.01 2.837A7.96 7.96 0 0 0 4.06 11H2.05a9.95 9.95 0 0 1 2.208-5.329zm14.062-1.423L18.32 7.094a8 8 0 0 1 .884 1.424c.372.767.624 1.602.734 2.482h2.013a9.94 9.94 0 0 0-2.208-5.329M12 16.5 7.5 12H11V8h2v4h3.5zM4.062 13H2.049a9.95 9.95 0 0 0 2.208 5.329l1.423-1.423A7.947 7.947 0 0 1 4.062 13m3.032 5.32-1.423 1.423A9.933 9.933 0 0 0 11 21.951v-2.013a7.94 7.94 0 0 1-3.906-1.618M21.951 13h-2.013A8.004 8.004 0 0 1 13 19.938v2.013a9.9 9.9 0 0 0 4.12-1.36 10.065 10.065 0 0 0 2.624-2.263h-.001A10 10 0 0 0 21.95 13",
 ];
-const routeBack = ref(false);
 
 function getDarkModeMediaQuery() {
   return window.matchMedia("(prefers-color-scheme: dark)");
@@ -165,19 +166,6 @@ function detectDarkMode() {
       break;
   }
 }
-
-router.beforeEach((to, from, next) => {
-  if (to.name === "/[...path]") {
-    routeBack.value = true;
-  } else if (from.name === "/[...path]") {
-    routeBack.value = false;
-  } else {
-    const fromPath = from.name?.toString().replace(/\./g, "/") ?? "/";
-    const toPath = to.name?.toString().replace(/\./g, "/") ?? "/";
-    routeBack.value = fromPath.split("/").length <= toPath.split("/").length;
-  }
-  next();
-});
 
 getDarkModeMediaQuery().addEventListener("change", detectDarkMode);
 detectDarkMode();
@@ -208,7 +196,7 @@ onMounted(async () => {
       return;
     }
     downloadingIconFrame.value = (downloadingIconFrame.value + 1) % downloadingIcons.length;
-  }, 500);
+  }, 250);
 });
 </script>
 
@@ -217,20 +205,20 @@ onMounted(async () => {
   width: 256px;
 }
 
-.transform-back-enter-active, .transform-back-leave-active {
-  transition: transform 100ms ease, opacity 100ms ease;
-}
-
-.transform-back-enter, .transform-back-leave-to {
-  transform: translateX(-5%);
-  opacity: 0;
-}
-
 .transform-forward-enter-active, .transform-forward-leave-active {
   transition: transform 100ms ease, opacity 100ms ease;
 }
 
 .transform-forward-enter, .transform-forward-leave-to {
+  transform: translateX(-5%);
+  opacity: 0;
+}
+
+.transform-back-enter-active, .transform-back-leave-active {
+  transition: transform 100ms ease, opacity 100ms ease;
+}
+
+.transform-back-enter, .transform-back-leave-to {
   transform: translateX(5%);
   opacity: 0;
 }

@@ -98,6 +98,11 @@
         }
       }
     },
+    "download": {
+      "title": "下载管理",
+      "label": {
+      }
+    },
     "dynamic": {
       "title": "404",
       "label": {
