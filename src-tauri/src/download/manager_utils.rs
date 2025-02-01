@@ -1,9 +1,10 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::{App, AppHandle, Manager};
 use tauri::http::{HeaderMap, HeaderValue};
 use tauri::http::header::USER_AGENT;
 use tauri_plugin_http::reqwest;
-use crate::download::rux::download_manager::DownloadManager;
+use crate::download::rux::download_manager::{DownloadGroup, DownloadManager};
 use crate::download::rux::store::DownloadManagerStore;
 
 pub fn inject_rux_download_manager(app: &App) {
@@ -29,14 +30,7 @@ fn get_download_manager(app: &AppHandle) -> Arc<DownloadManager> {
 }
 
 #[tauri::command]
-pub fn get_download_speed(download_group: String, app: AppHandle) -> Option<u64> {
+pub fn get_download_groups(app: AppHandle) -> HashMap<String, DownloadGroup> {
 	let rux = get_download_manager(&app);
-	rux.get_downloaded_per_sec(download_group)
-}
-
-
-#[tauri::command]
-pub fn is_download_group_exists(download_group: String, app: AppHandle) -> bool {
-	let rux = get_download_manager(&app);
-	rux.is_download_group_exists(download_group)
+	rux.get_download_groups()
 }

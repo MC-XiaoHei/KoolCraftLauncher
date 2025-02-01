@@ -1,53 +1,47 @@
+import { DownloadGroup, DownloadGroups } from "@/store/download/models.ts";
 import { invoke } from "@tauri-apps/api/core";
 import { v4 } from "uuid";
 
-export const downloadSpeeds = new Map<string, number>();
 export const totalDownloadSpeed = ref(0);
+const totalDownloadSpeedHistory = ref<number[]>([]);
 
 export const useDownloadManagerStore = defineStore("download-manager-store", () => {
-  const downloadGroups = ref<[string, string][]>([]);
-  const forAdding = ref<[string, string][]>([]);
-  const downloading = computed(() => downloadGroups.value.length > 0);
+  const downloadGroups = ref<{ [key: string]: DownloadGroup }>({});
+  const groupNameMap = ref<{ [key: string]: string }>({});
+  const downloading = computed(() => Object.entries(downloadGroups.value).length > 0);
 
   function createGroup(name: string): string {
     const randomId = v4();
-    forAdding.value.push([name, randomId]);
+    groupNameMap.value[randomId] = name;
     return randomId;
   }
 
   onMounted(async () => {
-    setInterval(async () => {
-      let newDownloadGroups = [];
+    async function update() {
+      const groups = await invoke("get_download_groups") as DownloadGroups;
+      let newGroups: { [key: string]: DownloadGroup } = {};
       let newTotalDownloadSpeed = 0;
-      for (let group of downloadGroups.value) {
-        let response = await invoke("get_download_speed", {
-          downloadGroup: group[1],
-        });
-        if (!response) {
-          response = await invoke("is_group_exists", {
-            downloadGroup: group[1],
-          }) ? 0 : null;
-        }
-        if (response) {
-          console.log(`${ group[0] }: ${ (response as number / 1024 / 1024).toFixed(2) } MB/s`);
-          newTotalDownloadSpeed += response as number;
-          downloadSpeeds.set(group[1], response as number);
-          newDownloadGroups.push(group);
-        } else {
-          downloadSpeeds.delete(group[1]);
-        }
+      for (const [id, group] of Object.entries(groups)) {
+        group.name = groupNameMap.value[id] || id;
+        newTotalDownloadSpeed += group.downloadSpeed;
+        newGroups[id] = group;
       }
-      for (let value of forAdding.value) {
-        newDownloadGroups.push(value);
+      totalDownloadSpeedHistory.value.push(newTotalDownloadSpeed);
+      if (totalDownloadSpeedHistory.value.length > 5) {
+        totalDownloadSpeedHistory.value.shift();
       }
-      totalDownloadSpeed.value = newTotalDownloadSpeed;
-      forAdding.value = [];
-      downloadGroups.value = newDownloadGroups;
-    }, 1000);
+      totalDownloadSpeed.value = totalDownloadSpeedHistory.value
+          .reduce((acc, current) => acc + current, 0) / totalDownloadSpeedHistory.value.length;
+      downloadGroups.value = newGroups;
+      console.log(newGroups);
+    }
+
+    update().then(() => setInterval(update, 500));
   });
 
   return {
     downloadGroups,
+    groupNameMap,
     downloading,
     createGroup,
   };

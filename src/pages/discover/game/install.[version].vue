@@ -61,7 +61,7 @@ function install() {
     versionName: name.value,
     minecraftDir: minecraftDirStore.currentDir.path,
     downloadGroup: downloadGroupId,
-  }).then();
+  }).then({});
   router.push("/");
 }
 

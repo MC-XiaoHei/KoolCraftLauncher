@@ -137,6 +137,7 @@ async fn submit_resolve_client_jar(
 		version_json.downloads.client.url.parse()?,
 		download_group.to_string(),
 		"download-client-jar".to_string(),
+		Some(version_json.downloads.client.size),
 	)
 	.save_to(format!("{0}/versions/{1}/{1}.jar", minecraft_dir, version_name).as_str());
 	Ok(rux.add_task(task).await)
@@ -152,6 +153,7 @@ async fn submit_resolve_assets_index(
 		version_json.asset_index.url.parse()?,
 		download_group.to_string(),
 		"download-asset-index".to_string(),
+		Some(version_json.asset_index.size),
 	)
 	.save_to(
 		format!(
@@ -191,6 +193,7 @@ async fn submit_resolve_assets(
 			.parse()?,
 			download_group.to_string(),
 			"download-assets".to_string(),
+			Some(value.size),
 		)
 		.save_to(asset_path.as_str());
 		tasks.push(rux.clone().add_task(task).await);
@@ -212,6 +215,7 @@ async fn submit_resolve_libraries(
 				artifact.url.parse()?,
 				download_group.to_string(),
 				"download-libraries".to_string(),
+				Some(artifact.size),
 			)
 			.save_to(get_library_path(minecraft_dir, &artifact).as_str());
 			tasks.push(rux.clone().add_task(task).await);

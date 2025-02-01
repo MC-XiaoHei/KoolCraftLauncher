@@ -24,6 +24,7 @@ pub async fn submit_resolve_version_json(
 		ver_json_url.parse()?,
 		download_group.to_string(),
 		"download-version-json".to_string(),
+		None,
 	)
 	.save_to(format!("{0}/versions/{1}/{1}.json", minecraft_dir, version_name).as_str());
 	Ok(rux.add_task(task).await)
