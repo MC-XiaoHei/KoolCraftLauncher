@@ -110,7 +110,7 @@
   <div v-else-if="versionCache.status == VersionCacheStatus.Fetching"
        class="flex flex-col justify-center items-center h-full">
     <span class="text-body-1 pb-2">{{ t("pages.discover.game.label.fetching") }}</span>
-    <v-progress-linear indeterminate />
+    <v-progress-linear rounded indeterminate />
   </div>
   <div v-else class="flex flex-col justify-center items-center h-full">
     <v-empty-state

@@ -3,6 +3,7 @@ export interface DownloadGroup {
   totalSize: number;
   totalDownloaded: number;
   name?: string;
+  time?: Date;
 }
 
 export type DownloadGroups = Map<string, DownloadGroup>;

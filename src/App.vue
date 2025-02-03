@@ -36,13 +36,13 @@
       <v-tooltip location="bottom" open-delay="300"
                  :text="downloadManagerStore.downloading ?
                  (formatBytes(totalDownloadSpeed) + '/s') :
-                 t('layout.label.download-page')">
+                 t('layout.label.install-page')">
         <template v-slot:activator="{ props }">
           <v-btn class="no-drag mr-2 w-8 h-8"
                  size="32"
                  v-bind="props"
                  icon=""
-                 @click="router.push('/download')"
+                 @click="router.push('/install')"
                  variant="plain"
                  rounded
           >

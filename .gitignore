@@ -19,6 +19,7 @@ dist-ssr
 !.vscode/extensions.json
 .idea/*
 !.idea/codeStyles/
+!.idea/icon.svg
 .DS_Store
 *.suo
 *.ntvs*

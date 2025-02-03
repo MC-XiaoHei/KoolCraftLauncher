@@ -11,10 +11,10 @@ name = "tauri_vuetify_lib"
 crate-type = ["lib", "cdylib", "staticlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.0.5", features = [] }
+tauri-build = { version = "2.0", features = [] }
 
 [dependencies]
-tauri = { version = "2.2.5", features = ["macos-private-api", "unstable"] }
+tauri = { version = "2.2", features = ["macos-private-api", "unstable"] }
 tauri-plugin-shell = "2.2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
@@ -29,11 +29,13 @@ futures = "0.3"
 zip = "2.2"
 tauri-plugin-log = "2.2"
 log = "0.4"
-parking_lot = { version = "0.12.3", features = ["arc_lock", "deadlock_detection"] }
+parking_lot = { version = "0.12", features = ["arc_lock", "deadlock_detection"] }
+lazy_static = "1.5"
+async-trait = "0.1"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-prevent-default = "1"
-tauri-plugin-single-instance = "2"
+tauri-plugin-prevent-default = "1.0"
+tauri-plugin-single-instance = "2.2"
 
 [target.'cfg(any(target_os = "macos", windows))'.dependencies]
 window-vibrancy = "0.5"

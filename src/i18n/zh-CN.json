@@ -98,8 +98,8 @@
         }
       }
     },
-    "download": {
-      "title": "下载管理",
+    "install": {
+      "title": "安装管理",
       "label": {
       }
     },
@@ -113,7 +113,7 @@
   },
   "layout": {
     "label": {
-      "download-page": "下载页面"
+      "install-page": "安装管理"
     }
   },
   "account": {
