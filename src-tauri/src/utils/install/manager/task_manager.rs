@@ -12,6 +12,12 @@ pub struct TaskManager {
 
 const DEFAULT_MAX_CONCURRENCY: usize = 32;
 
+impl Default for TaskManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TaskManager {
 	pub fn new() -> Self {
 		TaskManager {

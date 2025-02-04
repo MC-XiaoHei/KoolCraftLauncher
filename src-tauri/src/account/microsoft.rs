@@ -135,11 +135,10 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 		}
 	};
 	let app_clone = app.clone();
-	window.on_window_event(move |event| match event {
-		WindowEvent::CloseRequested { api: _, .. } => {
+	window.on_window_event(move |event| {
+		if let WindowEvent::CloseRequested { api: _, .. } = event {
 			app_clone.emit(MS_LOGIN_WINDOW_CLOSED_EVENT, "").unwrap();
 		}
-		_ => {}
 	});
 	let app_clone = app.clone();
 	let webview_builder = WebviewBuilder::new(
@@ -214,11 +213,8 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 }
 
 pub async fn close_microsoft_login_webview(app: AppHandle) {
-	match app.get_window(MS_LOGIN_WINDOW_ID) {
-		Some(window) => {
-			window.close().unwrap();
-		}
-		None => {}
+	if let Some(window) = app.get_window(MS_LOGIN_WINDOW_ID) {
+		window.close().unwrap();
 	}
 }
 
@@ -277,7 +273,7 @@ async fn get_account_data(
 ) -> Result<MicrosoftAccountData, MicrosoftLoginError> {
 	let client = reqwest::Client::new();
 	update_login_status(
-		&app,
+		app,
 		MicrosoftLoginStatus::Authenticating,
 		Some(AuthProgress::GetAccessToken),
 		None,
@@ -285,7 +281,7 @@ async fn get_account_data(
 	);
 	let (access_token, refresh_token) = get_access_token(&client, auth_code).await?;
 	update_login_status(
-		&app,
+		app,
 		MicrosoftLoginStatus::Authenticating,
 		Some(AuthProgress::GetXBLToken),
 		None,
@@ -293,7 +289,7 @@ async fn get_account_data(
 	);
 	let (xbl_token, uhs) = get_xbl_token(&client, &access_token).await?;
 	update_login_status(
-		&app,
+		app,
 		MicrosoftLoginStatus::Authenticating,
 		Some(AuthProgress::GetXSTSToken),
 		None,
@@ -301,7 +297,7 @@ async fn get_account_data(
 	);
 	let xsts_token = get_xsts_token(&client, &xbl_token).await?;
 	update_login_status(
-		&app,
+		app,
 		MicrosoftLoginStatus::Authenticating,
 		Some(AuthProgress::GetMinecraftToken),
 		None,
@@ -309,7 +305,7 @@ async fn get_account_data(
 	);
 	let (minecraft_token, expires_at) = get_minecraft_token(&client, &xsts_token, &uhs).await?;
 	update_login_status(
-		&app,
+		app,
 		MicrosoftLoginStatus::Authenticating,
 		Some(AuthProgress::GetMinecraftProfile),
 		None,
