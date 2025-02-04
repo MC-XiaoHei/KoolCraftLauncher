@@ -1,4 +1,4 @@
-import { Game, MinecraftDir } from "@/store/game/models.ts";
+import { Game, MinecraftDir } from "@/data/game/models.ts";
 
 export const useMinecraftGameStore = defineStore("minecraft-game-store", () => {
   const games: Ref<Map<string, Game[]>> = ref(new Map());

@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 import { mdiPlus } from "@mdi/js";
-import { useAccountStore } from "@/store/account/account";
+import { useAccountStore } from "@/data/account/account";
 
 const { t } = useI18n();
 const router = useRouter();

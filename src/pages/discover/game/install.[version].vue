@@ -34,10 +34,10 @@
 </template>
 
 <script setup lang="ts">
-import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache";
-import { useMinecraftDirStore } from "@/store/game/minecraft-dir-store";
-import { useMinecraftGameStore } from "@/store/game/minecraft-game-store";
-import { getBuiltInGameIcon } from "@/store/game/models";
+import { useMinecraftVersionCache } from "@/data/cache/minecraft-version-cache";
+import { useMinecraftDirStore } from "@/data/game/minecraft-dir-store";
+import { useMinecraftGameStore } from "@/data/game/minecraft-game-store";
+import { getBuiltInGameIcon } from "@/data/game/models";
 import { invoke } from "@tauri-apps/api/core";
 
 const { t } = useI18n();

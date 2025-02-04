@@ -1,4 +1,4 @@
-import { MinecraftDir } from "@/store/game/models.ts";
+import { MinecraftDir } from "@/data/game/models.ts";
 
 export const useMinecraftDirStore = defineStore("minecraft-dir-store", () => {
   const dirs = ref<MinecraftDir[]>([{

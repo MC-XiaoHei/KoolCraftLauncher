@@ -5,8 +5,10 @@ use serde::Serialize;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
+use uuid::Uuid;
 
 pub struct TaskGroup {
+	id: String,
 	start_time: String,
 	name: String,
 	sections: Arc<Mutex<Vec<Arc<TaskSection>>>>,
@@ -16,11 +18,25 @@ pub struct TaskGroup {
 impl TaskGroup {
 	pub fn new(name: String) -> Self {
 		TaskGroup {
+			id: Uuid::now_v7().to_string(),
 			name,
 			start_time: Utc::now().to_rfc3339(),
 			sections: Arc::new(Mutex::new(vec![])),
 			canceling: AtomicBool::new(false),
 		}
+	}
+
+	pub fn get_id(&self) -> String {
+		self.id.clone()
+	}
+
+	pub fn get_progress(&self) -> u8 {
+		let sections = self.sections.lock();
+		let mut total_progress_number: usize = 0;
+		for section in sections.iter() {
+			total_progress_number += section.get_progress_percent() as usize;
+		}
+		(total_progress_number / sections.len()) as u8
 	}
 
 	pub fn get_group_info(&self) -> TaskGroupInfo {

@@ -28,7 +28,10 @@ async fn _install_vanilla(
 	minecraft_dir: String,
 	version_name: String,
 ) -> Result<()> {
-	let task_group = TASK_MANAGER.create_group(TaskGroup::new("install_vanilla".to_string()));
+	let task_group = TASK_MANAGER.create_group(TaskGroup::new(format!(
+		"install-vanilla@{}@{}",
+		version_name, minecraft_dir
+	)));
 	let semaphore = TASK_MANAGER.get_semaphore();
 
 	let download_version_json_task_section = build_resolve_version_json_task_section(
@@ -56,9 +59,7 @@ async fn _install_vanilla(
 		.await;
 
 	let resolve_client_jar_handle: TokioJoinHandle<Result<()>> = tokio::spawn(async move {
-		log::info!("Waiting for resolve_client_jar_task_section");
 		wait_task_section(resolve_client_jar_task_section).await;
-		log::info!("resolve_client_jar_task_section done");
 		Ok(())
 	});
 
@@ -78,23 +79,24 @@ async fn _install_vanilla(
 
 	let ver_json_clone = ver_json.clone();
 	let minecraft_dir_clone = minecraft_dir.clone();
+	let task_group_clone = task_group.clone();
 	let resolve_assets_handle: TokioJoinHandle<Result<()>> = tokio::spawn(async move {
 		let build_resolve_assets_index_task_section =
 			build_resolve_assets_index_task_section(minecraft_dir_clone.as_str(), &ver_json_clone)
 				.await?;
-		let build_resolve_assets_index_task_section = task_group
+		let build_resolve_assets_index_task_section = task_group_clone
 			.submit_section(build_resolve_assets_index_task_section, semaphore.clone())
 			.await;
 		wait_task_section(build_resolve_assets_index_task_section).await;
-		
+
 		let asset_index_json =
 			parse_asset_index_json(minecraft_dir_clone.as_str(), &ver_json_clone.asset_index.id)
 				.await?;
-		
+
 		let resolve_assets_task_section =
 			build_resolve_assets_task_section(minecraft_dir_clone.as_str(), asset_index_json)
 				.await?;
-		let resolve_assets_task_section = task_group
+		let resolve_assets_task_section = task_group_clone
 			.submit_section(resolve_assets_task_section, semaphore.clone())
 			.await;
 		wait_task_section(resolve_assets_task_section).await;
@@ -111,7 +113,8 @@ async fn _install_vanilla(
 	resolve_client_jar_res?;
 	unzip_natives_res?;
 	resolve_assets_res?;
-
+	
+	TASK_MANAGER.remove_group(task_group);
 	Ok(())
 }
 

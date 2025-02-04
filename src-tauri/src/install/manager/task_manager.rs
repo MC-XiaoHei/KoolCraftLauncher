@@ -1,8 +1,8 @@
+use crate::install::manager::task_group::{TaskGroup, TaskGroupInfo};
+use parking_lot::Mutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
-use parking_lot::Mutex;
 use tokio::sync::Semaphore;
-use crate::install::manager::task_group::{TaskGroup, TaskGroupInfo};
 
 pub struct TaskManager {
 	max_concurrency: AtomicUsize,
@@ -51,5 +51,9 @@ impl TaskManager {
 		let group = Arc::new(group);
 		self.groups.lock().push(group.clone());
 		group
+	}
+	
+	pub fn remove_group(&self, group: Arc<TaskGroup>) {
+		self.groups.lock().retain(|g| g.get_id() != group.get_id());
 	}
 }

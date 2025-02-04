@@ -122,8 +122,8 @@
 </template>
 
 <script setup lang="ts">
-import { useMinecraftVersionCache } from "@/store/cache/minecraft-version-cache";
-import { VersionCacheStatus } from "@/store/cache/models";
+import { useMinecraftVersionCache } from "@/data/cache/minecraft-version-cache";
+import { VersionCacheStatus } from "@/data/cache/models";
 import { formatDate } from "@/utils/date";
 import { mdiChevronDown } from "@mdi/js";
 

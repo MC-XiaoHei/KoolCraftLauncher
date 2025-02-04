@@ -37,8 +37,8 @@
 </template>
 
 <script setup lang="ts">
-import { AccountProviders, useAccountStore } from "@/store/account/account";
-import { AccountType } from "@/store/account/models";
+import { AccountProviders, useAccountStore } from "@/data/account/account";
+import { AccountType } from "@/data/account/models";
 
 const { t } = useI18n();
 const accountStore = useAccountStore();
