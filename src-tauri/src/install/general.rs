@@ -1,10 +1,10 @@
-use crate::install::asset_index_json_schema::AssetIndexJson;
-use crate::install::manager::download_task::DownloadTask;
-use crate::install::manager::task::Task;
-use crate::install::manager::task_group::TaskGroup;
-use crate::install::manager::task_section::TaskSection;
-use crate::install::utils::{unzip_natives, wait_task_section};
-use crate::install::version_json_schema::VersionJson;
+use utils::install::asset_index_json_schema::AssetIndexJson;
+use utils::install::manager::download_task::DownloadTask;
+use utils::install::manager::task::Task;
+use utils::install::manager::task_group::TaskGroup;
+use utils::install::manager::task_section::TaskSection;
+use utils::install::utils::{unzip_natives, wait_task_section};
+use utils::install::version_json_schema::VersionJson;
 use crate::TASK_MANAGER;
 use anyhow::Result;
 use futures::future::try_join3;
@@ -27,7 +27,7 @@ async fn _install_vanilla(
 	ver_json_url: String,
 	minecraft_dir: String,
 	version_name: String,
-) -> Result<()> {
+) -> tauri::Result<()> {
 	let task_group = TASK_MANAGER.create_group(TaskGroup::new(format!(
 		"install-vanilla@{}@{}",
 		version_name, minecraft_dir
@@ -233,7 +233,7 @@ async fn unzip_all_natives(
 		.filter(|lib| lib.is_native() && lib.is_needed());
 	for lib in natives {
 		if let Some(artifact) = lib.get_artifact() {
-			let jar_path = artifact.get_library_path(&minecraft_dir);
+			let jar_path = artifact.get_library_path(minecraft_dir);
 			let natives_dir = format!("{0}/bin/natives/{1}", minecraft_dir, version_name);
 			unzip_natives(&jar_path, &natives_dir).await?;
 		}

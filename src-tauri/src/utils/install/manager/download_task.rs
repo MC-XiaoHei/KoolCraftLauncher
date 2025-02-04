@@ -1,14 +1,14 @@
 use crate::install::manager::task::Task;
-use crate::HTTP_CLIENT;
-use anyhow::Context;
 use async_trait::async_trait;
-use futures::StreamExt;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::sync::Arc;
+use anyhow::Context;
+use futures::StreamExt;
 use tauri_plugin_http::reqwest;
 use tauri_plugin_http::reqwest::Url;
 use tokio::fs::{create_dir_all, remove_file, File};
 use tokio::io::AsyncWriteExt;
+use crate::network::HTTP_CLIENT;
 
 pub struct DownloadTask {
 	size: Option<u64>,

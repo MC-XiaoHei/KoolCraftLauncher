@@ -143,7 +143,7 @@ impl Library {
 			} else {
 				vec![]
 			};
-			let mut is_allowed = native_pattern.len() == 0;
+			let mut is_allowed = native_pattern.is_empty();
 			for pattern in native_pattern {
 				if self.name.ends_with(pattern) {
 					is_allowed = true;

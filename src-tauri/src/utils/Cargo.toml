@@ -1,0 +1,21 @@
+[package]
+name = "utils"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "lib.rs"
+
+[dependencies]
+# no tauri here
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+parking_lot = { workspace = true, features = ["deadlock_detection"] }
+serde = { workspace = true, features = ["derive"] }
+tauri-plugin-http = { workspace = true, features = ["stream"] }
+tokio = { workspace = true, features = ["rt", "rt-multi-thread", "fs", "time", "sync", "io-util"] }
+uuid = { workspace = true, features = ["v7", "fast-rng"] }
+zip = { workspace = true }
+lazy_static = { workspace = true }

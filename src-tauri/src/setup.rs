@@ -8,12 +8,12 @@ use tauri_plugin_os::Version::Semantic;
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use window_vibrancy::*;
 
+/// Returns whether the current Windows10 version can use acrylic.
 #[cfg(target_os = "windows")]
-pub fn can_use_acrylic(patch: u64) -> bool {
-	const EARLIEST_WIN_10_PATCH_VERSION_CAN_ACRYLIC: u64 = 18090;
-	const LATEST_WIN_10_PATCH_VERSION_CAN_ACRYLIC: u64 = 19039;
-	patch <= LATEST_WIN_10_PATCH_VERSION_CAN_ACRYLIC
-		&& patch >= EARLIEST_WIN_10_PATCH_VERSION_CAN_ACRYLIC
+pub fn can_use_acrylic(patch_version: u64) -> bool {
+	const EARLIEST_PATCH_VERSION: u64 = 18090;
+	const LATEST_PATCH_VERSION: u64 = 19039;
+	(EARLIEST_PATCH_VERSION..=LATEST_PATCH_VERSION).contains(&patch_version)
 }
 
 pub fn is_win11(patch: u64) -> bool {
@@ -21,7 +21,6 @@ pub fn is_win11(patch: u64) -> bool {
 	patch >= EARLIEST_WIN_11_PATCH_VERSION
 }
 
-#[allow(unused_variables)]
 pub fn setup_window(app: &mut App) -> Result<VibrancyState, Box<dyn std::error::Error>> {
 	#[cfg(any(target_os = "macos", target_os = "windows"))]
 	let win = app.get_webview_window("main").unwrap();
@@ -36,17 +35,15 @@ pub fn setup_window(app: &mut App) -> Result<VibrancyState, Box<dyn std::error::
 	{
 		let os_version = tauri_plugin_os::version();
 		match os_version {
-			Semantic(10, _, patch) if is_win11(patch) => match apply_mica(&win, Some(true)) {
-				Ok(_) => return Ok(VibrancyState::Mica),
-				Err(_) => {}
-			},
+			Semantic(10, _, patch) if is_win11(patch) => {
+				if apply_mica(&win, Some(true)).is_ok() {
+					return Ok(VibrancyState::Mica);
+				}
+			}
 			Semantic(10, _, patch) => {
 				win.set_shadow(false).unwrap();
-				if can_use_acrylic(patch) {
-					match apply_acrylic(&win, Some((18, 18, 18, 125))) {
-						Ok(_) => return Ok(VibrancyState::Acrylic),
-						Err(_) => {}
-					}
+				if can_use_acrylic(patch) && apply_acrylic(&win, Some((18, 18, 18, 125))).is_ok() {
+					return Ok(VibrancyState::Acrylic);
 				}
 			}
 			_ => {}

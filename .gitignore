@@ -1,5 +1,3 @@
-pnpm-lock.yaml
-
 # Logs
 logs
 *.log
@@ -8,21 +6,33 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+.yarn/*
+.pnp.*
 
+# Node
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
-.vscode/*
+# IDE
+.idea/
+.vscode/
 !.vscode/extensions.json
-.idea/*
 !.idea/codeStyles/
 !.idea/icon.svg
-.DS_Store
+
+# Editor directories and files
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# OS directories
+.DS_Store
+Thumbs.db
+
+# Lock not we use
+yarn.lock
+package-lock.json
