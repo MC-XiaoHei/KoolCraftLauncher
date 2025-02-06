@@ -1,4 +1,4 @@
-#![allow(dead_code)] // TODO: remove this
+#![allow(unused_variables)] // TODO: remove this
 
 use serde::Deserialize;
 use std::collections::HashMap;

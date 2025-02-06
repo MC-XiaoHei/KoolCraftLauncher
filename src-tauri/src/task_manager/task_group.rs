@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use chrono::Utc;
 use parking_lot::Mutex;
 use serde::Serialize;
