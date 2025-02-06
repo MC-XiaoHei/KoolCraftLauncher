@@ -25,7 +25,7 @@ tauri-plugin-single-instance = { workspace = true }
 tauri-plugin-prevent-default = { workspace = true }
 
 utils = { workspace = true }
-command = { workspace = true }
+command = { path = "src/command" }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-prevent-default = { workspace = true }
@@ -68,7 +68,6 @@ tauri-plugin-single-instance = "2.2"
 tauri-plugin-prevent-default = "1.0"
 
 utils = { path = "src/utils" }
-command = { path = "src/command" }
 account = { path = "src/account" }
 install = { path = "src/install" }
 task_manager = { path = "src/task_manager" }
