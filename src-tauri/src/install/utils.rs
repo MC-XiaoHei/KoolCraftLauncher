@@ -7,8 +7,8 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::fs::create_dir_all;
 use zip::ZipArchive;
-use crate::install::manager::task_section::TaskSection;
-use crate::install::version_json_schema::Rule;
+use task_manager::task_section::TaskSection;
+use crate::version_json_schema::Rule;
 
 pub fn is_rule_allowed(rule: &Option<Vec<Rule>>) -> bool {
 	let mut default_is_allowed = true;

@@ -1,5 +1,5 @@
 [package]
-name = "utils"
+name = "command"
 version = "0.1.0"
 edition = "2021"
 
@@ -9,6 +9,8 @@ path = "lib.rs"
 [dependencies]
 tauri = { workspace = true }
 tauri-plugin-os = { workspace = true }
-tauri-plugin-http = { workspace = true }
-window-vibrancy = { workspace = true }
-lazy_static = { workspace = true }
+
+utils = { workspace = true }
+account = { workspace = true }
+install = { workspace = true }
+task_manager = { workspace = true }

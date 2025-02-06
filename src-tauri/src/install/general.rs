@@ -1,33 +1,21 @@
-use utils::install::asset_index_json_schema::AssetIndexJson;
-use utils::install::manager::download_task::DownloadTask;
-use utils::install::manager::task::Task;
-use utils::install::manager::task_group::TaskGroup;
-use utils::install::manager::task_section::TaskSection;
-use utils::install::utils::{unzip_natives, wait_task_section};
-use utils::install::version_json_schema::VersionJson;
-use crate::TASK_MANAGER;
 use anyhow::Result;
 use futures::future::try_join3;
 use std::sync::Arc;
-use tauri::async_runtime::TokioJoinHandle;
+use tokio::task::JoinHandle;
+use task_manager::download_task::DownloadTask;
+use task_manager::task::Task;
+use task_manager::task_group::TaskGroup;
+use task_manager::TASK_MANAGER;
+use task_manager::task_section::TaskSection;
+use crate::asset_index_json_schema::AssetIndexJson;
+use crate::utils::{unzip_natives, wait_task_section};
+use crate::version_json_schema::VersionJson;
 
-#[tauri::command]
 pub async fn install_vanilla(
 	ver_json_url: String,
 	minecraft_dir: String,
 	version_name: String,
-) -> Result<(), String> {
-	_install_vanilla(ver_json_url, minecraft_dir, version_name)
-		.await
-		.map_err(|e| e.to_string())?;
-	Ok(())
-}
-
-async fn _install_vanilla(
-	ver_json_url: String,
-	minecraft_dir: String,
-	version_name: String,
-) -> tauri::Result<()> {
+) -> Result<()> {
 	let task_group = TASK_MANAGER.create_group(TaskGroup::new(format!(
 		"install-vanilla@{}@{}",
 		version_name, minecraft_dir
@@ -58,7 +46,7 @@ async fn _install_vanilla(
 		.submit_section(resolve_client_jar_task_section, semaphore.clone())
 		.await;
 
-	let resolve_client_jar_handle: TokioJoinHandle<Result<()>> = tokio::spawn(async move {
+	let resolve_client_jar_handle: JoinHandle<Result<()>> = tokio::spawn(async move {
 		wait_task_section(resolve_client_jar_task_section).await;
 		Ok(())
 	});
@@ -71,7 +59,7 @@ async fn _install_vanilla(
 
 	let ver_json_clone = ver_json.clone();
 	let minecraft_dir_clone = minecraft_dir.clone();
-	let unzip_natives_handle: TokioJoinHandle<Result<()>> = tokio::spawn(async move {
+	let unzip_natives_handle: JoinHandle<Result<()>> = tokio::spawn(async move {
 		wait_task_section(resolve_libraries_tasks_section).await;
 		unzip_all_natives(minecraft_dir_clone.as_str(), &version_name, &ver_json_clone).await?;
 		Ok(())
@@ -80,7 +68,7 @@ async fn _install_vanilla(
 	let ver_json_clone = ver_json.clone();
 	let minecraft_dir_clone = minecraft_dir.clone();
 	let task_group_clone = task_group.clone();
-	let resolve_assets_handle: TokioJoinHandle<Result<()>> = tokio::spawn(async move {
+	let resolve_assets_handle: JoinHandle<Result<()>> = tokio::spawn(async move {
 		let build_resolve_assets_index_task_section =
 			build_resolve_assets_index_task_section(minecraft_dir_clone.as_str(), &ver_json_clone)
 				.await?;

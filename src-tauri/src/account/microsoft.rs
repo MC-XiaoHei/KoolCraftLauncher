@@ -10,16 +10,6 @@ use tauri::{
 use tauri_plugin_http::reqwest;
 use tauri_plugin_store::StoreExt;
 
-#[tauri::command]
-pub async fn start_microsoft_login(app: AppHandle) {
-	open_microsoft_login_webview(app).await;
-}
-
-#[tauri::command]
-pub async fn terminate_microsoft_login(app: AppHandle) {
-	close_microsoft_login_webview(app).await;
-}
-
 const MS_LOGIN_URL: &str = "https://login.live.com/oauth20_authorize.srf
         ?client_id=00000000402b5328
         &response_type=code

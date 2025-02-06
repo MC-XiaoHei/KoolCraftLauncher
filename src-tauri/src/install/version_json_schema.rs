@@ -1,9 +1,9 @@
 #![allow(dead_code)] // TODO: remove this
 
-use crate::install::utils::is_rule_allowed;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::env::consts::ARCH;
+use crate::utils::is_rule_allowed;
 
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]

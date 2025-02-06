@@ -1,4 +1,3 @@
-use crate::install::manager::task_section::{TaskSection, TaskSectionInfo};
 use chrono::Utc;
 use parking_lot::Mutex;
 use serde::Serialize;
@@ -6,6 +5,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use uuid::Uuid;
+use crate::task_section::{TaskSection, TaskSectionInfo};
 
 pub struct TaskGroup {
 	id: String,

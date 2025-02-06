@@ -1,2 +1,2 @@
-pub mod install;
-mod network;
+pub mod network;
+pub mod window;

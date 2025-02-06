@@ -1,19 +1,20 @@
-use crate::vibrancy::VibrancyState;
 use tauri::App;
 
+#[cfg(any(target_os = "macos", target_os = "windows"))]
+use crate::window::vibrancy::*;
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use tauri::Manager;
 #[cfg(target_os = "windows")]
 use tauri_plugin_os::Version::Semantic;
-#[cfg(any(target_os = "macos", target_os = "windows"))]
-use window_vibrancy::*;
+#[cfg(target_os = "windows")]
+use window_vibrancy::{apply_acrylic, apply_mica};
 
-/// Returns whether the current Windows10 version can use acrylic.
+/// Returns whether the current Windows version can use acrylic without side effect.
 #[cfg(target_os = "windows")]
 pub fn can_use_acrylic(patch_version: u64) -> bool {
-	const EARLIEST_PATCH_VERSION: u64 = 18090;
-	const LATEST_PATCH_VERSION: u64 = 19039;
-	(EARLIEST_PATCH_VERSION..=LATEST_PATCH_VERSION).contains(&patch_version)
+	const EARLIEST_PATCH_VER: u64 = 18090;
+	const LATEST_PATCH_VER: u64 = 19039;
+	(EARLIEST_PATCH_VER..=LATEST_PATCH_VER).contains(&patch_version)
 }
 
 pub fn is_win11(patch: u64) -> bool {

@@ -1,6 +1,6 @@
 [package]
 name = "kool-craft-launcher"
-version = "0.0.1"
+version = "0.1.0"
 description = "A Cool Minecraft Launcher"
 authors = ["MC_XiaoHei"]
 license-file = "LICENSE"
@@ -12,24 +12,20 @@ name = "kcl"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
 [dependencies]
-anyhow = { workspace = true }
-chrono = { workspace = true, features = ["serde"] }
-futures = { workspace = true }
-lazy_static = { workspace = true }
 log = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
-sys-locale = { workspace = true }
 tauri = { workspace = true }
-tauri-plugin-http = { workspace = true, features = ["stream", "json"] }
-tauri-plugin-log = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 tauri-plugin-os = { workspace = true }
+tauri-plugin-log = { workspace = true }
+tauri-plugin-http = { workspace = true }
 tauri-plugin-shell = { workspace = true }
 tauri-plugin-store = { workspace = true }
-tokio = { workspace = true, features = ["rt", "rt-multi-thread"] }
+tauri-plugin-single-instance = { workspace = true }
+tauri-plugin-prevent-default = { workspace = true }
 
-#
 utils = { workspace = true }
+command = { workspace = true }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-prevent-default = { workspace = true }
@@ -41,33 +37,41 @@ window-vibrancy = { workspace = true }
 [build-dependencies]
 tauri-build = { workspace = true, features = [] }
 
+[workspace]
+members = [
+  "src/account",
+  "src/command",
+  "src/install",
+  "src/task_manager",
+  "src/utils"
+]
+
 [workspace.dependencies]
-anyhow = "1.0"
-async-trait = "0.1"
-chrono = "0.4"
-futures = "0.3"
-lazy_static = "1.5"
 log = "0.4"
-parking_lot = "0.12"
-serde = "1.0"
-serde_json = "1.0"
-sys-locale = "0.3"
-tauri = { version = "2.2", features = ["macos-private-api", "unstable"] }
-tauri-build = "2.0"
-tauri-plugin-http = "2.3"
-tauri-plugin-log = "2.2"
-tauri-plugin-os = "2.2"
-tauri-plugin-prevent-default = "1.0"
-tauri-plugin-shell = "2.2"
-tauri-plugin-single-instance = "2.2"
-tauri-plugin-store = "2.0"
 tokio = "1.43"
-uuid = "1.12"
+futures = "0.3"
+anyhow = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+lazy_static = "1.5"
 window-vibrancy = "0.5"
 zip = "2.2"
+serde = "1.0"
+serde_json = "1.0"
+tauri = { version = "2.2", features = ["macos-private-api", "unstable"] }
+tauri-build = "2.0"
+tauri-plugin-os = "2.2"
+tauri-plugin-log = "2.2"
+tauri-plugin-http = { version = "2.3", features = ["json", "stream"] }
+tauri-plugin-shell = "2.2"
+tauri-plugin-store = "2.0"
+tauri-plugin-single-instance = "2.2"
+tauri-plugin-prevent-default = "1.0"
 
-#
 utils = { path = "src/utils" }
+command = { path = "src/command" }
+account = { path = "src/account" }
+install = { path = "src/install" }
+task_manager = { path = "src/task_manager" }
 
 [profile.release]
 panic = "abort"

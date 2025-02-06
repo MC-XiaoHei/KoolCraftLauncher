@@ -1,7 +1,7 @@
-use crate::install::manager::task::Task;
 use serde::Serialize;
 use std::sync::Arc;
 use tokio::sync::Semaphore;
+use crate::task::Task;
 
 pub struct TaskSection {
 	name: String,
