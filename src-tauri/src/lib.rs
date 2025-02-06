@@ -3,6 +3,12 @@ use tauri::{Builder, Manager, Wry};
 use utils::window::setup_window;
 use utils::window::vibrancy::VibrancyStateStore;
 
+mod account;
+mod command;
+mod install;
+mod task_manager;
+mod utils;
+
 macro_rules! add_plugins {
     ($builder:expr, $($plugin:expr),*) => {
         {

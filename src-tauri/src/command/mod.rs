@@ -1,8 +1,8 @@
 use tauri::{Builder, Wry};
-use crate::window::*;
-use crate::account::*;
-use crate::task_manager::*;
-use crate::install::*;
+use crate::command::window::*;
+use crate::command::account::*;
+use crate::command::task_manager::*;
+use crate::command::install::*;
 
 mod window;
 mod account;

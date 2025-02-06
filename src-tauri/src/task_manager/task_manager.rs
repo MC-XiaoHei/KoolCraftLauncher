@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
-use crate::task_group::{TaskGroup, TaskGroupInfo};
+use crate::task_manager::task_group::{TaskGroup, TaskGroupInfo};
 
 pub struct TaskManager {
 	max_concurrency: AtomicUsize,

@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use crate::task_manager::TaskManager;
+use crate::task_manager::task_manager::TaskManager;
 
 pub mod download_task;
 pub mod task;

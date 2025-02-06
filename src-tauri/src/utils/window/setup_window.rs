@@ -1,6 +1,5 @@
+use crate::utils::window::vibrancy::*;
 use tauri::App;
-
-use crate::window::vibrancy::*;
 #[cfg(any(target_os = "macos", target_os = "windows"))]
 use tauri::Manager;
 #[cfg(target_os = "windows")]

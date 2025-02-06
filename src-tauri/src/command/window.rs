@@ -1,7 +1,7 @@
 use tauri::State;
 use tauri_plugin_os::Version::Semantic;
-use utils::window::setup_window;
-use utils::window::vibrancy::VibrancyStateStore;
+use crate::utils::window::setup_window;
+use crate::utils::window::vibrancy::VibrancyStateStore;
 
 #[tauri::command]
 pub fn get_vibrancy_state(state: State<'_, VibrancyStateStore>) -> String {

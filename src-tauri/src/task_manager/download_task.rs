@@ -7,8 +7,8 @@ use tauri_plugin_http::reqwest;
 use tauri_plugin_http::reqwest::Url;
 use tokio::fs::{create_dir_all, remove_file, File};
 use tokio::io::AsyncWriteExt;
-use utils::network::HTTP_CLIENT;
-use crate::task::Task;
+use crate::utils::network::HTTP_CLIENT;
+use crate::task_manager::task::Task;
 
 pub struct DownloadTask {
 	size: Option<u64>,

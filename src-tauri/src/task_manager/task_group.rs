@@ -5,7 +5,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::sync::Semaphore;
 use uuid::Uuid;
-use crate::task_section::{TaskSection, TaskSectionInfo};
+use crate::task_manager::task_section::{TaskSection, TaskSectionInfo};
 
 pub struct TaskGroup {
 	id: String,

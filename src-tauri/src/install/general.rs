@@ -2,14 +2,14 @@ use anyhow::Result;
 use futures::future::try_join3;
 use std::sync::Arc;
 use tokio::task::JoinHandle;
-use task_manager::download_task::DownloadTask;
-use task_manager::task::Task;
-use task_manager::task_group::TaskGroup;
-use task_manager::TASK_MANAGER;
-use task_manager::task_section::TaskSection;
-use crate::asset_index_json_schema::AssetIndexJson;
-use crate::utils::{unzip_natives, wait_task_section};
-use crate::version_json_schema::VersionJson;
+use crate::task_manager::download_task::DownloadTask;
+use crate::task_manager::task::Task;
+use crate::task_manager::task_group::TaskGroup;
+use crate::task_manager::TASK_MANAGER;
+use crate::task_manager::task_section::TaskSection;
+use crate::install::asset_index_json_schema::AssetIndexJson;
+use crate::install::utils::{unzip_natives, wait_task_section};
+use crate::install::version_json_schema::VersionJson;
 
 pub async fn install_vanilla(
 	ver_json_url: String,

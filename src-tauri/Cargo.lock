@@ -3,19 +3,6 @@
 version = 4
 
 [[package]]
-name = "account"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "serde",
- "serde_json",
- "sys-locale",
- "tauri",
- "tauri-plugin-http",
- "tauri-plugin-store",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -703,18 +690,6 @@ checksum = "ba5a308b75df32fe02788e748662718f03fde005016435c444eea572398219fd"
 dependencies = [
  "bytes",
  "memchr",
-]
-
-[[package]]
-name = "command"
-version = "0.1.0"
-dependencies = [
- "account",
- "install",
- "task_manager",
- "tauri",
- "tauri-plugin-os",
- "utils",
 ]
 
 [[package]]
@@ -2175,19 +2150,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "install"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "futures",
- "serde",
- "serde_json",
- "task_manager",
- "tokio",
- "zip",
-]
-
-[[package]]
 name = "ipnet"
 version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2334,10 +2296,16 @@ dependencies = [
 name = "kool-craft-launcher"
 version = "0.1.0"
 dependencies = [
- "command",
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "futures",
+ "lazy_static",
  "log",
+ "parking_lot",
  "serde",
  "serde_json",
+ "sys-locale",
  "tauri",
  "tauri-build",
  "tauri-plugin-http",
@@ -2347,8 +2315,10 @@ dependencies = [
  "tauri-plugin-shell",
  "tauri-plugin-single-instance",
  "tauri-plugin-store",
- "utils",
+ "tokio",
+ "uuid",
  "window-vibrancy",
+ "zip",
 ]
 
 [[package]]
@@ -4444,23 +4414,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "61c41af27dd6d1e27b1b16b489db798443478cef1f06a660c96db617ba5de3b1"
 
 [[package]]
-name = "task_manager"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "chrono",
- "futures",
- "lazy_static",
- "parking_lot",
- "serde",
- "tauri-plugin-http",
- "tokio",
- "utils",
- "uuid",
-]
-
-[[package]]
 name = "tauri"
 version = "2.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5307,17 +5260,6 @@ name = "utf8_iter"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
-
-[[package]]
-name = "utils"
-version = "0.1.0"
-dependencies = [
- "lazy_static",
- "tauri",
- "tauri-plugin-http",
- "tauri-plugin-os",
- "window-vibrancy",
-]
 
 [[package]]
 name = "uuid"

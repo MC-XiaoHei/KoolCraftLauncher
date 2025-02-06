@@ -12,65 +12,36 @@ name = "kcl"
 crate-type = ["rlib", "cdylib", "staticlib"]
 
 [dependencies]
-log = { workspace = true }
-tauri = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-tauri-plugin-os = { workspace = true }
-tauri-plugin-log = { workspace = true }
-tauri-plugin-http = { workspace = true }
-tauri-plugin-shell = { workspace = true }
-tauri-plugin-store = { workspace = true }
-tauri-plugin-single-instance = { workspace = true }
-tauri-plugin-prevent-default = { workspace = true }
-
-utils = { workspace = true }
-command = { path = "src/command" }
-
-[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
-tauri-plugin-prevent-default = { workspace = true }
-tauri-plugin-single-instance = { workspace = true }
-
-[target.'cfg(any(target_os = "macos", windows))'.dependencies]
-window-vibrancy = { workspace = true }
-
-[build-dependencies]
-tauri-build = { workspace = true, features = [] }
-
-[workspace]
-members = [
-  "src/account",
-  "src/command",
-  "src/install",
-  "src/task_manager",
-  "src/utils"
-]
-
-[workspace.dependencies]
 log = "0.4"
 tokio = "1.43"
 futures = "0.3"
 anyhow = "1.0"
-chrono = { version = "0.4", features = ["serde"] }
+async-trait = "0.1"
 lazy_static = "1.5"
-window-vibrancy = "0.5"
 zip = "2.2"
+parking_lot = { version = "0.12", features = ["deadlock_detection"] }
+chrono = { version = "0.4", features = ["serde"] }
+sys-locale = "0.3"
+uuid = { version = "1.13", features = ["v7", "fast-rng"] }
 serde = "1.0"
 serde_json = "1.0"
 tauri = { version = "2.2", features = ["macos-private-api", "unstable"] }
-tauri-build = "2.0"
 tauri-plugin-os = "2.2"
 tauri-plugin-log = "2.2"
 tauri-plugin-http = { version = "2.3", features = ["json", "stream"] }
 tauri-plugin-shell = "2.2"
 tauri-plugin-store = "2.0"
+
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2.2"
 tauri-plugin-prevent-default = "1.0"
 
-utils = { path = "src/utils" }
-account = { path = "src/account" }
-install = { path = "src/install" }
-task_manager = { path = "src/task_manager" }
+[target.'cfg(any(target_os = "macos", windows))'.dependencies]
+window-vibrancy = "0.5"
+
+[build-dependencies]
+tauri-build = "2.0"
 
 [profile.release]
 panic = "abort"

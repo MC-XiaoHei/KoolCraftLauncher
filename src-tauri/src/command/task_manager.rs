@@ -1,5 +1,5 @@
-use task_manager::task_group::TaskGroupInfo;
-use task_manager::TASK_MANAGER;
+use crate::task_manager::task_group::TaskGroupInfo;
+use crate::task_manager::TASK_MANAGER;
 
 #[tauri::command]
 pub fn get_task_group_infos() -> Vec<TaskGroupInfo> {

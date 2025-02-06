@@ -1,5 +1,5 @@
 use tauri::AppHandle;
-use account::microsoft::{close_microsoft_login_webview, open_microsoft_login_webview};
+use crate::account::microsoft::{close_microsoft_login_webview, open_microsoft_login_webview};
 
 #[tauri::command]
 pub async fn start_microsoft_login(app: AppHandle) {
