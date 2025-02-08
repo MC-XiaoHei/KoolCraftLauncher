@@ -17,9 +17,9 @@ pub async fn install_vanilla(
 	version_name: String,
 ) -> Result<()> {
 	let task_group = TASK_MANAGER.create_group(TaskGroup::new(format!(
-		"install-vanilla@{}@{}",
+		"install-vanilla/{}/{}",
 		version_name, minecraft_dir
-	)));
+	)))?;
 	let semaphore = TASK_MANAGER.get_semaphore();
 
 	let download_version_json_task_section = build_resolve_version_json_task_section(

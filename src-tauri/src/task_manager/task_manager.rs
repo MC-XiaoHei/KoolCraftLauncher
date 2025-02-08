@@ -55,10 +55,14 @@ impl TaskManager {
 			.collect()
 	}
 	
-	pub fn create_group(&self, group: TaskGroup) -> Arc<TaskGroup> {
+	pub fn create_group(&self, group: TaskGroup) -> anyhow::Result<Arc<TaskGroup>> {
+		let mut groups = self.groups.lock();
+		if groups.iter().any(|g| g.get_name() == group.get_name()) {
+			return Err(anyhow::anyhow!("Group with the same name already exists"));
+		}
 		let group = Arc::new(group);
-		self.groups.lock().push(group.clone());
-		group
+		groups.push(group.clone());
+		Ok(group)
 	}
 	
 	pub fn remove_group(&self, group: Arc<TaskGroup>) {

@@ -5,5 +5,4 @@ export const taskGroupInfos: Ref<TaskGroupInfo[]> = ref([]);
 
 export async function updateTaskGroupInfo() {
   taskGroupInfos.value = await invoke("get_task_group_infos") as TaskGroupInfo[];
-  console.log(taskGroupInfos.value);
 }

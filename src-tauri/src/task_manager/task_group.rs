@@ -27,6 +27,10 @@ impl TaskGroup {
 			canceling: AtomicBool::new(false),
 		}
 	}
+	
+	pub fn get_name(&self) -> String {
+		self.name.clone()
+	}
 
 	pub fn get_id(&self) -> String {
 		self.id.clone()

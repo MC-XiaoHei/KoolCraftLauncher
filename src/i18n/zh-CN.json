@@ -101,6 +101,8 @@
     "install": {
       "title": "安装管理",
       "label": {
+        "no-task": "暂无安装任务",
+        "install": "正在安装"
       }
     },
     "dynamic": {
