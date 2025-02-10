@@ -81,7 +81,7 @@ impl Task for DownloadTask {
 				.await
 				.context("Failed to write chunk to file")?;
 			let progress_percent = if let Some(total) = self.size {
-				downloaded / total
+				downloaded * 100 / total
 			} else {
 				50
 			} as u8;
