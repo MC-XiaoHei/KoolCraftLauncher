@@ -28,13 +28,13 @@ macro_rules! add_plugins {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
 	// This should be called as early in the execution of the app as possible
-	#[cfg(debug_assertions)]
+	#[cfg(dev)]
 	let devtools = tauri_plugin_devtools::init();
 	let builder = add_plugins!(
 		// tauri builder
 		Builder::default(),
 		// plugins
-		#[cfg(all(debug_assertions, not(mobile)))]
+		#[cfg(all(dev, not(mobile)))]
 		devtools,
 		#[cfg(not(mobile))]
 		single_instance_plugin(),
@@ -49,7 +49,7 @@ pub fn run() {
 	)
 	.manage(VibrancyStateStore::new())
 	.setup(|app| {
-		#[cfg(debug_assertions)]
+		#[cfg(dev)]
 		open_vue_devtools(app);
 		let vibrancy_state = setup_window::setup_window(app).unwrap();
 		app.state::<VibrancyStateStore>().set(vibrancy_state);
@@ -64,7 +64,7 @@ fn prevent_default_plugin() -> TauriPlugin<Wry> {
 	use tauri_plugin_prevent_default::Flags;
 	let flags = Flags::all();
 
-	#[cfg(debug_assertions)]
+	#[cfg(dev)]
 	let flags = flags.difference(Flags::DEV_TOOLS | Flags::RELOAD);
 
 	tauri_plugin_prevent_default::Builder::new()
