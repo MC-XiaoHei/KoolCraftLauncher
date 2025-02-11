@@ -7,7 +7,6 @@
   "permissions": [
     "core:event:allow-listen",
     "core:event:default",
-    "log:default",
     {
       "identifier": "http:default",
       "allow": [
