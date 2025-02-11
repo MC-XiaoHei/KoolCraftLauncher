@@ -151,50 +151,52 @@ pub async fn open_microsoft_login_webview(app: AppHandle) {
 		}
 	});
 	let app_clone = app.clone();
-	let webview_builder = webview_builder.on_navigation(move |url| {
-		if url.host_str() != Some("login.live.com")
-			|| url.path() != "/oauth20_desktop.srf"
-			|| url.scheme() != "https"
-		{
-			return true;
-		}
-		app_clone
-			.get_window(MS_LOGIN_WINDOW_ID)
-			.unwrap()
-			.close()
-			.unwrap();
-		let query_pairs: Vec<(String, String)> = url
-			.query_pairs()
-			.map(|(k, v)| (k.to_string(), v.to_string()))
-			.collect();
-		match query_pairs.iter().find(|(key, _)| key == "code") {
-			Some((_, code)) => {
-				let code_clone = code.clone();
-				update_login_status(
-					&app_clone,
-					MicrosoftLoginStatus::Authenticating,
-					None,
-					None,
-					None,
-				);
-				let app_clone = app_clone.clone();
-				tauri::async_runtime::spawn(async move {
-					do_auth(app_clone, &code_clone).await;
-				});
+	let webview_builder = webview_builder
+		.on_navigation(move |url| {
+			if url.host_str() != Some("login.live.com")
+				|| url.path() != "/oauth20_desktop.srf"
+				|| url.scheme() != "https"
+			{
+				return true;
 			}
-			None => update_login_status(
-				&app_clone,
-				MicrosoftLoginStatus::Error,
-				None,
-				None,
-				Some(MicrosoftLoginError {
-					error_type: MicrosoftLoginErrorType::OAuthError,
-					message: "oauth code do not exist".to_string(),
-				}),
-			),
-		}
-		false
-	});
+			app_clone
+				.get_window(MS_LOGIN_WINDOW_ID)
+				.unwrap()
+				.close()
+				.unwrap();
+			let query_pairs: Vec<(String, String)> = url
+				.query_pairs()
+				.map(|(k, v)| (k.to_string(), v.to_string()))
+				.collect();
+			match query_pairs.iter().find(|(key, _)| key == "code") {
+				Some((_, code)) => {
+					let code_clone = code.clone();
+					update_login_status(
+						&app_clone,
+						MicrosoftLoginStatus::Authenticating,
+						None,
+						None,
+						None,
+					);
+					let app_clone = app_clone.clone();
+					tauri::async_runtime::spawn(async move {
+						do_auth(app_clone, &code_clone).await;
+					});
+				}
+				None => update_login_status(
+					&app_clone,
+					MicrosoftLoginStatus::Error,
+					None,
+					None,
+					Some(MicrosoftLoginError {
+						error_type: MicrosoftLoginErrorType::OAuthError,
+						message: "oauth code do not exist".to_string(),
+					}),
+				),
+			}
+			false
+		})
+		.auto_resize();
 	let _ = window.add_child(
 		webview_builder,
 		LogicalPosition::new(0, 0),

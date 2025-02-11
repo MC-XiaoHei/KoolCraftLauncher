@@ -1,15 +1,17 @@
 use crate::context::generate_context;
 use tauri::plugin::TauriPlugin;
-use tauri::{App, Builder, LogicalPosition, Manager, WebviewBuilder, WebviewUrl, WindowBuilder, Wry};
+use tauri::{
+	App, Builder, LogicalPosition, Manager, WebviewBuilder, WebviewUrl, WindowBuilder, Wry,
+};
 use utils::window::setup_window;
 use utils::window::vibrancy::VibrancyStateStore;
 
 mod account;
 mod command;
+mod context;
 mod install;
 mod task_manager;
 mod utils;
-mod context;
 
 macro_rules! add_plugins {
     ($builder:expr, $($plugin:expr),*) => {
@@ -80,14 +82,15 @@ fn single_instance_plugin() -> TauriPlugin<Wry> {
 }
 
 fn open_vue_devtools(app: &App) {
-	let window_id = "vue-devtools";
-	if let Ok(window) = WindowBuilder::new(app, window_id)
+	if let Ok(window) = WindowBuilder::new(app, "vue-devtools")
 		.title("Vue Devtools")
-		.build() {
+		.build()
+	{
 		let webview_builder = WebviewBuilder::new(
-			window_id,
+			"vue-devtools-webview",
 			WebviewUrl::App("/__devtools__/".parse().unwrap()),
-		);
+		)
+		.auto_resize();
 		let _ = window.add_child(
 			webview_builder,
 			LogicalPosition::new(0, 0),
