@@ -2,12 +2,14 @@ use tauri::plugin::TauriPlugin;
 use tauri::{Builder, Manager, Wry};
 use utils::window::setup_window;
 use utils::window::vibrancy::VibrancyStateStore;
+use crate::context::generate_context;
 
 mod account;
 mod command;
 mod install;
 mod task_manager;
 mod utils;
+mod context;
 
 macro_rules! add_plugins {
     ($builder:expr, $($plugin:expr),*) => {
@@ -27,11 +29,15 @@ pub fn run() {
 		// tauri builder
 		Builder::default(),
 		// plugins
+		#[cfg(not(mobile))]
 		single_instance_plugin(),
+		#[cfg(not(mobile))]
+		tauri_plugin_window_state::Builder::default().build(),
 		tauri_plugin_os::init(),
 		tauri_plugin_http::init(),
 		tauri_plugin_shell::init(),
 		tauri_plugin_store::Builder::new().build(),
+		#[cfg(not(mobile))]
 		prevent_default_plugin(),
 		log_plugin()
 	)
@@ -42,7 +48,7 @@ pub fn run() {
 		Ok(())
 	});
 	command::invoke_handler(builder)
-		.run(tauri::generate_context!())
+		.run(generate_context())
 		.expect("error while running tauri application");
 }
 

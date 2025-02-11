@@ -16,8 +16,6 @@
     "@tauri-apps/plugin-http": "^2.2.0",
     "@tauri-apps/plugin-log": "~2",
     "@tauri-apps/plugin-os": "~2.2.0",
-    "@tauri-apps/plugin-shell": "^2.2.0",
-    "@tauri-apps/plugin-store": "~2.2.0",
     "overlayscrollbars": "^2.10.1",
     "overlayscrollbars-vue": "^0.5.9",
     "pinia": "^2.3.1",
