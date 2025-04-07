@@ -1,0 +1,37 @@
+[package]
+name = "kool-craft-launcher"
+version = "0.1.0"
+description = "A Cool Minecraft Launcher"
+authors = ["MC_XiaoHei"]
+license-file = "LICENSE"
+edition = "2021"
+default-run = "kool-craft-launcher"
+
+[lib]
+name = "kcl"
+crate-type = ["rlib", "cdylib", "staticlib"]
+
+[dependencies]
+serde = "1.0"
+serde_json = "1.0"
+tauri = { version = "2.4", features = ["macos-private-api", "unstable"] }
+tauri-plugin-os = "2.2"
+tauri-plugin-http = "2.4"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2.2"
+tauri-plugin-prevent-default = "1.0"
+tauri-plugin-window-state = "2.0"
+
+[target.'cfg(any(target_os = "macos", windows))'.dependencies]
+window-vibrancy = "0.6"
+
+[build-dependencies]
+tauri-build = "2.0"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

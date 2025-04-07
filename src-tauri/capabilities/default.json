@@ -1,0 +1,20 @@
+{
+  "identifier": "default-capability",
+  "description": "Default Capabilities",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:event:allow-listen",
+    "core:event:default",
+    {
+      "identifier": "http:default",
+      "allow": [
+        "https://*"
+      ],
+      "deny": [
+        "http://*"
+      ]
+    }
+  ]
+}
