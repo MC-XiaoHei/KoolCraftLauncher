@@ -38,10 +38,10 @@ pub fn run() {
 	)
 	.manage(VibrancyStateStore::new())
 	.setup(|app| {
-		let vibrancy_state = setup_window::setup_window(app).unwrap();
-		app.state::<VibrancyStateStore>().set(vibrancy_state);
 		#[cfg(dev)]
 		open_vue_devtools(app);
+		let vibrancy_state = setup_window::setup_window(app).unwrap();
+		app.state::<VibrancyStateStore>().set(vibrancy_state);
 		Ok(())
 	});
 	command::invoke_handler(builder)

@@ -8,7 +8,16 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Button: typeof import('./src/components/ui/button/Button.vue')['default']
+    Icon: typeof import('./src/components/Icon.vue')['default']
+    Page: typeof import('./src/components/page/Page.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    ScrollablePage: typeof import('./src/components/page/ScrollablePage.vue')['default']
+    ScrollArea: typeof import('./src/components/ui/scroll-area/ScrollArea.vue')['default']
+    ScrollBar: typeof import('./src/components/ui/scroll-area/ScrollBar.vue')['default']
+    Spacer: typeof import('./src/components/utils/Spacer.vue')['default']
+    ThemeChangeButton: typeof import('./src/components/once/ThemeChangeButton.vue')['default']
+    WindowControlButtons: typeof import('./src/components/once/WindowControlButtons.vue')['default']
   }
 }

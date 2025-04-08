@@ -1,5 +1,6 @@
 import TailwindCSS from "@tailwindcss/vite";
 import Vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import VueRouter from "unplugin-vue-router/vite";
@@ -48,5 +49,11 @@ export default defineConfig(async () => ({
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
+  },
+  resolve: {
+    alias: [
+      {find: "@", replacement: resolve(__dirname, "src")},
+      {find: "@libs", replacement: resolve(__dirname, "src/lib")},
+    ],
   },
 }));
