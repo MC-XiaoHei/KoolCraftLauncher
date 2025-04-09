@@ -9,8 +9,7 @@
       <div class="h-9 flex" data-tauri-drag-region>
         <div class="flex items-center justify-center">
           <Button
-              class="rounded-none hover:bg-transparent [&:hover>svg]:text-gray-900 dark:[&:hover>svg]:text-gray-200"
-              variant="ghost"
+              variant="highlight"
               size="icon"
               :disabled="isRootRoute"
           >

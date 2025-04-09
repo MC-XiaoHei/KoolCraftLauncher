@@ -16,7 +16,8 @@ declare module 'vue' {
     ScrollablePage: typeof import('./src/components/page/ScrollablePage.vue')['default']
     ScrollArea: typeof import('./src/components/ui/scroll-area/ScrollArea.vue')['default']
     ScrollBar: typeof import('./src/components/ui/scroll-area/ScrollBar.vue')['default']
-    Spacer: typeof import('./src/components/utils/Spacer.vue')['default']
+    SkinViewer: typeof import('./src/components/SkinViewer.vue')['default']
+    Spacer: typeof import('./src/components/Spacer.vue')['default']
     ThemeChangeButton: typeof import('./src/components/once/ThemeChangeButton.vue')['default']
     WindowControlButtons: typeof import('./src/components/once/WindowControlButtons.vue')['default']
   }

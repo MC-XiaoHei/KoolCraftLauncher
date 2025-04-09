@@ -7,7 +7,7 @@ html, body, #app, main {
 }
 
 .custom-window {
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius);
   overflow: clip;
   background-color: var(--color-background);
@@ -20,6 +20,12 @@ html, body, #app, main {
 
 .font-minecraft {
   font-family: "Minecraft", serif;
+}
+
+.border {
+  /*noinspection CssUnresolvedCustomProperty*/
+  border-style: var(--tw-border-style);
+  border-width: 2px;
 }
 
 @custom-variant dark (&:is(.dark *));

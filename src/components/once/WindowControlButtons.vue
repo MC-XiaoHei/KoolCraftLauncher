@@ -1,17 +1,15 @@
 <template>
   <Button
-      class="rounded-none hover:bg-transparent [&:hover>svg]:text-gray-900 dark:[&:hover>svg]:text-gray-200"
       @click="minimize"
-      variant="ghost"
+      variant="highlight"
       size="icon"
   >
     <Minus class="text-gray-500 transition-colors" />
   </Button>
 
   <Button
-      class="rounded-none hover:bg-transparent [&:hover>svg]:text-gray-900 dark:[&:hover>svg]:text-gray-200"
       @click="close"
-      variant="ghost"
+      variant="highlight"
       size="icon"
   >
     <X class="text-gray-500 transition-colors" />

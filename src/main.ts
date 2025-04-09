@@ -1,9 +1,10 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
+// @ts-expect-error
 import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
 
-import "./index.css"
+import "./index.css";
 
 const router = createRouter({
   history: createWebHistory(),
