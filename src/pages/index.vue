@@ -1,8 +1,8 @@
 <template>
   <Page class="flex flex-col gap-3">
-    <div class="flex-grow flex flex-col group">
+    <div class="flex-grow flex flex-col">
       <SkinViewer class="flex-grow" />
-      <div class="h-3 w-full flex items-center justify-center gap-1">
+      <div class="w-full flex items-center justify-center group gap-1" @click="toAccountManage">
         <div>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
             <path fill="#ff5722" d="M6 6H22V22H6z" transform="rotate(-180 14 14)" />
@@ -14,13 +14,7 @@
         <div class="font-minecraft mb-0.5">
           MC_XiaoHei
         </div>
-        <Button
-            class="-ml-2 opacity-50 group-hover:opacity-100 transition-opacity duration-200"
-            variant="highlight"
-            size="icon"
-        >
-          <ArrowLeftRight class="size-5 text-gray-500 transition-colors" />
-        </Button>
+        <ArrowLeftRight class="size-4.5 text-gray-500 opacity-60 group-hover:opacity-100 transition-opacity" />
       </div>
     </div>
     <div class="h-12 flex gap-3">
@@ -56,4 +50,9 @@
 </template>
 <script setup lang="ts">
 import { ChevronsUp, Compass, LayoutGrid, ArrowLeftRight, Settings } from "lucide-vue-next";
+
+function toAccountManage() {
+  console.log("toAccountManage");
+  // TODO
+}
 </script>
