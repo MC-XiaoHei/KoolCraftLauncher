@@ -33,6 +33,7 @@
     "@tauri-apps/cli": "^2",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-vue": "^5.2.1",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.6.2",
     "unplugin-auto-import": "^19.1.2",
     "unplugin-vue-router": "^0.12.0",

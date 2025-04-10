@@ -15,9 +15,6 @@ function initSkinViewer() {
   const width = container?.clientWidth ?? canvas.clientWidth;
   const height = container?.clientHeight ?? canvas.clientHeight;
 
-  console.log("width", width);
-  console.log("height", height);
-
   skinViewer = new SkinViewer({
     canvas: canvas,
     width,

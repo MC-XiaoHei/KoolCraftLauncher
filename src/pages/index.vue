@@ -2,7 +2,7 @@
   <Page class="flex flex-col gap-3">
     <div class="flex-grow flex flex-col">
       <SkinViewer class="flex-grow" />
-      <div class="w-full flex items-center justify-center group gap-1" @click="toAccountManage">
+      <div class="w-full flex items-center justify-center gap-1 -ml-1.5" @click="toAccountManage">
         <div>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
             <path fill="#ff5722" d="M6 6H22V22H6z" transform="rotate(-180 14 14)" />
@@ -14,21 +14,23 @@
         <div class="font-minecraft mb-0.5">
           MC_XiaoHei
         </div>
-        <ArrowLeftRight class="size-4.5 text-gray-500 opacity-60 group-hover:opacity-100 transition-opacity" />
       </div>
     </div>
     <div class="h-12 flex gap-3">
+      <Button variant="outline" class="size-12">
+        <LayoutGrid stroke-width="1.5" class="size-6" />
+      </Button>
       <Button variant="outline" class="h-12 flex-grow justify-start">
         <Compass stroke-width="1.5" class="size-6" />
         <div class="text-lg pl-1">
-          探索
+          探索资源
         </div>
       </Button>
       <Button variant="outline" class="size-12">
         <Settings stroke-width="1.5" class="size-6" />
       </Button>
       <Button variant="outline" class="size-12">
-        <LayoutGrid stroke-width="1.5" class="size-6" />
+        <Users stroke-width="1.5" class="size-6" />
       </Button>
     </div>
     <div class="h-18 flex">
@@ -42,14 +44,27 @@
           </div>
         </div>
       </Button>
-      <Button variant="outline" class="h-18 w-12 rounded-l-none border-l-transparent!">
-        <ChevronsUp stroke-width="1.5" class="size-6" />
-      </Button>
+      <HoverCard>
+        <HoverCardTrigger as-child>
+          <Button variant="outline" class="h-18 w-12 rounded-l-none border-l-transparent!">
+            <LayoutList stroke-width="1.5" class="size-6" />
+          </Button>
+        </HoverCardTrigger>
+        <HoverCardContent class="mr-4.5 w-[calc(100vw-2.25rem)] max-h-[calc(100vh-8rem)] flex-col p-1">
+          <div class="py-2 px-3">
+            <MemoryBar
+                :system-total="16"
+                :system-used="3.2"
+                :allocated="4"
+            />
+          </div>
+        </HoverCardContent>
+      </HoverCard>
     </div>
   </Page>
 </template>
 <script setup lang="ts">
-import { ChevronsUp, Compass, LayoutGrid, ArrowLeftRight, Settings } from "lucide-vue-next";
+import { LayoutList, Compass, LayoutGrid, Settings, Users } from "lucide-vue-next";
 
 function toAccountManage() {
   console.log("toAccountManage");
