@@ -1,0 +1,107 @@
+name: dev-build.yml
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: latest
+          run_install: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: 'pnpm'
+
+      - name: Install Dependencies (Ubuntu-only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install Frontend Dependencies
+        run: pnpm install
+
+      - name: Cache Rust Dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Build App
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: ${{ matrix.args }}
+
+      - name: Upload Deb Artifacts (Linux-only)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'linux-deb'
+          path: '/home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/deb/*.deb'
+
+      - name: Upload Rpm Artifacts (Linux-only)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'linux-rpm'
+          path: '/home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/rpm/*.rpm'
+
+      - name: Upload AppImage Artifacts (Linux-only)
+        if: matrix.platform == 'ubuntu-22.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'linux-appimage'
+          path: '/home/runner/work/KoolCraftLauncher/KoolCraftLauncher/src-tauri/target/release/bundle/appimage/*.AppImage'
+
+      - name: Upload NSIS Artifacts (Windows-only)
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'windows-nsis'
+          path: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\bundle\nsis\*.exe'
+
+      - name: Upload Portable Artifacts (Windows-only)
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'windows-portable'
+          path: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe'
+
+      - name: Compress Windows Portable With UPX (Windows-only)
+        if: matrix.platform == 'windows-latest'
+        uses: svenstaro/upx-action@v2
+        with:
+          args: --best --lzma -9
+          file: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe'
+
+      - name: Upload Compressed Portable Artifacts (Windows-only)
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'windows-compressed-portable'
+          path: 'D:\a\KoolCraftLauncher\KoolCraftLauncher\src-tauri\target\release\kool-craft-launcher.exe'
