@@ -1,6 +1,5 @@
 import { createApp } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
-// @ts-expect-error
 import { routes } from "vue-router/auto-routes";
 import App from "./App.vue";
 

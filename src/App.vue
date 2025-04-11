@@ -12,6 +12,7 @@
               variant="highlight"
               size="icon"
               :disabled="isRootRoute"
+              @click="routeBack"
           >
             <ChevronLeft class="size-5 text-gray-500 transition-colors" />
           </Button>
@@ -25,11 +26,38 @@
         <ThemeChangeButton />
         <WindowControlButtons />
       </div>
-      <router-view />
+      <RouterView v-slot="{ Component, route }">
+        <transition :name="isRoutingBack() ? 'back' : 'to'">
+          <KeepAlive include="IndexPage">
+            <component :is="Component" :key="route.path" />
+          </KeepAlive>
+        </transition>
+      </RouterView>
     </div>
   </main>
 </template>
+<!--suppress CssUnusedSymbol -->
+<style>
+.to-enter-active, .to-leave-active {
+  transition: transform 100ms ease, opacity 100ms ease;
+}
+
+.to-enter, .to-leave-to {
+  transform: translateX(-5%);
+  opacity: 0;
+}
+
+.back-enter-active, .back-leave-active {
+  transition: transform 100ms ease, opacity 100ms ease;
+}
+
+.back-enter, .back-leave-to {
+  transform: translateX(5%);
+  opacity: 0;
+}
+</style>
 <script setup lang="ts">
+import { isRoutingBack, routeBack, routerRef } from "@/lib/router.ts";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { ChevronLeft } from "lucide-vue-next";
@@ -58,5 +86,6 @@ invoke("should_custom_window").then((shouldCustom) => {
 
 onMounted(() => {
   appWindow.show();
+  routerRef.value = router;
 });
 </script>

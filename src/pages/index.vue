@@ -1,7 +1,10 @@
 <template>
   <Page class="flex flex-col gap-3">
     <div class="flex-grow flex flex-col">
-      <SkinViewer class="flex-grow" />
+      <KeepAlive name="index-skin-viewer-keepalive">
+        <SkinViewer class="flex-grow" />
+      </KeepAlive>
+
       <div class="w-full flex items-center justify-center gap-1 -ml-1.5" @click="toAccountManage">
         <div>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
@@ -34,23 +37,20 @@
       </Button>
     </div>
     <div class="h-18 flex">
-      <Button variant="outline" class="h-18 flex-grow rounded-r-none">
-        <div class="size-full flex flex-col items-start justify-center">
-          <div class="text-[1.35rem]">
-            启动游戏
-          </div>
-          <div class="text-muted-foreground">
-            1.21.5-RE:Vanilla
-          </div>
-        </div>
-      </Button>
       <HoverCard>
         <HoverCardTrigger as-child>
-          <Button variant="outline" class="h-18 w-12 rounded-l-none border-l-transparent!">
-            <LayoutList stroke-width="1.5" class="size-6" />
+          <Button variant="outline" class="h-18 flex-grow rounded-r-none">
+            <div class="size-full flex flex-col items-start justify-center">
+              <div class="text-[1.35rem]">
+                启动游戏
+              </div>
+              <div class="text-muted-foreground">
+                1.21.5-RE:Vanilla
+              </div>
+            </div>
           </Button>
         </HoverCardTrigger>
-        <HoverCardContent class="mr-4.5 w-[calc(100vw-2.25rem)] max-h-[calc(100vh-8rem)] flex-col p-1">
+        <HoverCardContent class="ml-4.5 w-[calc(100vw-2.25rem)] max-h-[calc(100vh-8rem)] flex-col p-1">
           <div class="py-2 px-3">
             <MemoryBar
                 :system-total="16"
@@ -60,14 +60,26 @@
           </div>
         </HoverCardContent>
       </HoverCard>
+      <Button
+          variant="outline"
+          class="h-18 w-12 rounded-l-none border-l-transparent!"
+          @click="routeTo('/game')"
+      >
+        <LayoutList stroke-width="1.5" class="size-6" />
+      </Button>
     </div>
   </Page>
 </template>
 <script setup lang="ts">
-import { LayoutList, Compass, LayoutGrid, Settings, Users } from "lucide-vue-next";
+import { routeTo } from "@/lib/router.ts";
+import { Compass, LayoutGrid, LayoutList, Settings, Users } from "lucide-vue-next";
 
 function toAccountManage() {
   console.log("toAccountManage");
   // TODO
 }
+
+defineOptions({
+  name: "IndexPage",
+});
 </script>
