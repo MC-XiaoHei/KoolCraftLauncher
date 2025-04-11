@@ -77,6 +77,7 @@ fn window_state_plugin() -> TauriPlugin<Wry> {
 		.build()
 }
 
+#[cfg(dev)]
 fn open_vue_devtools(app: &App) {
 	if let Ok(window) = WindowBuilder::new(app, "vue-devtools")
 		.title("Vue Devtools")
