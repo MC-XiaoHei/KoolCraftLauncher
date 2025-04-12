@@ -1,10 +1,9 @@
 use crate::window::setup_window;
 use crate::window::vibrancy::VibrancyStateStore;
 use tauri::plugin::TauriPlugin;
-use tauri::{
-	generate_context, App, Builder, LogicalPosition, Manager, WebviewBuilder, WebviewUrl,
-	WindowBuilder, Wry,
-};
+use tauri::{generate_context, Builder, Manager, Wry};
+#[cfg(dev)]
+use tauri::{App, LogicalPosition, WebviewBuilder, WebviewUrl, WindowBuilder};
 
 mod command;
 mod window;
