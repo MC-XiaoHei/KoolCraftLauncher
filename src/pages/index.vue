@@ -72,7 +72,6 @@
 <script setup lang="ts">
 import { routeTo } from "@/lib/router.ts";
 import { Compass, LayoutGrid, LayoutList, Settings, Users } from "lucide-vue-next";
-import { SkinView3d } from "vue-skinview3d";
 
 function toAccountManage() {
   console.log("toAccountManage");
