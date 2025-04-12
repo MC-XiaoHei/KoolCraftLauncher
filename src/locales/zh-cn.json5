@@ -1,0 +1,16 @@
+{
+  pages: {
+    index: {
+    },
+    discover: {
+      index: {
+        title: "探索资源",
+      }
+    },
+    version: {
+      index: {
+        title: "版本列表"
+      }
+    }
+  }
+}

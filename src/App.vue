@@ -18,9 +18,14 @@
           </Button>
         </div>
         <div class="flex flex-col items-start justify-center">
-          <div class="font-minecraft pb-0.5" data-tauri-drag-region>
-            KCl
-          </div>
+          <transition :name="isRoutingBack() ? 'back' : 'to'" mode="out-in">
+            <div class="font-minecraft pb-0.5" data-tauri-drag-region v-if="isRootRoute" key="index">
+              KCl
+            </div>
+            <div class="pb-0.5" data-tauri-drag-region v-else :key="title">
+              {{ title }}
+            </div>
+          </transition>
         </div>
         <Spacer data-tauri-drag-region />
         <ThemeChangeButton />
@@ -36,6 +41,7 @@
     </div>
   </main>
 </template>
+
 <!--suppress CssUnusedSymbol -->
 <style>
 .to-enter-active, .to-leave-active {
@@ -56,20 +62,29 @@
   opacity: 0;
 }
 </style>
+
 <script setup lang="ts">
-import { isRoutingBack, routeBack, routerRef } from "@/lib/router.ts";
+import { isRoutingBack, path, routeBack, routerRef } from "@/lib/router.ts";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { ChevronLeft } from "lucide-vue-next";
 import { onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 
+const {t} = useI18n();
 const appWindow = getCurrentWindow();
 const router = useRouter();
 const shouldTransparentBody = ref(false);
 const shouldCustomWindow = ref(false);
-
 const isRootRoute = computed(() => {
   return router.currentRoute.value.path === "/";
+});
+const title = computed(() => {
+  if (!isRootRoute.value) {
+    return t(`pages.${ path.value }.title`);
+  } else {
+    return "";
+  }
 });
 
 invoke("get_vibrancy_state").then((vibrancyState) => {

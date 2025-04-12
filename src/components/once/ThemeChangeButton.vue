@@ -1,3 +1,14 @@
+<template>
+  <Button variant="ghost"
+          size="icon"
+          @click="toggleTheme"
+          class="rounded-none hover:bg-transparent [&:hover>svg]:text-gray-900 dark:[&:hover>svg]:text-gray-200">
+    <SunMedium class="h-[1.2rem] w-[1.2rem] scale-100 dark:scale-0 text-gray-500 transition-colors" />
+    <Moon class="absolute h-[1.2rem] w-[1.2rem] scale-0 dark:scale-100 text-gray-500 transition-colors" />
+    <span class="sr-only">Toggle theme</span>
+  </Button>
+</template>
+
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
 import { useColorMode } from "@vueuse/core";
@@ -11,14 +22,3 @@ const toggleTheme = () => {
   mode.value = isDark.value ? "dark" : "light";
 };
 </script>
-
-<template>
-  <Button variant="ghost"
-          size="icon"
-          @click="toggleTheme"
-          class="rounded-none hover:bg-transparent [&:hover>svg]:text-gray-900 dark:[&:hover>svg]:text-gray-200">
-    <SunMedium class="h-[1.2rem] w-[1.2rem] scale-100 dark:scale-0 text-gray-500 transition-colors" />
-    <Moon class="absolute h-[1.2rem] w-[1.2rem] scale-0 dark:scale-100 text-gray-500 transition-colors" />
-    <span class="sr-only">Toggle theme</span>
-  </Button>
-</template>

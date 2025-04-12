@@ -22,7 +22,7 @@
       <Button variant="outline" class="size-12">
         <LayoutGrid stroke-width="1.5" class="size-6" />
       </Button>
-      <Button variant="outline" class="h-12 flex-grow justify-start">
+      <Button variant="outline" class="h-12 flex-grow justify-start" @click="routeTo('/discover')">
         <Compass stroke-width="1.5" class="size-6" />
         <div class="text-lg pl-1">
           探索资源
@@ -62,13 +62,14 @@
       <Button
           variant="outline"
           class="h-18 w-12 rounded-l-none border-l-transparent!"
-          @click="routeTo('/game')"
+          @click="routeTo('/version')"
       >
         <LayoutList stroke-width="1.5" class="size-6" />
       </Button>
     </div>
   </Page>
 </template>
+
 <script setup lang="ts">
 import { routeTo } from "@/lib/router.ts";
 import { Compass, LayoutGrid, LayoutList, Settings, Users } from "lucide-vue-next";

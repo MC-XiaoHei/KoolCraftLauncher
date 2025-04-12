@@ -18,6 +18,7 @@
     />
   </div>
 </template>
+
 <script setup lang="ts">
 import { getAnimation, getSkinViewerConfig } from "@/lib/index-skin-viewer-config.ts";
 import { useEventListener } from "@vueuse/core";

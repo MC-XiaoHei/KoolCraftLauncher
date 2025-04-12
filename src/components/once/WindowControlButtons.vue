@@ -15,6 +15,7 @@
     <X class="text-gray-500 transition-colors" />
   </Button>
 </template>
+
 <script setup lang="ts">
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Minus, X } from "lucide-vue-next";

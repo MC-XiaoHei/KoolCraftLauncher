@@ -8,6 +8,7 @@ enum RoutingDirection {
 
 const routingDirection = ref(RoutingDirection.Go);
 export const routerRef = ref<Router | undefined>(undefined);
+export const path = ref<string>("index");
 
 function getRouter(): UnwrapRef<Router> {
   return routerRef.value! as UnwrapRef<Router>;

@@ -1,3 +1,34 @@
+<template>
+  <div class="relative w-full" :class="props.class">
+    <div class="relative w-full h-[18px] mb-1.5">
+      <div class="absolute text-[0.7rem] text-muted-foreground whitespace-nowrap left-0 select-none">
+        系统已用
+      </div>
+      <div class="absolute text-[0.7rem] text-muted-foreground whitespace-nowrap right-0 select-none">
+        游戏分配
+      </div>
+    </div>
+
+    <MultiProgress
+        height="6px"
+        :segments="[
+          { value: systemUsedPercentage, color: 'primary' },
+          { value: systemUsedPercentage + allocatedPercentage, color: 'ring' }
+        ]"
+        class="w-full"
+    />
+
+    <div class="relative w-full h-[18px] mt-1.5">
+      <div class="absolute text-[0.75rem] font-medium whitespace-nowrap left-0 select-none">
+        {{ formatMemory(systemUsed) }}
+      </div>
+      <div class="absolute text-[0.75rem] font-medium whitespace-nowrap right-0 select-none">
+        {{ formatMemory(allocated) }}
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
 import { computed } from "vue";
@@ -29,34 +60,3 @@ function formatMemory(value: number) {
   return `${ value.toFixed(1) } GB`;
 }
 </script>
-
-<template>
-  <div class="relative w-full" :class="props.class">
-    <div class="relative w-full h-[18px] mb-1.5">
-      <div class="absolute text-[0.7rem] text-muted-foreground whitespace-nowrap left-0 select-none">
-        系统已用
-      </div>
-      <div class="absolute text-[0.7rem] text-muted-foreground whitespace-nowrap right-0 select-none">
-        游戏分配
-      </div>
-    </div>
-
-    <MultiProgress
-        height="6px"
-        :segments="[
-          { value: systemUsedPercentage, color: 'primary' },
-          { value: systemUsedPercentage + allocatedPercentage, color: 'ring' }
-        ]"
-        class="w-full"
-    />
-
-    <div class="relative w-full h-[18px] mt-1.5">
-      <div class="absolute text-[0.75rem] font-medium whitespace-nowrap left-0 select-none">
-        {{ formatMemory(systemUsed) }}
-      </div>
-      <div class="absolute text-[0.75rem] font-medium whitespace-nowrap right-0 select-none">
-        {{ formatMemory(allocated) }}
-      </div>
-    </div>
-  </div>
-</template>

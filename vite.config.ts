@@ -1,13 +1,14 @@
+import VueI18nPlugin from "@intlify/unplugin-vue-i18n/vite";
 import TailwindCSS from "@tailwindcss/vite";
 import Vue from "@vitejs/plugin-vue";
-import { resolve } from "path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import VueRouter from "unplugin-vue-router/vite";
 import { defineConfig } from "vite";
 import VueDevTools from "vite-plugin-vue-devtools";
 
-// @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vitejs.dev/config/
@@ -15,6 +16,9 @@ export default defineConfig(async () => ({
   plugins: [
     VueRouter(),
     Vue(),
+    VueI18nPlugin({
+      include: resolve(dirname(fileURLToPath(import.meta.url)), "./src/locales/**"),
+    }),
     TailwindCSS(),
     AutoImport({
       imports: [
