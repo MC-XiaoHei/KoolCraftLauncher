@@ -50,6 +50,9 @@ importers:
       vue-router:
         specifier: '4'
         version: 4.5.0(vue@3.5.13(typescript@5.6.3))
+      vue-skinview3d:
+        specifier: ^0.3.1
+        version: 0.3.1(vue@3.5.13(typescript@5.6.3))
     devDependencies:
       '@tauri-apps/cli':
         specifier: ^2
@@ -1420,6 +1423,9 @@ packages:
   skinview-utils@0.7.1:
     resolution: {integrity: sha512-4eLrMqR526ehlZbsd8SuZ/CHpS9GiH0xUMoV+PYlJVi95ZFz5HJu7Spt5XYa72DRS7wgt5qquvHZf0XZJgmu9Q==, tarball: https://registry.npmmirror.com/skinview-utils/-/skinview-utils-0.7.1.tgz}
 
+  skinview3d@3.0.1:
+    resolution: {integrity: sha512-2LUSkzGxlZrTQelGT10jcW4TLiFTg5aZqXMEuqAFoWtk3qtaNu0qRFtwK5dN8zEXyKUJ3xlxah5eGtKY/NifQg==, tarball: https://registry.npmmirror.com/skinview3d/-/skinview3d-3.0.1.tgz}
+
   skinview3d@3.1.0:
     resolution: {integrity: sha512-L+HXXAP4qYjLcY3YHasXKie9KXQpv/mPTMxgLOEd+hVQRdQkPs5xdWaKuOmlZY8UnyZzecQM7yrWRzgT/e7HZw==, tarball: https://registry.npmmirror.com/skinview3d/-/skinview3d-3.1.0.tgz}
 
@@ -1629,6 +1635,11 @@ packages:
     resolution: {integrity: sha512-HDuk+PuH5monfNuY+ct49mNmkCRK4xJAV9Ts4z9UFc4rzdDnxQLyCMGGc8pKhZhHTVzfanpNwB/lwqevcBwI4w==, tarball: https://registry.npmmirror.com/vue-router/-/vue-router-4.5.0.tgz}
     peerDependencies:
       vue: ^3.2.0
+
+  vue-skinview3d@0.3.1:
+    resolution: {integrity: sha512-zEJF91fmJDTeCaXIEE7wz87tIAbpEYEJyvlQIph/HC+c71tiumUoPJwbKuD2DAr0hquY5lGF9dwDyAU6A+jh4Q==, tarball: https://registry.npmmirror.com/vue-skinview3d/-/vue-skinview3d-0.3.1.tgz}
+    peerDependencies:
+      vue: ^3.3.4
 
   vue-tsc@2.2.8:
     resolution: {integrity: sha512-jBYKBNFADTN+L+MdesNX/TB3XuDSyaWynKMDgR+yCSln0GQ9Tfb7JS2lr46s2LiFUT1WsmfWsSvIElyxzOPqcQ==, tarball: https://registry.npmmirror.com/vue-tsc/-/vue-tsc-2.2.8.tgz}
@@ -2920,6 +2931,12 @@ snapshots:
 
   skinview-utils@0.7.1: {}
 
+  skinview3d@3.0.1:
+    dependencies:
+      '@types/three': 0.156.0
+      skinview-utils: 0.7.1
+      three: 0.156.1
+
   skinview3d@3.1.0:
     dependencies:
       '@types/three': 0.156.0
@@ -3129,6 +3146,11 @@ snapshots:
   vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
+      vue: 3.5.13(typescript@5.6.3)
+
+  vue-skinview3d@0.3.1(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      skinview3d: 3.0.1
       vue: 3.5.13(typescript@5.6.3)
 
   vue-tsc@2.2.8(typescript@5.6.3):

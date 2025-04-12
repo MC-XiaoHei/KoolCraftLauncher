@@ -2,9 +2,8 @@
   <Page class="flex flex-col gap-3">
     <div class="flex-grow flex flex-col">
       <KeepAlive name="index-skin-viewer-keepalive">
-        <SkinViewer class="flex-grow" />
+        <SkinViewer class="flex-grow" id="index-skin-viewer" />
       </KeepAlive>
-
       <div class="w-full flex items-center justify-center gap-1 -ml-1.5" @click="toAccountManage">
         <div>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px">
@@ -73,6 +72,7 @@
 <script setup lang="ts">
 import { routeTo } from "@/lib/router.ts";
 import { Compass, LayoutGrid, LayoutList, Settings, Users } from "lucide-vue-next";
+import { SkinView3d } from "vue-skinview3d";
 
 function toAccountManage() {
   console.log("toAccountManage");

@@ -31,7 +31,7 @@ function formatMemory(value: number) {
 </script>
 
 <template>
-  <div class="relative w-full">
+  <div class="relative w-full" :class="props.class">
     <div class="relative w-full h-[18px] mb-1.5">
       <div class="absolute text-[0.7rem] text-muted-foreground whitespace-nowrap left-0 select-none">
         系统已用
