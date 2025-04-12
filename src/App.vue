@@ -14,7 +14,7 @@
               :disabled="isRootRoute"
               @click="routeBack"
           >
-            <ChevronLeft class="size-5 text-gray-500 transition-colors" />
+            <Icon :path="mdiChevronLeft" />
           </Button>
         </div>
         <div class="flex flex-col items-start justify-center">
@@ -65,9 +65,9 @@
 
 <script setup lang="ts">
 import { isRoutingBack, path, routeBack, routerRef } from "@/lib/router.ts";
+import { mdiChevronLeft } from "@mdi/js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { ChevronLeft } from "lucide-vue-next";
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -80,7 +80,7 @@ const isRootRoute = computed(() => {
   return router.currentRoute.value.path === "/";
 });
 const title = computed(() => {
-  if (!isRootRoute.value) {
+  if (path.value !== "index") {
     return t(`pages.${ path.value }.title`);
   } else {
     return "";

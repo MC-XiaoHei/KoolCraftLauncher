@@ -1,10 +1,10 @@
 <template>
-  <Button variant="ghost"
+  <Button variant="highlight"
           size="icon"
           @click="toggleTheme"
-          class="rounded-none hover:bg-transparent [&:hover>svg]:text-gray-900 dark:[&:hover>svg]:text-gray-200">
-    <SunMedium class="h-[1.2rem] w-[1.2rem] scale-100 dark:scale-0 text-gray-500 transition-colors" />
-    <Moon class="absolute h-[1.2rem] w-[1.2rem] scale-0 dark:scale-100 text-gray-500 transition-colors" />
+          class="rounded-none hover:bg-transparent">
+    <SunMedium class="h-[1.2rem] w-[1.2rem] scale-100 dark:scale-0 opacity-50 transition-opacity" />
+    <Moon class="absolute h-[1.2rem] w-[1.2rem] scale-0 dark:scale-100 opacity-50 transition-opacity" />
     <span class="sr-only">Toggle theme</span>
   </Button>
 </template>

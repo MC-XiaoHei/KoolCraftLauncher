@@ -5,6 +5,20 @@
     discover: {
       index: {
         title: "探索资源",
+        categories: {
+          mods: {
+            title: "模组",
+            description: "用模组修改你的游戏吧！",
+          },
+          resourcePacks: {
+            title: "材质包",
+            description: "用材质包让你的游戏焕然一新！",
+          },
+          dataPacks: {
+            title: "数据包",
+            description: "用数据包修改你的游戏吧！",
+          },
+        }
       }
     },
     version: {
