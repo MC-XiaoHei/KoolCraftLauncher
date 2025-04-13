@@ -4,7 +4,7 @@
       variant="highlight"
       size="icon"
   >
-    <Icon :path="mdiMinus" />
+    <Minus />
   </Button>
 
   <Button
@@ -12,13 +12,13 @@
       variant="highlight"
       size="icon"
   >
-    <Icon :path="mdiClose" />
+    <X />
   </Button>
 </template>
 
 <script setup lang="ts">
-import { mdiClose, mdiMinus } from "@mdi/js";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { Minus, X } from "lucide-vue-next";
 
 const appWindow = getCurrentWindow();
 

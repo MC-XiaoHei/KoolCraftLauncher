@@ -1,12 +1,10 @@
 <template>
   <ScrollablePage class="flex flex-col gap-3">
     <Button variant="ghost" v-for="(category, index) in categories" :key="index" class="flex w-full h-12">
-      <Icon class="size-8" v-if="category.iconPath" :path="category.iconPath" />
       <component :size="32"
                  :strokeWidth="1.5"
                  class="size-8 opacity-80"
-                 :is="category.iconComponent"
-                 v-else-if="category.iconComponent"
+                 :is="category.icon"
       />
       <div class="flex-grow flex flex-col items-start">
         <span>
@@ -15,10 +13,8 @@
         <span class="opacity-50 text-xs -mt-1">
           {{ t(`pages.discover.index.categories.${ category.id }.description`) }}
         </span>
-
       </div>
     </Button>
-
   </ScrollablePage>
 </template>
 
@@ -35,22 +31,21 @@ onMounted(() => {
 
 interface DiscoverCategory {
   id: string;
-  iconPath?: string;
-  iconComponent?: any;
+  icon: any;
 }
 
 const categories: DiscoverCategory[] = [
   {
     id: "mods",
-    iconComponent: Box,
+    icon: Box,
   },
   {
     id: "resourcePacks",
-    iconComponent: Paintbrush,
+    icon: Paintbrush,
   },
   {
     id: "dataPacks",
-    iconComponent: Braces,
+    icon: Braces,
   },
 ];
 </script>

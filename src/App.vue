@@ -14,7 +14,7 @@
               :disabled="isRootRoute"
               @click="routeBack"
           >
-            <Icon :path="mdiChevronLeft" />
+            <ChevronLeft />
           </Button>
         </div>
         <div class="flex flex-col items-start justify-center">
@@ -65,9 +65,9 @@
 
 <script setup lang="ts">
 import { isRoutingBack, path, routeBack, routerRef } from "@/lib/router.ts";
-import { mdiChevronLeft } from "@mdi/js";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { ChevronLeft } from "lucide-vue-next";
 import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
