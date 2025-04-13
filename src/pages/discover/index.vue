@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { Button } from "@/components/ui/button";
 import { path } from "@/lib/router.ts";
-import { Box, Braces, ChevronRight, Glasses, PackageOpen, Paintbrush, Plug } from "lucide-vue-next";
+import { Blocks, Box, Braces, ChevronRight, Glasses, PackageOpen, Paintbrush } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 
 const {t} = useI18n();
@@ -68,7 +68,7 @@ const categories: DiscoverCategory[] = [
   },
   {
     id: "plugins",
-    icon: Plug,
+    icon: Blocks,
   },
 ];
 </script>
