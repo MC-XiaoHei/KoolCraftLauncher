@@ -8,16 +8,28 @@
         categories: {
           mods: {
             title: "模组",
-            description: "用模组修改你的游戏吧！",
+            description: "向游戏添加新功能或玩法",
           },
           resourcePacks: {
             title: "材质包",
-            description: "用材质包让你的游戏焕然一新！",
+            description: "改变游戏内方块和物品的外观",
           },
           dataPacks: {
             title: "数据包",
-            description: "用数据包修改你的游戏吧！",
+            description: "无须加载器即可添加新功能或玩法",
           },
+          shaders: {
+            title: "光影",
+            description: "改变游戏内光影渲染效果",
+          },
+          modPacks: {
+            title: "整合包",
+            description: "开箱即用的模组合集",
+          },
+          plugins: {
+            title: "启动器插件",
+            description: "为本启动器添加新功能",
+          }
         }
       }
     },

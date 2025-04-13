@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import VueRouter from "unplugin-vue-router/vite";
+import PackageVersion from 'vite-plugin-package-version';
 import { defineConfig } from "vite";
 import VueDevTools from "vite-plugin-vue-devtools";
 
@@ -30,6 +31,7 @@ export default defineConfig(async () => ({
     Components({
       dts: true,
     }),
+    PackageVersion(),
     VueDevTools(),
   ],
 

@@ -12,7 +12,7 @@ export const buttonVariants = cva(
         destructive:
           'bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
         outline:
-          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
+          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/70',
         secondary:
           'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
         ghost:
@@ -20,6 +20,8 @@ export const buttonVariants = cva(
         highlight:
           '[&:hover_*]:opacity-100 [&_*]:opacity-75 [&_*]:transition-opacity',
         link: 'text-primary underline-offset-4 hover:underline',
+        float:
+          'flex items-center gap-4 p-4 rounded-xl bg-background/5 border border-border/50 dark:border-border/100 cursor-pointer transition-all hover:translate-y-[-2px] hover:shadow-md hover:bg-background/10 hover:border-border/20',
       },
       size: {
         default: 'h-9 px-4 py-2 has-[>svg]:px-3',

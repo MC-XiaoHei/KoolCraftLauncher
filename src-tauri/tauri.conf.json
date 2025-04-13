@@ -1,6 +1,6 @@
 {
   "productName": "kool-craft-launcher",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "identifier": "cn.xor7.kcl",
   "build": {
     "beforeDevCommand": "pnpm dev:ui",
